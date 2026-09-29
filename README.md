@@ -1,42 +1,75 @@
 # Codex Pet for Termux
 
-A small, persistent robot overlay for Codex CLI on Android. Codex lifecycle hooks send short JSON events over a private Unix socket to one Termux:GUI daemon. The daemon keeps session state in memory; it does not poll Codex or start a GUI for each hook. Android notifications appear only when the overlay cannot be reached for approval or completion events.
+[简体中文使用指南](README.zh-CN.md)
 
-## Install
+A small robot that floats over Android apps and shows what Codex CLI is doing. Codex hooks send events through a private Unix socket to one Termux:GUI process. There is no polling, web server, or separate APK. Android notifications are used only when the overlay is unavailable for an approval or completion event.
 
-Requirements: Termux and the matching-signature Termux:GUI app. In Android settings enable **Termux:GUI → Advanced → Display over other apps**. The script installs `termuxgui` with pip if needed; it does not install an APK.
+## Install and first check
+
+1. Install Termux and Termux:GUI from compatible, matching-signature sources.
+2. In Android, enable **Termux:GUI → Advanced → Display over other apps**.
+3. In Termux, run:
+
+   ```sh
+   git clone https://github.com/suimenqx/termux-codex-pet.git ~/codex-pet
+   cd ~/codex-pet
+   ./install.sh
+   codex-pet status
+   codex-pet test
+   ```
+
+The installer installs Python and the official `termuxgui` Python binding if missing, creates the CLI links, merges the Pet hooks into the existing Codex configuration, starts the daemon, and runs an IPC smoke check. It backs up any Codex configuration file it changes. It does not install an Android APK or replace unrelated Codex settings. `codex-pet test` takes about 23 seconds and shows all six states before returning to idle.
+
+**For live Codex events:** restart Codex after installation. On Codex CLI 0.156.1, open `/hooks` in the new session and trust the Pet hook commands if prompted. The installer uses inline hooks in `~/.codex/config.toml` when that config already has hooks; otherwise it uses `~/.codex/hooks.json`. The install output reports which mode was used. You can inspect `~/.config/codex-pet/install.json` later. Pet hooks only observe events; they never approve or deny Codex actions.
+
+Submit a Codex prompt to see **Working**. If Codex requests permission, the Pet shows **Needs approval** until another lifecycle event arrives. When Codex finishes, it briefly shows **Done** and then returns to idle.
+
+## Daily use
 
 ```sh
-git clone https://github.com/suimenqx/termux-codex-pet.git ~/codex-pet
+codex-pet start       # start if needed; safe to run twice
+codex-pet stop        # close the overlay and daemon
+codex-pet restart     # reload the installed code and reconnect the overlay
+codex-pet status      # daemon, GUI connection, state, project, session counts
+codex-pet test        # cycle through all visual states
+```
+
+Tap the robot to open or close its activity card. The card shows the project, colored status, and a short message when available. It normally opens to the left and switches sides near the left edge. Approval and completion open it automatically; touching an automatic card keeps it open until you close it. Drag the robot to move it; after the drag begins, its center follows your finger. The position is saved in `~/.config/codex-pet/config.json` and restored after restart. The collapsed robot is about 64 dp wide.
+
+| State | What you see | When it changes |
+| --- | --- | --- |
+| Idle | Quiet robot | Session starts, ends, or a temporary state expires |
+| Working | Slow animation and elapsed time in the card | You submit a prompt |
+| Needs approval | Prominent alert and open card | Codex requests permission; remains until a later event |
+| Done | Completion feedback and open card | Codex stops; returns to idle after about 6 seconds |
+| Interrupted | Pause feedback | Turn is interrupted; returns to idle after about 4 seconds |
+| Error | Error icon | Available in `codex-pet test`; hooks do not guess failures |
+
+With multiple Codex sessions, approval takes priority over working, and the robot shows a count when two or more sessions are working.
+
+## Update
+
+The CLI links point into the cloned repository. After pulling new code, restart the daemon to load it:
+
+```sh
 cd ~/codex-pet
+git pull --ff-only origin main
 ./install.sh
-```
-
-The installer creates `~/.local/bin/codex-pet` and `~/.local/bin/codex-pet-event`, with links in Termux's `bin` directory so the commands are on `PATH`. Config lives under `~/.config/codex-pet/`, and the socket/log under `~/.cache/codex-pet/`. It backs up any Codex config file it changes. Existing Codex settings and unrelated hooks are retained. On Codex 0.156.1, hooks are enabled by default, but new hooks require review and trust. **Restart Codex, then run `/hooks` and trust the `~/.codex/hooks.json` hooks.** The Pet works through its CLI before that step.
-
-## Commands
-
-```sh
-codex-pet start       # safe to call repeatedly
-codex-pet stop
 codex-pet restart
-codex-pet status      # daemon, GUI, state, session count
-codex-pet test        # show every state in sequence
+codex-pet status
 ```
 
-Tap the Pet to open or close its compact activity card. The card shows the project, a colored status, and a short message when available. It normally opens on the left and moves to the right near the left edge. It opens automatically for approval and completion, then closes when those states end. Touching an automatic card keeps it open until you close it. Drag the Pet to a new position; while dragging, the robot centers under your finger. The position is saved in `~/.config/codex-pet/config.json` and restored on restart. The icon-only Pet is about 64 dp wide. A working session changes its color and animates slowly; two or more working sessions show a count badge. Any approval has priority. Done and interrupted return to idle after a short hold. The test command can show `error`; Codex hooks do not infer errors from unrelated failures.
+## How hooks and recovery work
 
-## Hook integration
-
-The installer adds the same `codex-pet-event` command for `SessionStart`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `Interrupt`, and `SessionEnd`. The helper reads Codex's JSON from stdin, extracts the session/turn/cwd and a short assistant summary where available, and exits successfully even if the Pet fails. `SessionEnd` removes that session. If Android kills the daemon, the next hook starts it again under a lock and sends its event. The hooks observe Codex; they never approve, deny, or change execution.
+The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `Interrupt`, and `SessionEnd`. Each calls `codex-pet-event` with Codex's JSON. The helper exits successfully even if the Pet fails. If Android kills the daemon, the next Codex event starts it again; Termux:Boot is not required. `SessionEnd` removes that session. Runtime files are in `~/.cache/codex-pet/` (`pet.sock` and the rotating `pet.log`).
 
 ## Troubleshooting
 
-- `codex-pet status` reports `GUI=unavailable`: the daemon retries automatically with a short backoff; run `codex-pet start` to retry immediately. If it still fails, confirm the Android overlay permission and compatible app signatures, then run `codex-pet restart`.
-- `codex-pet test` shows the six states without running a Codex turn.
-- Read `~/.cache/codex-pet/pet.log` for GUI or IPC errors. The log rotates at about 512 KB.
-- If a Codex prompt does not change the Pet, restart Codex and use `/hooks` to review/trust the new hook definition. Check `codex features list` for `hooks` and inspect `~/.codex/hooks.json`.
-- If Termux:GUI is killed, send another Codex prompt or run `codex-pet start`.
+- **Pet is missing:** run `codex-pet status`. If stopped, run `codex-pet start`. A later Codex event also restarts a killed daemon.
+- **`GUI=unavailable`:** check the Termux:GUI overlay permission and matching app signatures, then run `codex-pet restart`. Read `~/.cache/codex-pet/pet.log` if it still fails.
+- **Pet works in `codex-pet test` but ignores prompts:** restart Codex, open `/hooks`, and trust the Pet hooks. Check the file matching `hooks_mode` in `~/.config/codex-pet/install.json`. `codex features list` should show `hooks` enabled.
+- **Pet shows an old design after updating:** run `codex-pet restart`; a running daemon does not reload Python files automatically.
+- **Drag or tap is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Drag from the robot image; touching the activity card keeps it open rather than moving the robot.
 
 ## Uninstall
 
@@ -45,7 +78,7 @@ cd ~/codex-pet
 ./uninstall.sh
 ```
 
-This stops the daemon, removes its CLI links and runtime files, and removes only the Pet hook commands. It keeps Python/`termuxgui`, Codex config backups, and the saved position for a later reinstall.
+This stops the daemon, removes its CLI links and runtime files, and removes only the Pet hook commands. It preserves Python dependencies, Codex configuration backups, and the saved position for a later reinstall.
 
 ## License
 
