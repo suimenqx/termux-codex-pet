@@ -7,11 +7,12 @@ A small, persistent robot overlay for Codex CLI on Android. Codex lifecycle hook
 Requirements: Termux and the matching-signature Termux:GUI app. In Android settings enable **Termux:GUI → Advanced → Display over other apps**. The script installs `termuxgui` with pip if needed; it does not install an APK.
 
 ```sh
+git clone https://github.com/suimenqx/termux-codex-pet.git ~/codex-pet
 cd ~/codex-pet
 ./install.sh
 ```
 
-The installer creates `~/.local/bin/codex-pet` and `~/.local/bin/codex-pet-event`, config under `~/.config/codex-pet/`, and the socket/log under `~/.cache/codex-pet/`. It backs up any Codex config file it changes. Existing Codex settings and unrelated hooks are retained. On Codex 0.156.1, hooks are enabled by default, but new hooks require review and trust. **Restart Codex, then run `/hooks` and trust the `~/.codex/hooks.json` hooks.** The Pet works through its CLI before that step.
+The installer creates `~/.local/bin/codex-pet` and `~/.local/bin/codex-pet-event`, with links in Termux's `bin` directory so the commands are on `PATH`. Config lives under `~/.config/codex-pet/`, and the socket/log under `~/.cache/codex-pet/`. It backs up any Codex config file it changes. Existing Codex settings and unrelated hooks are retained. On Codex 0.156.1, hooks are enabled by default, but new hooks require review and trust. **Restart Codex, then run `/hooks` and trust the `~/.codex/hooks.json` hooks.** The Pet works through its CLI before that step.
 
 ## Commands
 
@@ -45,3 +46,7 @@ cd ~/codex-pet
 ```
 
 This stops the daemon, removes its CLI links and runtime files, and removes only the Pet hook commands. It keeps Python/`termuxgui`, Codex config backups, and the saved position for a later reinstall.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
