@@ -35,10 +35,10 @@ class PetView:
         pass
 
 
-def touch(action: str, x: int, y: int) -> SimpleNamespace:
+def touch(action: str, x: int, y: int, aid: int = 1) -> SimpleNamespace:
     return SimpleNamespace(
         type=tg.Event.overlaytouch,
-        value={"action": action, "x": x, "y": y},
+        value={"aid": aid, "action": action, "x": x, "y": y},
     )
 
 
@@ -46,6 +46,9 @@ class GuiTouchTests(unittest.TestCase):
     def setUp(self) -> None:
         self.ui = OverlayUI.__new__(OverlayUI)
         self.ui.pet = PetView()
+        self.ui.pet.aid = 1
+        self.ui.bubble_overlay = PetView()
+        self.ui.bubble_overlay.aid = 2
         self.ui.face = PetView(5)
         self.ui.face.setimage = lambda data: None
         self.ui.root = SimpleNamespace(id=2)
@@ -63,7 +66,6 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.last_state = "idle"
         self.ui.x, self.ui.y = 700, 420
         self.ui.density = 3.0
-        self.ui.face_top_margin_dp = 0
         self.ui.bubble_width_px = 0
         self.ui.pending_down = None
         self.ui.down = None
@@ -91,7 +93,8 @@ class GuiTouchTests(unittest.TestCase):
     def face_down(self, x: int, y: int) -> None:
         self.ui.handle(touch("down", x, y))
         self.ui.handle(SimpleNamespace(
-            type=tg.Event.touch, value={"id": self.ui.face.id, "action": "down"},
+            type=tg.Event.touch,
+            value={"aid": 1, "id": self.ui.face.id, "action": "down"},
         ))
 
     def test_tap_opens_and_closes_details(self) -> None:
@@ -103,6 +106,16 @@ class GuiTouchTests(unittest.TestCase):
         self.face_down(730, 460)
         self.assertTrue(self.ui.handle(touch("up", 730, 460)))
         self.assertFalse(self.ui.expanded)
+
+    def test_toggling_bubble_keeps_robot_window_stationary(self) -> None:
+        self.ui._set_bubble = OverlayUI._set_bubble.__get__(self.ui)
+        self.ui._choose_bubble_side = OverlayUI._choose_bubble_side.__get__(self.ui)
+        self.ui._position_bubble = OverlayUI._position_bubble.__get__(self.ui)
+        for expanded in (True, False, True):
+            self.face_down(730, 460)
+            self.assertTrue(self.ui.handle(touch("up", 730, 460)))
+            self.assertEqual(self.ui.expanded, expanded)
+            self.assertEqual(self.ui.pet.positions, [])
 
     def test_face_tap_survives_android_overlay_coordinate_shift(self) -> None:
         self.face_down(500, 460)
@@ -118,24 +131,24 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.handle(touch("up", 830, 540))
         self.assertEqual((self.ui.x, self.ui.y), (740, 450))
 
-        for expanded, window_position in ((True, (377, 450)),
-                                          (False, (740, 450)),
-                                          (True, (377, 450))):
+        for expanded in (True, False, True):
             self.ui.handle(touch("down", 790, 490))
             self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
-                "id": self.ui.face.id, "action": "down",
+                "aid": 1, "id": self.ui.face.id, "action": "down",
                 "pointers": [[{"x": 20, "y": 32, "id": 0}]],
             }))
             self.assertTrue(self.ui.handle(touch("up", 790, 490)))
             self.assertEqual(self.ui.expanded, expanded)
             self.assertEqual((self.ui.x, self.ui.y), (740, 450))
-            self.assertEqual(self.ui.pet.positions[-1], window_position)
+            self.assertEqual(self.ui.pet.positions, [(740, 450)])
+            if expanded:
+                self.assertEqual(self.ui.bubble_overlay.positions[-1], (377, 450))
         self.assertEqual(self.saved, [(740, 450)])
 
     def test_nested_image_pointer_keeps_grab_aligned_after_window_clamp(self) -> None:
         self.ui.handle(touch("down", 500, 460))
         self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
-            "id": self.ui.face.id, "action": "down",
+            "aid": 1, "id": self.ui.face.id, "action": "down",
             "pointers": [[{"x": 20, "y": 32, "id": 0}]],
         }))
         self.ui.handle(touch("move", 550, 500))
@@ -158,6 +171,18 @@ class GuiTouchTests(unittest.TestCase):
         self.assertFalse(self.ui.expanded)
         self.assertEqual(self.ui.last_touch, "up")
 
+    def test_drag_with_open_bubble_moves_both_windows(self) -> None:
+        self.ui._set_bubble = OverlayUI._set_bubble.__get__(self.ui)
+        self.ui._choose_bubble_side = OverlayUI._choose_bubble_side.__get__(self.ui)
+        self.ui._position_bubble = OverlayUI._position_bubble.__get__(self.ui)
+        self.ui._set_bubble(True)
+        self.face_down(790, 510)
+        self.ui.handle(touch("move", 830, 540))
+        self.ui.handle(touch("up", 830, 540))
+        self.assertEqual(self.ui.pet.positions, [(740, 450)])
+        self.assertEqual(self.ui.bubble_overlay.positions[-1], (377, 450))
+        self.assertEqual(self.saved, [(740, 450)])
+
     def test_center_grab_keeps_the_contact_point_while_moving(self) -> None:
         self.face_down(760, 480)
         self.ui.handle(touch("move", 810, 530))
@@ -174,7 +199,7 @@ class GuiTouchTests(unittest.TestCase):
     def test_cancelled_drag_returns_to_its_start_without_saving(self) -> None:
         self.ui.handle(touch("down", 790, 510))
         self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
-            "id": self.ui.face.id, "action": "down",
+            "aid": 1, "id": self.ui.face.id, "action": "down",
             "pointers": [[{"x": 20, "y": 32, "id": 0}]],
         }))
         self.ui.handle(touch("move", 840, 550))
@@ -195,7 +220,8 @@ class GuiTouchTests(unittest.TestCase):
 
     def test_touching_auto_detail_keeps_it_open(self) -> None:
         self.render("done")
-        self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={"id": 3}))
+        self.ui.handle(SimpleNamespace(type=tg.Event.touch,
+                                       value={"aid": 2, "id": 3}))
         self.render("idle")
         self.assertTrue(self.ui.expanded)
         self.face_down(730, 460)
@@ -206,7 +232,8 @@ class GuiTouchTests(unittest.TestCase):
         self.render("done")
         self.ui.handle(SimpleNamespace(
             type=tg.Event.touch,
-            value={"id": self.ui.detail_left_fields[1].id, "action": "down"},
+            value={"aid": 2, "id": self.ui.detail_left_fields[1].id,
+                   "action": "down"},
         ))
         self.render("idle")
         self.assertTrue(self.ui.expanded)
@@ -215,7 +242,7 @@ class GuiTouchTests(unittest.TestCase):
         self.render("done")
         self.ui.handle(SimpleNamespace(
             type=tg.Event.touch,
-            value={"id": self.ui.left_tail.id, "action": "down"},
+            value={"aid": 2, "id": self.ui.left_tail.id, "action": "down"},
         ))
         self.render("idle")
         self.assertTrue(self.ui.expanded)
@@ -234,46 +261,49 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.bubble = self.ui.detail_left
         self.ui.x, self.ui.y = 1000, 500
         self.ui._position_bubble()
-        self.assertEqual(self.ui.pet.positions[-1], (637, 464))
+        self.assertEqual(self.ui.bubble_overlay.positions[-1], (637, 464))
         self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (637, 464))
         self.ui.bubble = self.ui.detail_right
         self.ui.x, self.ui.y = 100, 10
         self.ui._position_bubble()
-        self.assertEqual(self.ui.pet.positions[-1], (100, 1))
+        self.assertEqual(self.ui.bubble_overlay.positions[-1], (292, 1))
         self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (307, 1))
+        self.assertEqual(self.ui.pet.positions, [])
 
     def test_detail_touch_does_not_move_pet(self) -> None:
         self.ui.x, self.ui.y = 100, 10
         self.ui.bubble = self.ui.detail_right
         self.ui.expanded = True
-        self.ui.handle(touch("down", 330, 40))
-        self.ui.handle(touch("move", 370, 80))
-        self.ui.handle(touch("up", 370, 80))
+        self.ui.handle(touch("down", 330, 40, aid=2))
+        self.ui.handle(touch("move", 370, 80, aid=2))
+        self.ui.handle(touch("up", 370, 80, aid=2))
         self.assertEqual((self.ui.x, self.ui.y), (100, 10))
         self.assertEqual(self.saved, [])
 
     def test_detail_touch_over_old_pet_coordinates_does_not_close_it(self) -> None:
         self.ui.bubble = self.ui.detail_left
         self.ui.expanded = True
+        self.ui.detail_left.id = self.ui.face.id
         self.ui.handle(touch("down", 730, 460))
         self.ui.handle(SimpleNamespace(
             type=tg.Event.touch,
-            value={"id": self.ui.detail_left.id, "action": "down"},
+            value={"aid": 2, "id": self.ui.detail_left.id, "action": "down"},
         ))
+        self.assertTrue(self.ui.manual_expand)
         self.assertFalse(self.ui.handle(touch("up", 730, 460)))
         self.assertTrue(self.ui.expanded)
 
-    def test_detail_uses_same_overlay_without_moving_pet(self) -> None:
+    def test_detail_uses_separate_overlay_without_moving_pet(self) -> None:
         self.ui._set_bubble = OverlayUI._set_bubble.__get__(self.ui)
         self.ui._choose_bubble_side = OverlayUI._choose_bubble_side.__get__(self.ui)
         self.ui._position_bubble = OverlayUI._position_bubble.__get__(self.ui)
         self.ui.x, self.ui.y = 700, 420
         self.ui._set_bubble(True)
         self.assertIs(self.ui.bubble, self.ui.detail_left)
-        self.assertEqual(self.ui.pet.positions[-1], (337, 420))
+        self.assertEqual(self.ui.bubble_overlay.positions[-1], (337, 420))
         self.assertEqual((self.ui.x, self.ui.y), (700, 420))
         self.ui._set_bubble(False)
-        self.assertEqual(self.ui.pet.positions[-1], (700, 420))
+        self.assertEqual(self.ui.pet.positions, [])
         self.assertEqual(self.ui.detail_left.visibility,
                          [tg.View.VISIBLE, tg.View.GONE])
 
@@ -285,7 +315,7 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.x = 100
         self.assertTrue(self.ui._choose_bubble_side())
         self.assertIs(self.ui.bubble, self.ui.detail_right)
-        self.assertEqual(self.ui.pet.positions[-1], (100, 420))
+        self.assertEqual(self.ui.bubble_overlay.positions[-1], (292, 420))
         self.assertEqual(self.ui.bubble_x, 307)
 
     def test_detail_render_does_not_query_native_dimensions(self) -> None:

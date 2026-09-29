@@ -74,20 +74,24 @@ class OverlayUI:
         self.root = tg.LinearLayout(self.pet, vertical=False)
         self.root.setdimensions(tg.View.WRAP_CONTENT, tg.View.WRAP_CONTENT)
         self.root.setbackgroundcolor(0)
-        self.detail_left = tg.LinearLayout(self.pet, self.root, vertical=True,
-                                           visibility=tg.View.GONE)
-        self.detail_left_fields = self._style_card(self.detail_left, text_gravity=2)
-        self.left_tail = self._create_tail("right")
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
-        self.right_tail = self._create_tail("left")
-        self.detail_right = tg.LinearLayout(self.pet, self.root, vertical=True,
-                                            visibility=tg.View.GONE)
-        self.detail_right_fields = self._style_card(self.detail_right, text_gravity=0)
         self.face.sendtouchevent(True)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
+        self.bubble_overlay = _overlay(connection)
+        self.bubble_root = tg.LinearLayout(self.bubble_overlay, vertical=False)
+        self.bubble_root.setdimensions(tg.View.WRAP_CONTENT, tg.View.WRAP_CONTENT)
+        self.bubble_root.setbackgroundcolor(0)
+        self.detail_left = tg.LinearLayout(self.bubble_overlay, self.bubble_root, vertical=True,
+                                           visibility=tg.View.GONE)
+        self.detail_left_fields = self._style_card(self.detail_left, text_gravity=2)
+        self.left_tail = self._create_tail("right")
+        self.right_tail = self._create_tail("left")
+        self.detail_right = tg.LinearLayout(self.bubble_overlay, self.bubble_root, vertical=True,
+                                            visibility=tg.View.GONE)
+        self.detail_right_fields = self._style_card(self.detail_right, text_gravity=0)
         self.bubble: tg.LinearLayout | None = None
         self.detail_fields: tuple[tg.TextView, tg.TextView, tg.TextView] | None = None
         self.bubble_width_px = 0
@@ -96,7 +100,6 @@ class OverlayUI:
         self.detail_content: tuple[str, str, str] | None = None
         self.detail_state = ""
         self.detail_has_message = False
-        self.face_top_margin_dp = 0
         self.expanded = False
         self.manual_expand = False
         self.pending_down: tuple[float, float, float, int, int] | None = None
@@ -115,12 +118,12 @@ class OverlayUI:
         card.setbackgroundcolor(0xEE202B36)
         # The binding has no setpadding method, but Termux:GUI supports it.
         self.c.send_msg({"method": "setPadding", "params": {
-            "aid": self.pet.aid, "id": card.id, "padding": BUBBLE_PADDING_DP,
+            "aid": self.bubble_overlay.aid, "id": card.id, "padding": BUBBLE_PADDING_DP,
         }})
         card.sendtouchevent(True)
-        project = tg.TextView(self.pet, "", card)
-        status = tg.TextView(self.pet, "", card)
-        message = tg.TextView(self.pet, "", card, visibility=tg.View.GONE)
+        project = tg.TextView(self.bubble_overlay, "", card)
+        status = tg.TextView(self.bubble_overlay, "", card)
+        message = tg.TextView(self.bubble_overlay, "", card, visibility=tg.View.GONE)
         for view in (project, status, message):
             view.setdimensions(tg.View.MATCH_PARENT, tg.View.WRAP_CONTENT)
             view.sendtouchevent(True)
@@ -136,7 +139,8 @@ class OverlayUI:
         return project, status, message
 
     def _create_tail(self, toward: str) -> tg.ImageView:
-        tail = tg.ImageView(self.pet, self.root, visibility=tg.View.GONE)
+        tail = tg.ImageView(self.bubble_overlay, self.bubble_root,
+                            visibility=tg.View.GONE)
         tail.setdimensions(BUBBLE_TAIL_WIDTH_DP, BUBBLE_TAIL_HEIGHT_DP)
         tail.setimage(speech_tail(toward))
         tail.sendtouchevent(True)
@@ -191,10 +195,6 @@ class OverlayUI:
             self.detail_content = None
             self.detail_state = ""
             self.detail_has_message = False
-            if self.face_top_margin_dp:
-                self.face.setmargin(0, "top")
-                self.face_top_margin_dp = 0
-            self.pet.setposition(self.x, self.y)
             self.expanded = False
 
     def _choose_bubble_side(self) -> bool:
@@ -206,9 +206,7 @@ class OverlayUI:
         if self.bubble is not None:
             self.bubble.setvisibility(tg.View.GONE)
             self._tail_for(self.bubble).setvisibility(tg.View.GONE)
-        target.setvisibility(tg.View.VISIBLE)
         tail = self.left_tail if target is self.detail_left else self.right_tail
-        tail.setvisibility(tg.View.VISIBLE)
         self.bubble = target
         self.detail_fields = (self.detail_left_fields if target is self.detail_left
                               else self.detail_right_fields)
@@ -216,6 +214,8 @@ class OverlayUI:
         self.detail_state = ""
         self.bubble_width_px = int((BUBBLE_WIDTH_DP + BUBBLE_TAIL_WIDTH_DP) * self.density)
         self._position_bubble()
+        target.setvisibility(tg.View.VISIBLE)
+        tail.setvisibility(tg.View.VISIBLE)
         return True
 
     def _tail_for(self, card: tg.LinearLayout) -> tg.ImageView:
@@ -227,9 +227,6 @@ class OverlayUI:
             tail_width = int(BUBBLE_TAIL_WIDTH_DP * self.density)
             top_margin = min(MESSAGE_MARGIN_DP if self.detail_has_message else 0,
                              int(self.y / self.density))
-            if top_margin != self.face_top_margin_dp:
-                self.face.setmargin(top_margin, "top")
-                self.face_top_margin_dp = top_margin
             window_y = self.y - int(top_margin * self.density)
             tail = self._tail_for(self.bubble)
             tail.setmargin(max(0, top_margin + PET_SIZE_DP // 2 - BUBBLE_TAIL_HEIGHT_DP // 2),
@@ -238,10 +235,10 @@ class OverlayUI:
                 window_x = self.x - self.bubble_width_px
                 self.bubble_x = window_x
             else:
-                window_x = self.x
-                self.bubble_x = window_x + pet_size + tail_width
+                window_x = self.x + pet_size
+                self.bubble_x = window_x + tail_width
             self.bubble_y = window_y
-            self.pet.setposition(window_x, window_y)
+            self.bubble_overlay.setposition(window_x, window_y)
 
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
@@ -281,7 +278,9 @@ class OverlayUI:
         if not isinstance(event.value, dict):
             return False
         if event.type == tg.Event.touch:
-            if event.value.get("id") == self.face.id and event.value.get("action") == "down":
+            if (event.value.get("aid") == self.pet.aid and
+                event.value.get("id") == self.face.id and
+                event.value.get("action") == "down"):
                 if self.pending_down is not None:
                     raw_x, raw_y, started, origin_x, origin_y = self.pending_down
                     local = _first_pointer(event.value.get("pointers"))
@@ -302,6 +301,7 @@ class OverlayUI:
                 self.pending_down = None
                 self.dragged = False
             elif (self.bubble is not None and
+                  event.value.get("aid") == self.bubble_overlay.aid and
                   (event.value.get("id") == self.bubble.id or
                    event.value.get("id") == self._tail_for(self.bubble).id or
                    self.detail_fields is not None and any(
@@ -310,6 +310,8 @@ class OverlayUI:
                 self.pending_down = None
             return False
         if event.type != tg.Event.overlaytouch:
+            return False
+        if event.value.get("aid") != self.pet.aid:
             return False
         self.touch_count += 1
         self.last_touch = str(event.value.get("action", ""))
@@ -330,19 +332,17 @@ class OverlayUI:
             if self.dragged and self.drag_enabled:
                 self.x = max(0, self.down[3] + round(dx))
                 self.y = max(0, self.down[4] + round(dy))
+                self.pet.setposition(self.x, self.y)
                 if self.expanded:
                     self._position_bubble()
-                else:
-                    self.pet.setposition(self.x, self.y)
         elif action in ("up", "cancel") and self.down is not None:
             self.pending_down = None
             if action == "cancel":
                 if self.dragged and self.drag_enabled:
                     self.x, self.y = self.down[5], self.down[6]
+                    self.pet.setposition(self.x, self.y)
                     if self.expanded:
                         self._position_bubble()
-                    else:
-                        self.pet.setposition(self.x, self.y)
                 self.down = None
                 return False
             if self.dragged:
@@ -362,6 +362,7 @@ class OverlayUI:
         return False
 
     def close(self) -> None:
+        self.bubble_overlay.finish()
         self.pet.finish()
 
 

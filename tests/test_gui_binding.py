@@ -22,10 +22,13 @@ class FakeConnection:
     def __init__(self) -> None:
         self._main = FakeMainSocket()
         self.messages: list[dict] = []
+        self.next_aid = 1
 
     def send_read_msg(self, message: dict) -> int:
         assert message["method"] == "newActivity"
-        return 1
+        aid = self.next_aid
+        self.next_aid += 1
+        return aid
 
     def send_msg(self, message: dict) -> None:
         self.messages.append(message)
@@ -38,6 +41,7 @@ class FakeView:
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.id = FakeView.next_id
         FakeView.next_id += 1
+        self.activity = args[0]
         self.touch_enabled = False
         self.visible = kwargs.get("visibility", gui.tg.View.VISIBLE) == gui.tg.View.VISIBLE
         self.image = b""
@@ -94,6 +98,30 @@ class GuiBindingTests(unittest.TestCase):
         self.assertTrue(pet.face.touch_enabled)
         self.assertTrue(pet.detail_left.touch_enabled)
         self.assertTrue(pet.detail_right.touch_enabled)
+        self.assertIs(pet.face.activity, pet.pet)
+        self.assertIs(pet.detail_left.activity, pet.bubble_overlay)
+        self.assertNotEqual(pet.pet.aid, pet.bubble_overlay.aid)
+
+    def test_bubble_visibility_never_repositions_robot_activity(self) -> None:
+        FakeView.next_id = 1
+        connection = FakeConnection()
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(gui.tg, "LinearLayout", FakeView), \
+             patch.object(gui.tg, "TextView", FakeView), \
+             patch.object(gui.tg, "ImageView", FakeView):
+            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+            pet.render({"state": "approval", "working_count": 0,
+                        "project": "repo", "elapsed": 0, "message": "Allow this action"})
+            pet._set_bubble(False)
+
+        robot_positions = [message for message in connection.messages
+                           if message["method"] == "setPosition" and
+                           message["params"]["aid"] == pet.pet.aid]
+        bubble_positions = [message for message in connection.messages
+                            if message["method"] == "setPosition" and
+                            message["params"]["aid"] == pet.bubble_overlay.aid]
+        self.assertEqual(len(robot_positions), 1)
+        self.assertTrue(bubble_positions)
 
     def test_approval_card_has_separate_project_status_and_summary(self) -> None:
         FakeView.next_id = 1
