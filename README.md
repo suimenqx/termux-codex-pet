@@ -34,7 +34,7 @@ codex-pet status      # daemon, GUI connection, state, project, session counts
 codex-pet test        # cycle through all visual states
 ```
 
-Tap the robot to open or close its activity card. The card shows the project, colored status, and a short message when available. It normally opens to the left and switches sides near the left edge. Approval and completion open it automatically; touching an automatic card keeps it open until you close it. Start a drag near the robot's center; the point you grabbed stays under your finger, so the robot does not jump. Touches farther from the center can still tap it, but do not start a drag. The position is saved in `~/.config/codex-pet/config.json` and restored after restart. The collapsed robot is about 64 dp wide.
+Tap the robot to open or close its activity bubble. A small speech tail points from the bubble toward the robot, which keeps the project, colored status, and short message visually connected to it. The bubble switches sides near the left edge. Approval and completion open it automatically; touching it keeps it open until you close it. Start a drag near the robot's center; the point you grabbed stays under your finger, so the robot does not jump. Touches farther from the center can still tap it, but do not start a drag. The position is saved in `~/.config/codex-pet/config.json` and restored after restart. The collapsed robot is about 64 dp wide.
 
 | State | What you see | When it changes |
 | --- | --- | --- |

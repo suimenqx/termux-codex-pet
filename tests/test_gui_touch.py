@@ -51,6 +51,8 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.root = SimpleNamespace(id=2)
         self.ui.detail_left = PetView(3)
         self.ui.detail_right = PetView(4)
+        self.ui.left_tail = PetView(12)
+        self.ui.right_tail = PetView(13)
         self.ui.detail_left_fields = (PetView(6), PetView(7), PetView(8))
         self.ui.detail_right_fields = (PetView(9), PetView(10), PetView(11))
         self.ui.bubble = None
@@ -76,7 +78,7 @@ class GuiTouchTests(unittest.TestCase):
         self.ui._position_bubble = lambda: None
         def set_bubble(show: bool) -> None:
             self.ui.expanded = show
-            self.ui.bubble = SimpleNamespace(id=3) if show else None
+            self.ui.bubble = self.ui.detail_left if show else None
             self.ui.detail_fields = self.ui.detail_left_fields if show else None
             self.ui.detail_content = None
             self.ui.detail_state = ""
@@ -181,6 +183,15 @@ class GuiTouchTests(unittest.TestCase):
         self.render("idle")
         self.assertTrue(self.ui.expanded)
 
+    def test_touching_speech_tail_keeps_auto_detail_open(self) -> None:
+        self.render("done")
+        self.ui.handle(SimpleNamespace(
+            type=tg.Event.touch,
+            value={"id": self.ui.left_tail.id, "action": "down"},
+        ))
+        self.render("idle")
+        self.assertTrue(self.ui.expanded)
+
     def test_manual_dismissal_does_not_reopen_same_approval(self) -> None:
         self.render("approval")
         self.face_down(730, 460)
@@ -195,8 +206,8 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.bubble = self.ui.detail_left
         self.ui.x, self.ui.y = 1000, 500
         self.ui._position_bubble()
-        self.assertEqual(self.ui.pet.positions[-1], (388, 464))
-        self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (388, 464))
+        self.assertEqual(self.ui.pet.positions[-1], (412, 464))
+        self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (412, 464))
         self.ui.bubble = self.ui.detail_right
         self.ui.x, self.ui.y = 100, 10
         self.ui._position_bubble()

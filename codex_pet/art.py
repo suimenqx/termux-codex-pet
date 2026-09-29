@@ -8,6 +8,38 @@ import zlib
 SIZE = 64
 
 
+def _png(width: int, height: int, pixels: bytearray) -> bytes:
+    raw = b"".join(b"\0" + pixels[y * width * 4:(y + 1) * width * 4]
+                   for y in range(height))
+
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data))
+
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">2I5B", width, height, 8, 6, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(raw, 6))
+        + chunk(b"IEND", b"")
+    )
+
+
+def speech_tail(toward: str) -> bytes:
+    """Return a small transparent triangle pointing toward the robot."""
+    if toward not in ("left", "right"):
+        raise ValueError("speech tail direction must be 'left' or 'right'")
+    width, height = 16, 28
+    color = (32, 43, 54, 238)
+    pixels = bytearray(width * height * 4)
+    center = (height - 1) / 2
+    for y in range(height):
+        span = max(1, round(width * (1 - abs(y - center) / (height / 2))))
+        for offset in range(span):
+            x = offset if toward == "right" else width - 1 - offset
+            start = (y * width + x) * 4
+            pixels[start:start + 4] = bytes(color)
+    return _png(width, height, pixels)
+
+
 def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     pixels = bytearray(SIZE * SIZE * 4)
 
@@ -109,14 +141,4 @@ def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
         rect(52, 6, 55, 14, shell)
         rect(52, 17, 55, 20, shell)
 
-    raw = b"".join(b"\0" + pixels[y * SIZE * 4:(y + 1) * SIZE * 4] for y in range(SIZE))
-
-    def chunk(tag: bytes, data: bytes) -> bytes:
-        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data))
-
-    return (
-        b"\x89PNG\r\n\x1a\n"
-        + chunk(b"IHDR", struct.pack(">2I5B", SIZE, SIZE, 8, 6, 0, 0, 0))
-        + chunk(b"IDAT", zlib.compress(raw, 6))
-        + chunk(b"IEND", b"")
-    )
+    return _png(SIZE, SIZE, pixels)

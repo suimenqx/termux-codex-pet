@@ -13,13 +13,14 @@ from typing import Any, Callable
 
 import termuxgui as tg
 
-from .art import icon
+from .art import icon, speech_tail
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
 DRAG_RADIUS_DP = 24
 BUBBLE_WIDTH_DP = 164
-BUBBLE_GAP_DP = 8
+BUBBLE_TAIL_WIDTH_DP = 8
+BUBBLE_TAIL_HEIGHT_DP = 14
 MESSAGE_MARGIN_DP = 12
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
 STATUS_COLORS = {
@@ -74,12 +75,14 @@ class OverlayUI:
         self.root.setbackgroundcolor(0)
         self.detail_left = tg.LinearLayout(self.pet, self.root, vertical=True,
                                            visibility=tg.View.GONE)
-        self.detail_left_fields = self._style_card(self.detail_left, "right")
+        self.detail_left_fields = self._style_card(self.detail_left)
+        self.left_tail = self._create_tail("right")
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
+        self.right_tail = self._create_tail("left")
         self.detail_right = tg.LinearLayout(self.pet, self.root, vertical=True,
                                             visibility=tg.View.GONE)
-        self.detail_right_fields = self._style_card(self.detail_right, "left")
+        self.detail_right_fields = self._style_card(self.detail_right)
         self.face.sendtouchevent(True)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
@@ -104,11 +107,9 @@ class OverlayUI:
         self.last_state = "idle"
         self._measure_density()
 
-    def _style_card(self, card: tg.LinearLayout,
-                    side: str) -> tuple[tg.TextView, tg.TextView, tg.TextView]:
+    def _style_card(self, card: tg.LinearLayout) -> tuple[tg.TextView, tg.TextView, tg.TextView]:
         card.setdimensions(BUBBLE_WIDTH_DP, tg.View.WRAP_CONTENT)
         card.setbackgroundcolor(0xEE202B36)
-        card.setmargin(BUBBLE_GAP_DP, side)
         # The binding has no setpadding method, but Termux:GUI supports it.
         self.c.send_msg({"method": "setPadding", "params": {
             "aid": self.pet.aid, "id": card.id, "padding": 10,
@@ -129,6 +130,13 @@ class OverlayUI:
         message.settextcolor(0xFFF0F5F9)
         message.setmargin(6, "top")
         return project, status, message
+
+    def _create_tail(self, toward: str) -> tg.ImageView:
+        tail = tg.ImageView(self.pet, self.root, visibility=tg.View.GONE)
+        tail.setdimensions(BUBBLE_TAIL_WIDTH_DP, BUBBLE_TAIL_HEIGHT_DP)
+        tail.setimage(speech_tail(toward))
+        tail.sendtouchevent(True)
+        return tail
 
     def _load_position(self) -> tuple[int, int]:
         try:
@@ -173,6 +181,7 @@ class OverlayUI:
         elif not show and self.expanded:
             assert self.bubble is not None
             self.bubble.setvisibility(tg.View.GONE)
+            self._tail_for(self.bubble).setvisibility(tg.View.GONE)
             self.bubble = None
             self.detail_fields = None
             self.detail_content = None
@@ -185,39 +194,48 @@ class OverlayUI:
             self.expanded = False
 
     def _choose_bubble_side(self) -> bool:
-        width = self.bubble_width_px or int(BUBBLE_WIDTH_DP * self.density)
-        gap = int(BUBBLE_GAP_DP * self.density)
-        target = self.detail_left if self.x >= width + gap else self.detail_right
+        width = self.bubble_width_px or int(
+            (BUBBLE_WIDTH_DP + BUBBLE_TAIL_WIDTH_DP) * self.density)
+        target = self.detail_left if self.x >= width else self.detail_right
         if self.bubble is target:
             return False
         if self.bubble is not None:
             self.bubble.setvisibility(tg.View.GONE)
+            self._tail_for(self.bubble).setvisibility(tg.View.GONE)
         target.setvisibility(tg.View.VISIBLE)
+        tail = self.left_tail if target is self.detail_left else self.right_tail
+        tail.setvisibility(tg.View.VISIBLE)
         self.bubble = target
         self.detail_fields = (self.detail_left_fields if target is self.detail_left
                               else self.detail_right_fields)
         self.detail_content = None
         self.detail_state = ""
-        self.bubble_width_px = int(BUBBLE_WIDTH_DP * self.density)
+        self.bubble_width_px = int((BUBBLE_WIDTH_DP + BUBBLE_TAIL_WIDTH_DP) * self.density)
         self._position_bubble()
         return True
 
+    def _tail_for(self, card: tg.LinearLayout) -> tg.ImageView:
+        return self.left_tail if card is self.detail_left else self.right_tail
+
     def _position_bubble(self) -> None:
         if self.bubble is not None:
-            gap = int(BUBBLE_GAP_DP * self.density)
             pet_size = int(PET_SIZE_DP * self.density)
+            tail_width = int(BUBBLE_TAIL_WIDTH_DP * self.density)
             top_margin = min(MESSAGE_MARGIN_DP if self.detail_has_message else 0,
                              int(self.y / self.density))
             if top_margin != self.face_top_margin_dp:
                 self.face.setmargin(top_margin, "top")
                 self.face_top_margin_dp = top_margin
             window_y = self.y - int(top_margin * self.density)
+            tail = self._tail_for(self.bubble)
+            tail.setmargin(max(0, top_margin + PET_SIZE_DP // 2 - BUBBLE_TAIL_HEIGHT_DP // 2),
+                           "top")
             if self.bubble is self.detail_left:
-                window_x = self.x - self.bubble_width_px - gap
+                window_x = self.x - self.bubble_width_px
                 self.bubble_x = window_x
             else:
                 window_x = self.x
-                self.bubble_x = window_x + pet_size + gap
+                self.bubble_x = window_x + pet_size + tail_width
             self.bubble_y = window_y
             self.pet.setposition(window_x, window_y)
 
@@ -279,6 +297,7 @@ class OverlayUI:
                 self.dragged = False
             elif (self.bubble is not None and
                   (event.value.get("id") == self.bubble.id or
+                   event.value.get("id") == self._tail_for(self.bubble).id or
                    self.detail_fields is not None and any(
                        event.value.get("id") == view.id for view in self.detail_fields))):
                 self.manual_expand = True

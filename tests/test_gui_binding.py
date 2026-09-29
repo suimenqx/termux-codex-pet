@@ -39,7 +39,9 @@ class FakeView:
         self.id = FakeView.next_id
         FakeView.next_id += 1
         self.touch_enabled = False
-        self.visible = True
+        self.visible = kwargs.get("visibility", gui.tg.View.VISIBLE) == gui.tg.View.VISIBLE
+        self.image = b""
+        self.margins: list[tuple[int, str]] = []
 
     def setdimensions(self, *args: object) -> None:
         pass
@@ -54,7 +56,8 @@ class FakeView:
         pass
 
     def setmargin(self, *args: object) -> None:
-        pass
+        if len(args) == 2:
+            self.margins.append((args[0], args[1]))
 
     def sendtouchevent(self, enabled: bool) -> None:
         self.touch_enabled = enabled
@@ -66,7 +69,7 @@ class FakeView:
         FakeView.text_updates.append(value)
 
     def setimage(self, value: bytes) -> None:
-        pass
+        self.image = value
 
     def getdimensions(self) -> tuple[int, int]:
         return 192, 192
@@ -103,6 +106,35 @@ class GuiBindingTests(unittest.TestCase):
         self.assertIn("Needs approval", FakeView.text_updates)
         self.assertIn("Review this permission", FakeView.text_updates)
         self.assertFalse(any("\n" in value for value in FakeView.text_updates))
+
+    def test_activity_card_tail_touches_the_robot_on_either_side(self) -> None:
+        FakeView.next_id = 1
+        connection = FakeConnection()
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(gui.tg, "LinearLayout", FakeView), \
+             patch.object(gui.tg, "TextView", FakeView), \
+             patch.object(gui.tg, "ImageView", FakeView):
+            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+            pet.x, pet.y = 700, 420
+            pet.render({"state": "approval", "working_count": 0,
+                        "project": "repo", "elapsed": 0,
+                        "message": "Allow this action"})
+            tail_px = round(gui.BUBBLE_TAIL_WIDTH_DP * pet.density)
+            card_px = round(gui.BUBBLE_WIDTH_DP * pet.density)
+            self.assertTrue(pet.left_tail.visible)
+            self.assertEqual(pet.bubble_x + card_px + tail_px, pet.x)
+            self.assertIn((37, "top"), pet.left_tail.margins)
+
+            pet.x = 100
+            self.assertTrue(pet._choose_bubble_side())
+            self.assertTrue(pet.right_tail.visible)
+            self.assertEqual(
+                pet.bubble_x,
+                pet.x + round((gui.PET_SIZE_DP + gui.BUBBLE_TAIL_WIDTH_DP) * pet.density),
+            )
+            self.assertTrue(pet.left_tail.image.startswith(b"\x89PNG"))
+            self.assertTrue(pet.right_tail.image.startswith(b"\x89PNG"))
+            self.assertNotEqual(pet.left_tail.image, pet.right_tail.image)
 
 
 if __name__ == "__main__":

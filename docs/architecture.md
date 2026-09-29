@@ -32,7 +32,7 @@ The two `bin` scripts add the checkout to `sys.path`; the installed CLI entries 
 
 ## Overlay and touch details
 
-`OverlayUI` keeps the robot in a 64 dp `ImageView` and shows one of two native detail cards, placed left or right of it. `self.x`/`self.y` are the robot's logical screen position; `pet.setposition()` positions the entire overlay window, which shifts when the card opens. Preserve that distinction when changing layout or drag behavior.
+`OverlayUI` keeps the robot in a 64 dp `ImageView` and shows one of two native detail cards, placed left or right of it. A small transparent PNG tail sits between the card and robot; include its width in side selection and overlay positioning so its tip touches the robot. `self.x`/`self.y` are the robot's logical screen position; `pet.setposition()` positions the entire overlay window, which shifts when the card opens. Preserve that distinction when changing layout or drag behavior.
 
 Termux:GUI emits an overlay-wide touch event with screen coordinates and a View touch event identifying the actual target. The View event gates drag/tap so touching the card cannot move the robot. Taps work across the robot's `ImageView`; a drag starts only within the central 24 dp radius after 12 dp of movement. The saved starting position plus the screen-coordinate delta keeps the original grab point under the finger, without snapping the robot to the finger's center. Releasing saves the new position; a cancelled gesture restores its start. The View touch payload's `pointers` are nested arrays; the image pixel coordinate corrects the logical starting position when Android clamps the overlay window. A manual card tap overrides automatic closing; approval and done open the card on state changes.
 
