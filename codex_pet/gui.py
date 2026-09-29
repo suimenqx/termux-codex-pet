@@ -19,6 +19,8 @@ LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
 BUBBLE_WIDTH_DP = 196
 BUBBLE_GAP_DP = 8
+MESSAGE_MARGIN_DP = 12
+RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
 
 
 def _overlay(connection: tg.Connection) -> tg.Activity:
@@ -67,20 +69,21 @@ class OverlayUI:
                 "aid": self.pet.aid, "id": detail.id, "padding": 10,
             }})
             detail.sendtouchevent(True)
+        self.face.sendtouchevent(True)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
         self.bubble: tg.TextView | None = None
         self.detail: tg.TextView | None = None
         self.bubble_width_px = 0
-        self.bubble_height_px = 0
         self.bubble_x = 0
         self.bubble_y = 0
         self.detail_content = ""
-        self.bubble_measure_due: float | None = None
+        self.detail_has_message = False
         self.face_top_margin_dp = 0
         self.expanded = False
         self.manual_expand = False
+        self.pending_down: tuple[float, float, float, int, int] | None = None
         self.down: tuple[float, float, float, int, int] | None = None
         self.dragged = False
         self.touch_count = 0
@@ -134,7 +137,7 @@ class OverlayUI:
             self.bubble = None
             self.detail = None
             self.detail_content = ""
-            self.bubble_measure_due = None
+            self.detail_has_message = False
             if self.face_top_margin_dp:
                 self.face.setmargin(0, "top")
                 self.face_top_margin_dp = 0
@@ -153,9 +156,7 @@ class OverlayUI:
         self.bubble = target
         self.detail = target
         self.detail_content = ""
-        self.bubble_measure_due = None
         self.bubble_width_px = int(BUBBLE_WIDTH_DP * self.density)
-        self.bubble_height_px = int(PET_SIZE_DP * self.density)
         self._position_bubble()
         return True
 
@@ -163,7 +164,7 @@ class OverlayUI:
         if self.bubble is not None:
             gap = int(BUBBLE_GAP_DP * self.density)
             pet_size = int(PET_SIZE_DP * self.density)
-            top_margin = min(max(0, int((self.bubble_height_px - pet_size) / self.density)),
+            top_margin = min(MESSAGE_MARGIN_DP if self.detail_has_message else 0,
                              int(self.y / self.density))
             if top_margin != self.face_top_margin_dp:
                 self.face.setmargin(top_margin, "top")
@@ -198,27 +199,33 @@ class OverlayUI:
             if message:
                 content += "\n" + message[:72]
             if content != self.detail_content:
+                # Native WRAP_CONTENT lays out the bubble without a blocking size query.
                 self.detail.settext(content)
                 self.detail_content = content
-                self.bubble_measure_due = time.monotonic() + 0.15
-            elif self.bubble_measure_due is not None and time.monotonic() >= self.bubble_measure_due:
-                try:
-                    width, height = self.detail.getdimensions()
-                    if width > 0:
-                        self.bubble_width_px = width
-                    if height > 0:
-                        self.bubble_height_px = height
-                except (OSError, ValueError):
-                    LOG.warning("Could not measure detail bubble; using previous size")
-                self.bubble_measure_due = None
-                self._position_bubble()
+                if bool(message) != self.detail_has_message:
+                    self.detail_has_message = bool(message)
+                    self._position_bubble()
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):
             return False
         if event.type == tg.Event.touch:
-            if self.bubble is not None and event.value.get("id") == self.bubble.id:
+            if event.value.get("id") == self.face.id and event.value.get("action") == "down":
+                if self.pending_down is not None:
+                    raw_x, raw_y, started, _, _ = self.pending_down
+                    pointers = event.value.get("pointers")
+                    local = _point(pointers[0]) if isinstance(pointers, list) and pointers else None
+                    if local is not None and 0 <= local[0] <= PET_SIZE_DP and 0 <= local[1] <= PET_SIZE_DP:
+                        # ImageView touch coordinates are in the 64 px icon, so
+                        # re-anchor when Android has clamped the overlay window.
+                        self.x = max(0, round(raw_x - local[0] * self.density))
+                        self.y = max(0, round(raw_y - local[1] * self.density))
+                    self.down = (raw_x, raw_y, started, self.x, self.y)
+                self.pending_down = None
+                self.dragged = False
+            elif self.bubble is not None and event.value.get("id") == self.bubble.id:
                 self.manual_expand = True
+                self.pending_down = None
             return False
         if event.type != tg.Event.overlaytouch:
             return False
@@ -229,12 +236,8 @@ class OverlayUI:
             return False
         action = event.value.get("action")
         if action == "down":
-            pet_size = PET_SIZE_DP * self.density
-            if not (self.x <= xy[0] < self.x + pet_size
-                    and self.y <= xy[1] < self.y + pet_size):
-                self.down = None
-                return False
-            self.down = (xy[0], xy[1], time.monotonic(), self.x, self.y)
+            self.pending_down = (xy[0], xy[1], time.monotonic(), self.x, self.y)
+            self.down = None
             self.dragged = False
         elif action == "move" and self.down is not None:
             dx, dy = xy[0] - self.down[0], xy[1] - self.down[1]
@@ -249,6 +252,7 @@ class OverlayUI:
                 else:
                     self.pet.setposition(self.x, self.y)
         elif action in ("up", "cancel") and self.down is not None:
+            self.pending_down = None
             if self.dragged:
                 self._save_position()
                 self.down = None
@@ -260,6 +264,8 @@ class OverlayUI:
                 self.down = None
                 return True
             self.down = None
+        elif action in ("up", "cancel"):
+            self.pending_down = None
         return False
 
     def close(self) -> None:
@@ -295,7 +301,7 @@ class GuiWorker:
         self.write_wake.close()
 
     def _run(self) -> None:
-        retry_once = True
+        failures = 0
         while not self.stopping:
             connection: tg.Connection | None = None
             try:
@@ -303,8 +309,10 @@ class GuiWorker:
                 connection._main.settimeout(4.0)
                 self.ui = OverlayUI(connection, self.config_path)
                 self.on_status(True, "")
+                failures = 0
                 self._loop(connection)
             except Exception as exc:
+                failures += 1
                 LOG.exception("Termux:GUI connection or overlay failed")
                 self.on_status(False, str(exc)[:180])
             finally:
@@ -316,15 +324,14 @@ class GuiWorker:
                     self.ui = None
                 if connection is not None:
                     connection.close()
-            # A lost GUI connection gets one immediate retry. Further retries
-            # wait for a Codex event or an explicit start command.
+            # Keep retrying a lost GUI connection at a low rate; a Codex event
+            # wakes the worker immediately rather than waiting for the timer.
             if not self.stopping:
-                if retry_once:
-                    retry_once = False
-                    continue
-                select.select([self.read_wake], [], [])
-                self.read_wake.recv(4096)
-                retry_once = True
+                delay = RECONNECT_DELAYS[min(max(0, failures - 1), len(RECONNECT_DELAYS) - 1)]
+                readable, _, _ = select.select([self.read_wake], [], [], delay)
+                if readable:
+                    self.read_wake.recv(4096)
+                    failures = 0
 
     def _loop(self, connection: tg.Connection) -> None:
         assert self.ui is not None
@@ -333,9 +340,6 @@ class GuiWorker:
         while not self.stopping:
             state = self.snapshot()["state"]
             timeout = 2.0 if state == "working" else (1.4 if state == "approval" else None)
-            if self.ui.bubble_measure_due is not None:
-                measure_wait = max(0, self.ui.bubble_measure_due - time.monotonic())
-                timeout = measure_wait if timeout is None else min(timeout, measure_wait)
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
                 self.read_wake.recv(4096)
