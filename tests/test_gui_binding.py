@@ -33,11 +33,13 @@ class FakeConnection:
 
 class FakeView:
     next_id = 1
+    text_updates: list[str] = []
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self.id = FakeView.next_id
         FakeView.next_id += 1
         self.touch_enabled = False
+        self.visible = True
 
     def setdimensions(self, *args: object) -> None:
         pass
@@ -57,6 +59,15 @@ class FakeView:
     def sendtouchevent(self, enabled: bool) -> None:
         self.touch_enabled = enabled
 
+    def setvisibility(self, value: int) -> None:
+        self.visible = value == gui.tg.View.VISIBLE
+
+    def settext(self, value: str) -> None:
+        FakeView.text_updates.append(value)
+
+    def setimage(self, value: bytes) -> None:
+        pass
+
     def getdimensions(self) -> tuple[int, int]:
         return 192, 192
 
@@ -74,6 +85,24 @@ class GuiBindingTests(unittest.TestCase):
         self.assertTrue(pet.face.touch_enabled)
         self.assertTrue(pet.detail_left.touch_enabled)
         self.assertTrue(pet.detail_right.touch_enabled)
+
+    def test_approval_card_has_separate_project_status_and_summary(self) -> None:
+        FakeView.next_id = 1
+        FakeView.text_updates = []
+        connection = FakeConnection()
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(gui.tg, "LinearLayout", FakeView), \
+             patch.object(gui.tg, "TextView", FakeView), \
+             patch.object(gui.tg, "ImageView", FakeView):
+            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+            pet.render({"state": "approval", "working_count": 0,
+                        "project": "repo", "elapsed": 0,
+                        "message": "Review this permission"})
+
+        self.assertIn("repo", FakeView.text_updates)
+        self.assertIn("Needs approval", FakeView.text_updates)
+        self.assertIn("Review this permission", FakeView.text_updates)
+        self.assertFalse(any("\n" in value for value in FakeView.text_updates))
 
 
 if __name__ == "__main__":

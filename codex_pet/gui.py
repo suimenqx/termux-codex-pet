@@ -17,10 +17,18 @@ from .art import icon
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
-BUBBLE_WIDTH_DP = 196
+BUBBLE_WIDTH_DP = 164
 BUBBLE_GAP_DP = 8
 MESSAGE_MARGIN_DP = 12
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
+STATUS_COLORS = {
+    "idle": 0xFF92D9D0,
+    "working": 0xFF72B8FF,
+    "approval": 0xFFFFC567,
+    "done": 0xFF82DDAA,
+    "interrupted": 0xFFBBAEFF,
+    "error": 0xFFFF838A,
+}
 
 
 def _overlay(connection: tg.Connection) -> tg.Activity:
@@ -54,31 +62,25 @@ class OverlayUI:
         self.root = tg.LinearLayout(self.pet, vertical=False)
         self.root.setdimensions(tg.View.WRAP_CONTENT, tg.View.WRAP_CONTENT)
         self.root.setbackgroundcolor(0)
-        self.detail_left = tg.TextView(self.pet, "", self.root, visibility=tg.View.GONE)
+        self.detail_left = tg.LinearLayout(self.pet, self.root, vertical=True,
+                                           visibility=tg.View.GONE)
+        self.detail_left_fields = self._style_card(self.detail_left, "right")
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
-        self.detail_right = tg.TextView(self.pet, "", self.root, visibility=tg.View.GONE)
-        for detail, side in ((self.detail_left, "right"), (self.detail_right, "left")):
-            detail.setdimensions(BUBBLE_WIDTH_DP, tg.View.WRAP_CONTENT)
-            detail.settextsize(14)
-            detail.settextcolor(0xFFFFFFFF)
-            detail.setbackgroundcolor(0xE02A2A2A)
-            detail.setmargin(BUBBLE_GAP_DP, side)
-            # The binding has no setpadding method, but Termux:GUI supports it.
-            self.c.send_msg({"method": "setPadding", "params": {
-                "aid": self.pet.aid, "id": detail.id, "padding": 10,
-            }})
-            detail.sendtouchevent(True)
+        self.detail_right = tg.LinearLayout(self.pet, self.root, vertical=True,
+                                            visibility=tg.View.GONE)
+        self.detail_right_fields = self._style_card(self.detail_right, "left")
         self.face.sendtouchevent(True)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
-        self.bubble: tg.TextView | None = None
-        self.detail: tg.TextView | None = None
+        self.bubble: tg.LinearLayout | None = None
+        self.detail_fields: tuple[tg.TextView, tg.TextView, tg.TextView] | None = None
         self.bubble_width_px = 0
         self.bubble_x = 0
         self.bubble_y = 0
-        self.detail_content = ""
+        self.detail_content: tuple[str, str, str] | None = None
+        self.detail_state = ""
         self.detail_has_message = False
         self.face_top_margin_dp = 0
         self.expanded = False
@@ -90,6 +92,32 @@ class OverlayUI:
         self.last_touch = ""
         self.last_state = "idle"
         self._measure_density()
+
+    def _style_card(self, card: tg.LinearLayout,
+                    side: str) -> tuple[tg.TextView, tg.TextView, tg.TextView]:
+        card.setdimensions(BUBBLE_WIDTH_DP, tg.View.WRAP_CONTENT)
+        card.setbackgroundcolor(0xEE202B36)
+        card.setmargin(BUBBLE_GAP_DP, side)
+        # The binding has no setpadding method, but Termux:GUI supports it.
+        self.c.send_msg({"method": "setPadding", "params": {
+            "aid": self.pet.aid, "id": card.id, "padding": 10,
+        }})
+        card.sendtouchevent(True)
+        project = tg.TextView(self.pet, "", card)
+        status = tg.TextView(self.pet, "", card)
+        message = tg.TextView(self.pet, "", card, visibility=tg.View.GONE)
+        for view in (project, status, message):
+            view.setdimensions(tg.View.MATCH_PARENT, tg.View.WRAP_CONTENT)
+            view.sendtouchevent(True)
+        project.settextsize(12)
+        project.settextcolor(0xFFACC0CE)
+        status.settextsize(16)
+        status.settextcolor(STATUS_COLORS["idle"])
+        status.setmargin(3, "top")
+        message.settextsize(12)
+        message.settextcolor(0xFFF0F5F9)
+        message.setmargin(6, "top")
+        return project, status, message
 
     def _load_position(self) -> tuple[int, int]:
         try:
@@ -135,8 +163,9 @@ class OverlayUI:
             assert self.bubble is not None
             self.bubble.setvisibility(tg.View.GONE)
             self.bubble = None
-            self.detail = None
-            self.detail_content = ""
+            self.detail_fields = None
+            self.detail_content = None
+            self.detail_state = ""
             self.detail_has_message = False
             if self.face_top_margin_dp:
                 self.face.setmargin(0, "top")
@@ -154,8 +183,10 @@ class OverlayUI:
             self.bubble.setvisibility(tg.View.GONE)
         target.setvisibility(tg.View.VISIBLE)
         self.bubble = target
-        self.detail = target
-        self.detail_content = ""
+        self.detail_fields = (self.detail_left_fields if target is self.detail_left
+                              else self.detail_right_fields)
+        self.detail_content = None
+        self.detail_state = ""
         self.bubble_width_px = int(BUBBLE_WIDTH_DP * self.density)
         self._position_bubble()
         return True
@@ -185,26 +216,33 @@ class OverlayUI:
             self._set_bubble(state in ("approval", "done"))
         self.last_state = state
         self.face.setimage(icon(state, frame, snapshot["working_count"]))
-        if self.detail is not None:
+        if self.detail_fields is not None:
             labels = {
                 "idle": "Ready", "working": f"Working · {snapshot['elapsed']}s",
-                "approval": "Codex needs approval", "done": "Done",
+                "approval": "Needs approval", "done": "Done",
                 "interrupted": "Interrupted", "error": "Error",
             }
             message = " ".join(snapshot["message"].split())
             project = " ".join(snapshot["project"].split())
-            if len(project) > 24:
-                project = project[:23] + "…"
-            content = f"Codex · {project}\n{labels[state]}"
-            if message:
-                content += "\n" + message[:72]
+            if len(project) > 18:
+                project = project[:17] + "…"
+            if len(message) > 56:
+                message = message[:55] + "…"
+            content = (project or "Codex", labels[state], message)
             if content != self.detail_content:
-                # Native WRAP_CONTENT lays out the bubble without a blocking size query.
-                self.detail.settext(content)
+                previous = self.detail_content or ("", "", "")
+                for view, value, old in zip(self.detail_fields, content, previous):
+                    if value != old:
+                        view.settext(value)
+                self.detail_fields[2].setvisibility(
+                    tg.View.VISIBLE if message else tg.View.GONE)
                 self.detail_content = content
                 if bool(message) != self.detail_has_message:
                     self.detail_has_message = bool(message)
                     self._position_bubble()
+            if state != self.detail_state:
+                self.detail_fields[1].settextcolor(STATUS_COLORS[state])
+                self.detail_state = state
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):
@@ -223,7 +261,10 @@ class OverlayUI:
                     self.down = (raw_x, raw_y, started, self.x, self.y)
                 self.pending_down = None
                 self.dragged = False
-            elif self.bubble is not None and event.value.get("id") == self.bubble.id:
+            elif (self.bubble is not None and
+                  (event.value.get("id") == self.bubble.id or
+                   self.detail_fields is not None and any(
+                       event.value.get("id") == view.id for view in self.detail_fields))):
                 self.manual_expand = True
                 self.pending_down = None
             return False
@@ -245,8 +286,9 @@ class OverlayUI:
             if dx * dx + dy * dy > slop * slop:
                 self.dragged = True
             if self.dragged:
-                self.x = max(0, self.down[3] + int(dx))
-                self.y = max(0, self.down[4] + int(dy))
+                half_pet = PET_SIZE_DP * self.density / 2
+                self.x = max(0, round(xy[0] - half_pet))
+                self.y = max(0, round(xy[1] - half_pet))
                 if self.expanded:
                     self._position_bubble()
                 else:

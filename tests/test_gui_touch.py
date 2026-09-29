@@ -17,6 +17,7 @@ class PetView:
         self.positions: list[tuple[int, int]] = []
         self.visibility: list[int] = []
         self.margins: list[tuple[int, str]] = []
+        self.texts: list[str] = []
 
     def setposition(self, x: int, y: int) -> None:
         self.positions.append((x, y))
@@ -26,6 +27,12 @@ class PetView:
 
     def setmargin(self, value: int, side: str) -> None:
         self.margins.append((value, side))
+
+    def settext(self, value: str) -> None:
+        self.texts.append(value)
+
+    def settextcolor(self, value: int) -> None:
+        pass
 
 
 def touch(action: str, x: int, y: int) -> SimpleNamespace:
@@ -44,9 +51,12 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.root = SimpleNamespace(id=2)
         self.ui.detail_left = PetView(3)
         self.ui.detail_right = PetView(4)
+        self.ui.detail_left_fields = (PetView(6), PetView(7), PetView(8))
+        self.ui.detail_right_fields = (PetView(9), PetView(10), PetView(11))
         self.ui.bubble = None
-        self.ui.detail = None
-        self.ui.detail_content = ""
+        self.ui.detail_fields = None
+        self.ui.detail_content = None
+        self.ui.detail_state = ""
         self.ui.detail_has_message = False
         self.ui.last_state = "idle"
         self.ui.x, self.ui.y = 700, 420
@@ -66,6 +76,9 @@ class GuiTouchTests(unittest.TestCase):
         def set_bubble(show: bool) -> None:
             self.ui.expanded = show
             self.ui.bubble = SimpleNamespace(id=3) if show else None
+            self.ui.detail_fields = self.ui.detail_left_fields if show else None
+            self.ui.detail_content = None
+            self.ui.detail_state = ""
         self.ui._set_bubble = set_bubble
 
     def render(self, state: str) -> None:
@@ -97,8 +110,8 @@ class GuiTouchTests(unittest.TestCase):
         self.face_down(500, 460)
         self.ui.handle(touch("move", 550, 500))
         self.ui.handle(touch("up", 550, 500))
-        self.assertEqual(self.saved, [(750, 460)])
-        self.assertEqual(self.ui.pet.positions[-1], (750, 460))
+        self.assertEqual(self.saved, [(454, 404)])
+        self.assertEqual(self.ui.pet.positions[-1], (454, 404))
 
     def test_drag_uses_actual_image_location_when_window_is_clamped(self) -> None:
         self.ui.handle(touch("down", 500, 460))
@@ -108,7 +121,7 @@ class GuiTouchTests(unittest.TestCase):
         }))
         self.ui.handle(touch("move", 550, 500))
         self.ui.handle(touch("up", 550, 500))
-        self.assertEqual(self.saved, [(520, 470)])
+        self.assertEqual(self.saved, [(454, 404)])
 
     def test_overlay_touch_without_face_touch_does_not_activate_pet(self) -> None:
         self.ui.handle(touch("down", 730, 460))
@@ -121,8 +134,8 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.handle(touch("move", 770, 490))
         self.ui.handle(touch("move", 780, 500))
         self.ui.handle(touch("up", 780, 500))
-        self.assertEqual(self.ui.pet.positions, [(740, 450), (750, 460)])
-        self.assertEqual(self.saved, [(750, 460)])
+        self.assertEqual(self.ui.pet.positions, [(674, 394), (684, 404)])
+        self.assertEqual(self.saved, [(684, 404)])
         self.assertFalse(self.ui.expanded)
         self.assertEqual(self.ui.last_touch, "up")
 
@@ -144,6 +157,15 @@ class GuiTouchTests(unittest.TestCase):
         self.face_down(730, 460)
         self.ui.handle(touch("up", 730, 460))
         self.assertFalse(self.ui.expanded)
+
+    def test_touching_card_text_keeps_auto_detail_open(self) -> None:
+        self.render("done")
+        self.ui.handle(SimpleNamespace(
+            type=tg.Event.touch,
+            value={"id": self.ui.detail_left_fields[1].id, "action": "down"},
+        ))
+        self.render("idle")
+        self.assertTrue(self.ui.expanded)
 
     def test_manual_dismissal_does_not_reopen_same_approval(self) -> None:
         self.render("approval")
@@ -195,7 +217,7 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.x, self.ui.y = 700, 420
         self.ui._set_bubble(True)
         self.assertIs(self.ui.bubble, self.ui.detail_left)
-        self.assertEqual(self.ui.pet.positions[-1], (88, 420))
+        self.assertEqual(self.ui.pet.positions[-1], (184, 420))
         self.assertEqual((self.ui.x, self.ui.y), (700, 420))
         self.ui._set_bubble(False)
         self.assertEqual(self.ui.pet.positions[-1], (700, 420))
@@ -214,7 +236,6 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual(self.ui.bubble_x, 316)
 
     def test_detail_render_does_not_query_native_dimensions(self) -> None:
-        texts: list[str] = []
         self.ui.bubble = SimpleNamespace(id=3)
         self.ui.expanded = True
         self.ui.manual_expand = True
@@ -222,15 +243,14 @@ class GuiTouchTests(unittest.TestCase):
         def unavailable_dimensions() -> tuple[int, int]:
             raise RuntimeError("native layout query is unavailable")
 
-        self.ui.detail = SimpleNamespace(
-            settext=texts.append,
-            getdimensions=unavailable_dimensions,
-        )
+        self.ui.detail_fields = self.ui.detail_left_fields
+        for field in self.ui.detail_fields:
+            field.getdimensions = unavailable_dimensions
         self.render("idle")
-        self.assertEqual(len(texts), 1)
+        self.assertEqual(self.ui.detail_fields[0].texts, ["repo"])
         time.sleep(0.17)
         self.render("idle")
-        self.assertEqual(len(texts), 1)
+        self.assertEqual(self.ui.detail_fields[0].texts, ["repo"])
 
 
 if __name__ == "__main__":
