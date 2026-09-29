@@ -66,6 +66,7 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.pending_down = None
         self.ui.down = None
         self.ui.dragged = False
+        self.ui.drag_enabled = False
         self.ui.expanded = False
         self.ui.manual_expand = False
         self.ui.touch_count = 0
@@ -106,22 +107,15 @@ class GuiTouchTests(unittest.TestCase):
         self.assertTrue(self.ui.handle(touch("up", 500, 460)))
         self.assertTrue(self.ui.expanded)
 
-    def test_face_drag_survives_android_overlay_coordinate_shift(self) -> None:
-        self.face_down(500, 460)
-        self.ui.handle(touch("move", 550, 500))
-        self.ui.handle(touch("up", 550, 500))
-        self.assertEqual(self.saved, [(454, 404)])
-        self.assertEqual(self.ui.pet.positions[-1], (454, 404))
-
-    def test_drag_uses_actual_image_location_when_window_is_clamped(self) -> None:
+    def test_nested_image_pointer_keeps_grab_aligned_after_window_clamp(self) -> None:
         self.ui.handle(touch("down", 500, 460))
         self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
             "id": self.ui.face.id, "action": "down",
-            "pointers": [{"x": 10, "y": 10}],
+            "pointers": [[{"x": 20, "y": 32, "id": 0}]],
         }))
         self.ui.handle(touch("move", 550, 500))
         self.ui.handle(touch("up", 550, 500))
-        self.assertEqual(self.saved, [(454, 404)])
+        self.assertEqual(self.saved, [(490, 404)])
 
     def test_overlay_touch_without_face_touch_does_not_activate_pet(self) -> None:
         self.ui.handle(touch("down", 730, 460))
@@ -130,14 +124,34 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual(self.saved, [])
 
     def test_drag_moves_and_saves_position(self) -> None:
-        self.face_down(730, 460)
-        self.ui.handle(touch("move", 770, 490))
-        self.ui.handle(touch("move", 780, 500))
-        self.ui.handle(touch("up", 780, 500))
-        self.assertEqual(self.ui.pet.positions, [(674, 394), (684, 404)])
-        self.assertEqual(self.saved, [(684, 404)])
+        self.face_down(790, 510)
+        self.ui.handle(touch("move", 830, 540))
+        self.ui.handle(touch("move", 840, 550))
+        self.ui.handle(touch("up", 840, 550))
+        self.assertEqual(self.ui.pet.positions, [(740, 450), (750, 460)])
+        self.assertEqual(self.saved, [(750, 460)])
         self.assertFalse(self.ui.expanded)
         self.assertEqual(self.ui.last_touch, "up")
+
+    def test_center_grab_keeps_the_contact_point_while_moving(self) -> None:
+        self.face_down(760, 480)
+        self.ui.handle(touch("move", 810, 530))
+        self.ui.handle(touch("up", 810, 530))
+        self.assertEqual(self.saved, [(750, 470)])
+
+    def test_outer_image_touch_cannot_start_a_drag(self) -> None:
+        self.face_down(710, 430)
+        self.ui.handle(touch("move", 760, 480))
+        self.ui.handle(touch("up", 760, 480))
+        self.assertEqual(self.saved, [])
+        self.assertEqual(self.ui.pet.positions, [])
+
+    def test_cancelled_drag_returns_to_its_start_without_saving(self) -> None:
+        self.face_down(790, 510)
+        self.ui.handle(touch("move", 840, 550))
+        self.ui.handle(touch("cancel", 840, 550))
+        self.assertEqual(self.saved, [])
+        self.assertEqual(self.ui.pet.positions[-1], (700, 420))
 
     def test_auto_detail_closes_when_approval_resolves(self) -> None:
         self.render("approval")

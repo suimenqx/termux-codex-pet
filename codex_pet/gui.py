@@ -17,6 +17,7 @@ from .art import icon
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
+DRAG_RADIUS_DP = 24
 BUBBLE_WIDTH_DP = 164
 BUBBLE_GAP_DP = 8
 MESSAGE_MARGIN_DP = 12
@@ -50,6 +51,15 @@ def _point(value: Any) -> tuple[float, float] | None:
         return float(value["x"]), float(value["y"])
     except (KeyError, TypeError, ValueError):
         return None
+
+
+def _first_pointer(value: Any) -> tuple[float, float] | None:
+    if not isinstance(value, list) or not value:
+        return None
+    first = value[0]
+    if isinstance(first, list):
+        first = first[0] if first else None
+    return _point(first)
 
 
 class OverlayUI:
@@ -88,6 +98,7 @@ class OverlayUI:
         self.pending_down: tuple[float, float, float, int, int] | None = None
         self.down: tuple[float, float, float, int, int] | None = None
         self.dragged = False
+        self.drag_enabled = False
         self.touch_count = 0
         self.last_touch = ""
         self.last_state = "idle"
@@ -251,13 +262,18 @@ class OverlayUI:
             if event.value.get("id") == self.face.id and event.value.get("action") == "down":
                 if self.pending_down is not None:
                     raw_x, raw_y, started, _, _ = self.pending_down
-                    pointers = event.value.get("pointers")
-                    local = _point(pointers[0]) if isinstance(pointers, list) and pointers else None
+                    local = _first_pointer(event.value.get("pointers"))
                     if local is not None and 0 <= local[0] <= PET_SIZE_DP and 0 <= local[1] <= PET_SIZE_DP:
                         # ImageView touch coordinates are in the 64 px icon, so
                         # re-anchor when Android has clamped the overlay window.
                         self.x = max(0, round(raw_x - local[0] * self.density))
                         self.y = max(0, round(raw_y - local[1] * self.density))
+                    else:
+                        local = ((raw_x - self.x) / self.density,
+                                 (raw_y - self.y) / self.density)
+                    cx, cy = PET_SIZE_DP / 2, PET_SIZE_DP / 2
+                    self.drag_enabled = ((local[0] - cx) ** 2 + (local[1] - cy) ** 2
+                                         <= DRAG_RADIUS_DP ** 2)
                     self.down = (raw_x, raw_y, started, self.x, self.y)
                 self.pending_down = None
                 self.dragged = False
@@ -280,25 +296,35 @@ class OverlayUI:
             self.pending_down = (xy[0], xy[1], time.monotonic(), self.x, self.y)
             self.down = None
             self.dragged = False
+            self.drag_enabled = False
         elif action == "move" and self.down is not None:
             dx, dy = xy[0] - self.down[0], xy[1] - self.down[1]
             slop = 12 * self.density
             if dx * dx + dy * dy > slop * slop:
                 self.dragged = True
-            if self.dragged:
-                half_pet = PET_SIZE_DP * self.density / 2
-                self.x = max(0, round(xy[0] - half_pet))
-                self.y = max(0, round(xy[1] - half_pet))
+            if self.dragged and self.drag_enabled:
+                self.x = max(0, self.down[3] + round(dx))
+                self.y = max(0, self.down[4] + round(dy))
                 if self.expanded:
                     self._position_bubble()
                 else:
                     self.pet.setposition(self.x, self.y)
         elif action in ("up", "cancel") and self.down is not None:
             self.pending_down = None
-            if self.dragged:
-                self._save_position()
+            if action == "cancel":
+                if self.dragged and self.drag_enabled:
+                    self.x, self.y = self.down[3], self.down[4]
+                    if self.expanded:
+                        self._position_bubble()
+                    else:
+                        self.pet.setposition(self.x, self.y)
                 self.down = None
-                if self.expanded and self._choose_bubble_side():
+                return False
+            if self.dragged:
+                if self.drag_enabled:
+                    self._save_position()
+                self.down = None
+                if self.drag_enabled and self.expanded and self._choose_bubble_side():
                     return True
             elif action == "up" and time.monotonic() - self.down[2] < 0.7:
                 self.manual_expand = not self.expanded

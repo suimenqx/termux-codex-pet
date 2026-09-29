@@ -34,7 +34,7 @@ codex-pet status      # 查看 daemon、GUI、状态、项目及会话数
 codex-pet test        # 依次演示全部六种状态
 ```
 
-点击机器人可展开或收起活动卡片。卡片显示项目、彩色状态和简短摘要，默认出现在左侧，靠近屏幕左边时移到右侧。审批和完成时会自动展开；触碰自动展开的卡片会让它保持显示，直到再次点击机器人。按住机器人并拖动，开始拖动后机器人中心会跟随手指。位置保存在 `~/.config/codex-pet/config.json`，重启后会恢复。收起时机器人宽约 64dp。
+点击机器人可展开或收起活动卡片。卡片显示项目、彩色状态和简短摘要，默认出现在左侧，靠近屏幕左边时移到右侧。审批和完成时会自动展开；触碰自动展开的卡片会让它保持显示，直到再次点击机器人。从机器人中心附近开始拖动，按住的那个点会一直跟随手指，机器人不会突然跳位。离中心较远的区域仍可点击，但不会启动拖动。位置保存在 `~/.config/codex-pet/config.json`，重启后会恢复。收起时机器人宽约 64dp。
 
 | 状态 | 显示内容 | 触发与持续时间 |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ codex-pet status
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
 - **更新后还是旧界面：**运行 `codex-pet restart`；正在运行的 daemon 不会自动重载 Python 文件。
-- **点击或拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从机器人图像开始拖动；触摸活动卡片只会让卡片保持展开。
+- **点击或拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从机器人中心附近开始拖动；触摸活动卡片只会让卡片保持展开。
 
 ## 卸载
 
