@@ -18,9 +18,10 @@ from .art import icon, speech_tail
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
 DRAG_RADIUS_DP = 24
-BUBBLE_WIDTH_DP = 164
-BUBBLE_TAIL_WIDTH_DP = 8
-BUBBLE_TAIL_HEIGHT_DP = 14
+BUBBLE_WIDTH_DP = 116
+BUBBLE_TAIL_WIDTH_DP = 5
+BUBBLE_TAIL_HEIGHT_DP = 12
+BUBBLE_PADDING_DP = 5
 MESSAGE_MARGIN_DP = 12
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
 STATUS_COLORS = {
@@ -75,14 +76,14 @@ class OverlayUI:
         self.root.setbackgroundcolor(0)
         self.detail_left = tg.LinearLayout(self.pet, self.root, vertical=True,
                                            visibility=tg.View.GONE)
-        self.detail_left_fields = self._style_card(self.detail_left)
+        self.detail_left_fields = self._style_card(self.detail_left, text_gravity=2)
         self.left_tail = self._create_tail("right")
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.right_tail = self._create_tail("left")
         self.detail_right = tg.LinearLayout(self.pet, self.root, vertical=True,
                                             visibility=tg.View.GONE)
-        self.detail_right_fields = self._style_card(self.detail_right)
+        self.detail_right_fields = self._style_card(self.detail_right, text_gravity=0)
         self.face.sendtouchevent(True)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
@@ -107,12 +108,13 @@ class OverlayUI:
         self.last_state = "idle"
         self._measure_density()
 
-    def _style_card(self, card: tg.LinearLayout) -> tuple[tg.TextView, tg.TextView, tg.TextView]:
+    def _style_card(self, card: tg.LinearLayout, text_gravity: int
+                    ) -> tuple[tg.TextView, tg.TextView, tg.TextView]:
         card.setdimensions(BUBBLE_WIDTH_DP, tg.View.WRAP_CONTENT)
         card.setbackgroundcolor(0xEE202B36)
         # The binding has no setpadding method, but Termux:GUI supports it.
         self.c.send_msg({"method": "setPadding", "params": {
-            "aid": self.pet.aid, "id": card.id, "padding": 10,
+            "aid": self.pet.aid, "id": card.id, "padding": BUBBLE_PADDING_DP,
         }})
         card.sendtouchevent(True)
         project = tg.TextView(self.pet, "", card)
@@ -121,12 +123,13 @@ class OverlayUI:
         for view in (project, status, message):
             view.setdimensions(tg.View.MATCH_PARENT, tg.View.WRAP_CONTENT)
             view.sendtouchevent(True)
-        project.settextsize(12)
+            view.setgravity(text_gravity, 0)
+        project.settextsize(10)
         project.settextcolor(0xFFACC0CE)
-        status.settextsize(16)
+        status.settextsize(14)
         status.settextcolor(STATUS_COLORS["idle"])
         status.setmargin(3, "top")
-        message.settextsize(12)
+        message.settextsize(10)
         message.settextcolor(0xFFF0F5F9)
         message.setmargin(6, "top")
         return project, status, message
@@ -253,10 +256,10 @@ class OverlayUI:
             }
             message = " ".join(snapshot["message"].split())
             project = " ".join(snapshot["project"].split())
-            if len(project) > 18:
-                project = project[:17] + "…"
-            if len(message) > 56:
-                message = message[:55] + "…"
+            if len(project) > 14:
+                project = project[:13] + "…"
+            if len(message) > 44:
+                message = message[:43] + "…"
             content = (project or "Codex", labels[state], message)
             if content != self.detail_content:
                 previous = self.detail_content or ("", "", "")

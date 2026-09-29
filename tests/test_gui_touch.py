@@ -201,18 +201,18 @@ class GuiTouchTests(unittest.TestCase):
 
     def test_bubble_switches_sides_near_left_edge(self) -> None:
         self.ui._position_bubble = OverlayUI._position_bubble.__get__(self.ui)
-        self.ui.bubble_width_px = 588
+        self.ui.bubble_width_px = 363  # 121 dp card and tail at 3x density
         self.ui.detail_has_message = True
         self.ui.bubble = self.ui.detail_left
         self.ui.x, self.ui.y = 1000, 500
         self.ui._position_bubble()
-        self.assertEqual(self.ui.pet.positions[-1], (412, 464))
-        self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (412, 464))
+        self.assertEqual(self.ui.pet.positions[-1], (637, 464))
+        self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (637, 464))
         self.ui.bubble = self.ui.detail_right
         self.ui.x, self.ui.y = 100, 10
         self.ui._position_bubble()
         self.assertEqual(self.ui.pet.positions[-1], (100, 1))
-        self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (316, 1))
+        self.assertEqual((self.ui.bubble_x, self.ui.bubble_y), (307, 1))
 
     def test_detail_touch_does_not_move_pet(self) -> None:
         self.ui.x, self.ui.y = 100, 10
@@ -242,7 +242,7 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.x, self.ui.y = 700, 420
         self.ui._set_bubble(True)
         self.assertIs(self.ui.bubble, self.ui.detail_left)
-        self.assertEqual(self.ui.pet.positions[-1], (184, 420))
+        self.assertEqual(self.ui.pet.positions[-1], (337, 420))
         self.assertEqual((self.ui.x, self.ui.y), (700, 420))
         self.ui._set_bubble(False)
         self.assertEqual(self.ui.pet.positions[-1], (700, 420))
@@ -258,7 +258,7 @@ class GuiTouchTests(unittest.TestCase):
         self.assertTrue(self.ui._choose_bubble_side())
         self.assertIs(self.ui.bubble, self.ui.detail_right)
         self.assertEqual(self.ui.pet.positions[-1], (100, 420))
-        self.assertEqual(self.ui.bubble_x, 316)
+        self.assertEqual(self.ui.bubble_x, 307)
 
     def test_detail_render_does_not_query_native_dimensions(self) -> None:
         self.ui.bubble = SimpleNamespace(id=3)

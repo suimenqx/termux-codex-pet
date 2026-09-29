@@ -42,15 +42,21 @@ class FakeView:
         self.visible = kwargs.get("visibility", gui.tg.View.VISIBLE) == gui.tg.View.VISIBLE
         self.image = b""
         self.margins: list[tuple[int, str]] = []
+        self.dimensions: list[tuple[object, ...]] = []
+        self.text_sizes: list[int] = []
+        self.gravities: list[tuple[int, int]] = []
 
     def setdimensions(self, *args: object) -> None:
-        pass
+        self.dimensions.append(args)
 
     def setbackgroundcolor(self, *args: object) -> None:
         pass
 
     def settextsize(self, *args: object) -> None:
-        pass
+        self.text_sizes.extend(args)
+
+    def setgravity(self, horizontal: int, vertical: int) -> None:
+        self.gravities.append((horizontal, vertical))
 
     def settextcolor(self, *args: object) -> None:
         pass
@@ -123,7 +129,7 @@ class GuiBindingTests(unittest.TestCase):
             card_px = round(gui.BUBBLE_WIDTH_DP * pet.density)
             self.assertTrue(pet.left_tail.visible)
             self.assertEqual(pet.bubble_x + card_px + tail_px, pet.x)
-            self.assertIn((37, "top"), pet.left_tail.margins)
+            self.assertIn((38, "top"), pet.left_tail.margins)
 
             pet.x = 100
             self.assertTrue(pet._choose_bubble_side())
@@ -135,6 +141,32 @@ class GuiBindingTests(unittest.TestCase):
             self.assertTrue(pet.left_tail.image.startswith(b"\x89PNG"))
             self.assertTrue(pet.right_tail.image.startswith(b"\x89PNG"))
             self.assertNotEqual(pet.left_tail.image, pet.right_tail.image)
+
+    def test_activity_card_is_compact_and_text_faces_the_pet(self) -> None:
+        FakeView.next_id = 1
+        connection = FakeConnection()
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(gui.tg, "LinearLayout", FakeView), \
+             patch.object(gui.tg, "TextView", FakeView), \
+             patch.object(gui.tg, "ImageView", FakeView):
+            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+
+        self.assertEqual(pet.detail_left.dimensions[0], (116, gui.tg.View.WRAP_CONTENT))
+        self.assertEqual(pet.detail_right.dimensions[0], (116, gui.tg.View.WRAP_CONTENT))
+        self.assertEqual(
+            [message["params"]["padding"] for message in connection.messages
+             if message["method"] == "setPadding"],
+            [5, 5],
+        )
+        self.assertEqual(
+            [field.gravities for field in pet.detail_left_fields],
+            [[(2, 0)], [(2, 0)], [(2, 0)]],
+        )
+        self.assertEqual(
+            [field.gravities for field in pet.detail_right_fields],
+            [[(0, 0)], [(0, 0)], [(0, 0)]],
+        )
+        self.assertEqual([field.text_sizes for field in pet.detail_left_fields], [[10], [14], [10]])
 
 
 if __name__ == "__main__":
