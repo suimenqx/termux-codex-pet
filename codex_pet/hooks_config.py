@@ -41,16 +41,21 @@ def install() -> None:
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     if "hooks" in config:
         content = TOML.read_text()
-        if BEGIN not in content:
-            block = "\n" + BEGIN + "\n"
-            for name in HOOK_STATES:
-                block += (f"[[hooks.{name}]]\n"
-                          f"[[hooks.{name}.hooks]]\n"
-                          "type = \"command\"\n"
-                          f"command = {json.dumps(COMMAND)}\n"
-                          "timeout = 3\n\n")
-            block += END + "\n"
-            new_content = content.rstrip() + "\n" + block
+        block = BEGIN + "\n"
+        for name in HOOK_STATES:
+            block += (f"[[hooks.{name}]]\n"
+                      f"[[hooks.{name}.hooks]]\n"
+                      "type = \"command\"\n"
+                      f"command = {json.dumps(COMMAND)}\n"
+                      "timeout = 3\n\n")
+        block += END
+        if BEGIN in content and END in content:
+            before, remainder = content.split(BEGIN, 1)
+            _, after = remainder.split(END, 1)
+            new_content = before + block + after
+        else:
+            new_content = content.rstrip() + "\n\n" + block + "\n"
+        if new_content != content:
             tomllib.loads(new_content)
             _backup(TOML)
             _write(TOML, new_content)

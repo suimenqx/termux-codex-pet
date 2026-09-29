@@ -94,9 +94,9 @@ def start_daemon(wait: float = 0.8) -> dict[str, Any] | None:
 
 def notification(state: str, project: str, message: str = "") -> None:
     command = shutil.which("termux-notification")
-    if command is None or state not in ("approval", "done"):
+    if command is None or state not in ("needs_input", "ready"):
         return
-    title = "Codex needs approval" if state == "approval" else "Codex done"
+    title = "Codex needs input" if state == "needs_input" else "Codex ready"
     content = project + (" · " + message[:90] if message else "")
     try:
         subprocess.run(

@@ -60,11 +60,10 @@ def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
 
     colors = {
         "idle": (91, 206, 194, 255),
-        "working": (83, 169, 255, 255),
-        "approval": (255, 191, 75, 255),
-        "done": (95, 220, 146, 255),
-        "interrupted": (181, 164, 255, 255),
-        "error": (255, 108, 117, 255),
+        "running": (83, 169, 255, 255),
+        "needs_input": (255, 191, 75, 255),
+        "ready": (95, 220, 146, 255),
+        "blocked": (255, 108, 117, 255),
     }
     accent = colors.get(state, colors["idle"])
     shell = (31, 40, 52, 250)
@@ -96,38 +95,33 @@ def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     disc(32, 53, 2, accent)
 
     # Let the face react to the same state as the status badge.
-    if state == "done":
+    if state == "ready":
         for cx in (24, 40):
             rect(cx - 4, 32, cx - 2, 34, white)
             rect(cx - 2, 29, cx + 2, 32, white)
             rect(cx + 2, 32, cx + 4, 34, white)
-    elif state == "interrupted":
-        rect(20, 31, 28, 33, white)
-        rect(36, 31, 44, 33, white)
     else:
-        eye_radius = 5 if state == "approval" else 4
+        eye_radius = 5 if state == "needs_input" else 4
         disc(24, 32, eye_radius, white)
         disc(40, 32, eye_radius, white)
         rect(23, 31, 25, 34, shell)
         rect(39, 31, 41, 34, shell)
 
-    if state in ("idle", "done"):
+    if state in ("idle", "ready"):
         rect(27, 41, 37, 43, accent)
         dot(26, 40, accent)
         dot(37, 40, accent)
-    elif state == "working":
+    elif state == "running":
         rect(29, 42, 35, 44, accent)
-    elif state == "approval":
+    elif state == "needs_input":
         disc(32, 42, 3, accent)
         disc(32, 42, 1, face)
-    elif state == "interrupted":
-        rect(29, 41, 35, 43, accent)
-    elif state == "error":
+    elif state == "blocked":
         rect(27, 42, 29, 44, accent)
         rect(29, 40, 35, 42, accent)
         rect(35, 42, 37, 44, accent)
 
-    if state == "working":
+    if state == "running":
         for x, y in ([(3, 13), (58, 12), (60, 52)] if frame else [(2, 50), (57, 10), (60, 28)]):
             disc(x, y, 2, accent)
         if count > 1:
@@ -151,22 +145,18 @@ def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
                     for x, pixel in enumerate(row):
                         if pixel == "1":
                             dot(left + column * 4 + x, 8 + y, shell)
-    elif state == "approval":
+    elif state == "needs_input":
         disc(53, 12, 10 if frame else 9, (41, 49, 59, 255))
         disc(53, 12, 8, accent)
         rect(51, 7, 55, 10, shell)
         rect(54, 9, 57, 13, shell)
         rect(52, 13, 55, 16, shell)
         rect(52, 18, 55, 20, shell)
-    elif state == "done":
+    elif state == "ready":
         disc(53, 12, 9, accent)
         for x, y in ((49, 12), (50, 13), (51, 14), (52, 13), (53, 12), (54, 11), (55, 10), (56, 9)):
             rect(x, y, x + 2, y + 2, shell)
-    elif state == "interrupted":
-        disc(53, 12, 9, accent)
-        rect(49, 7, 52, 17, shell)
-        rect(54, 7, 57, 17, shell)
-    elif state == "error":
+    elif state == "blocked":
         disc(53, 12, 9, accent)
         rect(52, 6, 55, 14, shell)
         rect(52, 17, 55, 20, shell)

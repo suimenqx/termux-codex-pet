@@ -64,6 +64,8 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.detail_state = ""
         self.ui.detail_has_message = False
         self.ui.last_state = "idle"
+        self.ui.last_snapshot = {}
+        self.ui.on_ready_read = None
         self.ui.x, self.ui.y = 700, 420
         self.ui.density = 3.0
         self.ui.bubble_width_px = 0
@@ -87,8 +89,9 @@ class GuiTouchTests(unittest.TestCase):
         self.ui._set_bubble = set_bubble
 
     def render(self, state: str) -> None:
-        self.ui.render({"state": state, "working_count": 0,
-                        "project": "repo", "elapsed": 0, "message": ""})
+        self.ui.render({"state": state, "running_count": 0,
+                        "project": "repo", "elapsed": 0, "message": "",
+                        "session_id": "thread-1"})
 
     def face_down(self, x: int, y: int) -> None:
         self.ui.handle(touch("down", x, y))
@@ -226,18 +229,18 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual((self.ui.x, self.ui.y), (700, 420))
         self.assertEqual(self.ui.pet.positions[-1], (700, 420))
 
-    def test_auto_detail_closes_when_approval_resolves(self) -> None:
-        self.render("approval")
+    def test_auto_detail_closes_when_input_request_resolves(self) -> None:
+        self.render("needs_input")
         self.assertTrue(self.ui.expanded)
-        self.render("working")
+        self.render("running")
         self.assertFalse(self.ui.expanded)
-        self.render("done")
+        self.render("ready")
         self.assertTrue(self.ui.expanded)
         self.render("idle")
         self.assertFalse(self.ui.expanded)
 
     def test_touching_auto_detail_keeps_it_open(self) -> None:
-        self.render("done")
+        self.render("ready")
         self.ui.handle(SimpleNamespace(type=tg.Event.touch,
                                        value={"aid": 2, "id": 3}))
         self.render("idle")
@@ -247,7 +250,7 @@ class GuiTouchTests(unittest.TestCase):
         self.assertFalse(self.ui.expanded)
 
     def test_touching_card_text_keeps_auto_detail_open(self) -> None:
-        self.render("done")
+        self.render("ready")
         self.ui.handle(SimpleNamespace(
             type=tg.Event.touch,
             value={"aid": 2, "id": self.ui.detail_left_fields[1].id,
@@ -257,7 +260,7 @@ class GuiTouchTests(unittest.TestCase):
         self.assertTrue(self.ui.expanded)
 
     def test_touching_speech_tail_keeps_auto_detail_open(self) -> None:
-        self.render("done")
+        self.render("ready")
         self.ui.handle(SimpleNamespace(
             type=tg.Event.touch,
             value={"aid": 2, "id": self.ui.left_tail.id, "action": "down"},
@@ -265,12 +268,20 @@ class GuiTouchTests(unittest.TestCase):
         self.render("idle")
         self.assertTrue(self.ui.expanded)
 
-    def test_manual_dismissal_does_not_reopen_same_approval(self) -> None:
-        self.render("approval")
+    def test_manual_dismissal_does_not_reopen_same_input_request(self) -> None:
+        self.render("needs_input")
         self.face_down(730, 460)
         self.ui.handle(touch("up", 730, 460))
-        self.render("approval")
+        self.render("needs_input")
         self.assertFalse(self.ui.expanded)
+
+    def test_tapping_ready_acknowledges_the_visible_session(self) -> None:
+        acknowledgements: list[str | None] = []
+        self.ui.on_ready_read = acknowledgements.append
+        self.render("ready")
+        self.face_down(730, 460)
+        self.ui.handle(touch("up", 730, 460))
+        self.assertEqual(acknowledgements, ["thread-1"])
 
     def test_bubble_switches_sides_near_left_edge(self) -> None:
         self.ui._position_bubble = OverlayUI._position_bubble.__get__(self.ui)

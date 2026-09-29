@@ -26,11 +26,10 @@ MESSAGE_MARGIN_DP = 12
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
 STATUS_COLORS = {
     "idle": 0xFF92D9D0,
-    "working": 0xFF72B8FF,
-    "approval": 0xFFFFC567,
-    "done": 0xFF82DDAA,
-    "interrupted": 0xFFBBAEFF,
-    "error": 0xFFFF838A,
+    "running": 0xFF72B8FF,
+    "needs_input": 0xFFFFC567,
+    "ready": 0xFF82DDAA,
+    "blocked": 0xFFFF838A,
 }
 
 
@@ -65,9 +64,11 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
 
 
 class OverlayUI:
-    def __init__(self, connection: tg.Connection, config_path: Path) -> None:
+    def __init__(self, connection: tg.Connection, config_path: Path,
+                 on_ready_read: Callable[[str | None], None] | None = None) -> None:
         self.c = connection
         self.config_path = config_path
+        self.on_ready_read = on_ready_read
         self.x, self.y = self._load_position()
         self.density = 3.0
         self.pet = _overlay(connection)
@@ -110,6 +111,7 @@ class OverlayUI:
         self.touch_count = 0
         self.last_touch = ""
         self.last_state = "idle"
+        self.last_snapshot: dict[str, Any] = {}
         self._measure_density()
 
     def _style_card(self, card: tg.LinearLayout, text_gravity: int
@@ -243,14 +245,14 @@ class OverlayUI:
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
         if state != self.last_state and not self.manual_expand:
-            self._set_bubble(state in ("approval", "done"))
+            self._set_bubble(state in ("needs_input", "ready"))
         self.last_state = state
-        self.face.setimage(icon(state, frame, snapshot["working_count"]))
+        self.last_snapshot = snapshot.copy()
+        self.face.setimage(icon(state, frame, snapshot["running_count"]))
         if self.detail_fields is not None:
             labels = {
-                "idle": "Ready", "working": f"Working · {snapshot['elapsed']}s",
-                "approval": "Needs approval", "done": "Done",
-                "interrupted": "Interrupted", "error": "Error",
+                "idle": "Idle", "running": f"Running · {snapshot['elapsed']}s",
+                "needs_input": "Needs input", "ready": "Ready", "blocked": "Blocked",
             }
             message = " ".join(snapshot["message"].split())
             project = " ".join(snapshot["project"].split())
@@ -308,6 +310,8 @@ class OverlayUI:
                        event.value.get("id") == view.id for view in self.detail_fields))):
                 self.manual_expand = True
                 self.pending_down = None
+                if self.last_state == "ready" and self.on_ready_read is not None:
+                    self.on_ready_read(self.last_snapshot.get("session_id"))
             return False
         if event.type != tg.Event.overlaytouch:
             return False
@@ -356,6 +360,8 @@ class OverlayUI:
             elif action == "up" and time.monotonic() - self.down[2] < 0.7:
                 self.manual_expand = not self.expanded
                 self._set_bubble(not self.expanded)
+                if self.last_state == "ready" and self.on_ready_read is not None:
+                    self.on_ready_read(self.last_snapshot.get("session_id"))
                 self.down = None
                 return True
             self.down = None
@@ -370,10 +376,12 @@ class OverlayUI:
 
 class GuiWorker:
     def __init__(self, config_path: Path, snapshot: Callable[[], dict[str, Any]],
-                 on_status: Callable[[bool, str], None]) -> None:
+                 on_status: Callable[[bool, str], None],
+                 on_ready_read: Callable[[str | None], None] | None = None) -> None:
         self.config_path = config_path
         self.snapshot = snapshot
         self.on_status = on_status
+        self.on_ready_read = on_ready_read
         self.read_wake, self.write_wake = socket.socketpair()
         self.stopping = False
         self.thread = threading.Thread(target=self._run, name="codex-pet-gui", daemon=True)
@@ -403,7 +411,7 @@ class GuiWorker:
             try:
                 connection = tg.Connection()
                 connection._main.settimeout(4.0)
-                self.ui = OverlayUI(connection, self.config_path)
+                self.ui = OverlayUI(connection, self.config_path, self.on_ready_read)
                 self.on_status(True, "")
                 failures = 0
                 self._loop(connection)
@@ -435,7 +443,7 @@ class GuiWorker:
         self.ui.render(self.snapshot(), frame)
         while not self.stopping:
             state = self.snapshot()["state"]
-            timeout = 2.0 if state == "working" else (1.4 if state == "approval" else None)
+            timeout = 2.0 if state == "running" else (1.4 if state == "needs_input" else None)
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
                 self.read_wake.recv(4096)

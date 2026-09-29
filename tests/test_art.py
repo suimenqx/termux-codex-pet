@@ -26,15 +26,14 @@ class RobotArtTests(unittest.TestCase):
     def test_face_expression_changes_with_status(self) -> None:
         blush = (226, 126, 147, 255)
         face = (43, 55, 70, 255)
-        approval = (255, 191, 75, 255)
-        error = (255, 108, 117, 255)
+        needs_input = (255, 191, 75, 255)
+        blocked = (255, 108, 117, 255)
 
         self.assertEqual(png_pixel(icon("idle"), 18, 39), blush)
-        self.assertEqual(png_pixel(icon("approval"), 32, 42), face)
-        self.assertEqual(png_pixel(icon("approval"), 29, 42), approval)
-        self.assertEqual(png_pixel(icon("done"), 24, 32), face)
-        self.assertEqual(png_pixel(icon("interrupted"), 24, 32), (241, 249, 255, 255))
-        self.assertEqual(png_pixel(icon("error"), 32, 40), error)
+        self.assertEqual(png_pixel(icon("needs_input"), 32, 42), face)
+        self.assertEqual(png_pixel(icon("needs_input"), 29, 42), needs_input)
+        self.assertEqual(png_pixel(icon("ready"), 24, 32), face)
+        self.assertEqual(png_pixel(icon("blocked"), 32, 40), blocked)
 
 
 if __name__ == "__main__":

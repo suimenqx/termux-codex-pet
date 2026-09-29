@@ -120,8 +120,8 @@ def _test() -> int:
     if _start() != 0:
         return 1
     sequence = [
-        ("idle", 1.4), ("working", 3.0), ("approval", 3.0),
-        ("done", 7.0), ("interrupted", 4.5), ("error", 2.5),
+        ("idle", 1.4), ("running", 3.0), ("needs_input", 3.0),
+        ("ready", 7.0), ("blocked", 2.5),
     ]
     sid = f"pet-test-{os.getpid()}"
     for state, seconds in sequence:
@@ -139,16 +139,19 @@ def _test() -> int:
         if observed["session_count"] == 1 and observed["state"] != state:
             print(f"Unexpected state at {state}: {observed['state']}", file=sys.stderr)
             return 1
-        if state == "approval" and observed["session_count"] == 1 and not observed["overlay"]["expanded"]:
-            print("Approval detail did not expand", file=sys.stderr)
+        if state in ("needs_input", "ready") and observed["session_count"] == 1 and not observed["overlay"]["expanded"]:
+            print(f"{state} detail did not expand", file=sys.stderr)
             return 1
+        if state == "ready":
+            print(f"{state} (persistent until acknowledged)", flush=True)
+            time.sleep(seconds)
+            after = _status()
+            if after is not None and after["session_count"] == 1 and after["state"] != "ready":
+                print("Ready did not remain until acknowledged", file=sys.stderr)
+                return 1
+            continue
         print(f"{state} ({seconds:g}s)", flush=True)
         time.sleep(seconds)
-        if state in ("done", "interrupted"):
-            after = _status()
-            if after is not None and after["session_count"] == 1 and after["state"] != "idle":
-                print(f"{state} did not return to idle", file=sys.stderr)
-                return 1
     end = direct_event({"state": "end", "session_id": sid})
     assert end is not None
     _send(end)
@@ -182,8 +185,9 @@ def main() -> None:
             code = 1
         else:
             gui = "ready" if result["gui_ready"] else f"unavailable ({result['gui_error']})"
+            running_count = result.get("running_count", result.get("working_count", 0))
             print(f"Codex Pet running; pid={result['pid']}; GUI={gui}; state={result['state']}; "
                   f"project={result['project']}; sessions={result['session_count']}; "
-                  f"working={result['working_count']}")
+                  f"running={running_count}")
             code = 0
     raise SystemExit(code)

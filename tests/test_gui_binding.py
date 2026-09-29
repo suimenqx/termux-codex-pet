@@ -110,7 +110,7 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(gui.tg, "TextView", FakeView), \
              patch.object(gui.tg, "ImageView", FakeView):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
-            pet.render({"state": "approval", "working_count": 0,
+            pet.render({"state": "needs_input", "running_count": 0,
                         "project": "repo", "elapsed": 0, "message": "Allow this action"})
             pet._set_bubble(False)
 
@@ -123,7 +123,7 @@ class GuiBindingTests(unittest.TestCase):
         self.assertEqual(len(robot_positions), 1)
         self.assertTrue(bubble_positions)
 
-    def test_approval_card_has_separate_project_status_and_summary(self) -> None:
+    def test_needs_input_card_has_project_status_and_summary(self) -> None:
         FakeView.next_id = 1
         FakeView.text_updates = []
         connection = FakeConnection()
@@ -132,12 +132,12 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(gui.tg, "TextView", FakeView), \
              patch.object(gui.tg, "ImageView", FakeView):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
-            pet.render({"state": "approval", "working_count": 0,
+            pet.render({"state": "needs_input", "running_count": 0,
                         "project": "repo", "elapsed": 0,
                         "message": "Review this permission"})
 
         self.assertIn("repo", FakeView.text_updates)
-        self.assertIn("Needs approval", FakeView.text_updates)
+        self.assertIn("Needs input", FakeView.text_updates)
         self.assertIn("Review this permission", FakeView.text_updates)
         self.assertFalse(any("\n" in value for value in FakeView.text_updates))
 
@@ -150,7 +150,7 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(gui.tg, "ImageView", FakeView):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
             pet.x, pet.y = 700, 420
-            pet.render({"state": "approval", "working_count": 0,
+            pet.render({"state": "needs_input", "running_count": 0,
                         "project": "repo", "elapsed": 0,
                         "message": "Allow this action"})
             tail_px = round(gui.BUBBLE_TAIL_WIDTH_DP * pet.density)

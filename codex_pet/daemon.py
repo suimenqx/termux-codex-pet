@@ -11,7 +11,6 @@ import select
 import signal
 import socket
 import threading
-import time
 from typing import Any
 
 from .gui import GuiWorker
@@ -29,12 +28,18 @@ class Daemon:
         self.gui_error = "starting"
         self.stopping = False
         self.signal_read, self.signal_write = socket.socketpair()
-        self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status)
+        self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status, self.acknowledge_ready)
         self.last_notification: tuple[str, str, str] | None = None
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
             return self.sessions.snapshot()
+
+    def acknowledge_ready(self, session_id: str | None) -> None:
+        with self.lock:
+            changed = self.sessions.mark_ready_read(session_id)
+        if changed:
+            self.gui.wake()
 
     def gui_status(self, ready: bool, error: str) -> None:
         with self.lock:
@@ -49,7 +54,7 @@ class Daemon:
             self._fallback(snapshot)
 
     def _fallback(self, snapshot: dict[str, Any]) -> None:
-        if snapshot["state"] not in ("approval", "done"):
+        if snapshot["state"] not in ("needs_input", "ready"):
             return
         key = (snapshot["state"], snapshot["project"], snapshot["message"])
         if key != self.last_notification:
@@ -145,18 +150,11 @@ class Daemon:
                 self.gui.start()
                 LOGGING.info("Daemon started pid=%s", os.getpid())
                 while not self.stopping:
-                    with self.lock:
-                        deadline = self.sessions.next_deadline()
-                    timeout = max(0, deadline - time.monotonic()) if deadline is not None else None
-                    readable, _, _ = select.select([listener, self.signal_read], [], [], timeout)
+                    readable, _, _ = select.select([listener, self.signal_read], [], [], None)
                     if listener in readable:
                         self._serve_one(listener)
                     if self.signal_read in readable:
                         self.signal_read.recv(4096)
-                    with self.lock:
-                        expired = self.sessions.expire()
-                    if expired:
-                        self.gui.wake()
             finally:
                 self.stopping = True
                 self.gui.stop()
