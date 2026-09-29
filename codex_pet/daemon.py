@@ -73,6 +73,12 @@ class Daemon:
         action = payload.get("action")
         if action == "status":
             return self.status()
+        if action == "reconnect":
+            with self.lock:
+                if not self.gui_ready:
+                    self.gui_error = "starting"
+                    self.gui.wake()
+            return self.status()
         if action == "stop":
             self.stopping = True
             self.signal_write.send(b"s")

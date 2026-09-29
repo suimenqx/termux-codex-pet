@@ -248,6 +248,7 @@ class GuiWorker:
         self.write_wake.close()
 
     def _run(self) -> None:
+        retry_once = True
         while not self.stopping:
             connection: tg.Connection | None = None
             try:
@@ -267,10 +268,15 @@ class GuiWorker:
                     self.ui = None
                 if connection is not None:
                     connection.close()
-            # Retry only on a new event, not by polling a file or Android state.
+            # A lost GUI connection gets one immediate retry. Further retries
+            # wait for a Codex event or an explicit start command.
             if not self.stopping:
+                if retry_once:
+                    retry_once = False
+                    continue
                 select.select([self.read_wake], [], [])
                 self.read_wake.recv(4096)
+                retry_once = True
 
     def _loop(self, connection: tg.Connection) -> None:
         assert self.ui is not None

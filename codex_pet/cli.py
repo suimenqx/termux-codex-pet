@@ -78,6 +78,11 @@ def _start() -> int:
     if result is None:
         print(f"Codex Pet did not start; see {LOG}", file=sys.stderr)
         return 1
+    if not result.get("gui_ready") and result.get("gui_error") != "starting":
+        try:
+            result = request({"action": "reconnect"}, 0.3)
+        except (OSError, ValueError, ConnectionError):
+            result = _status() or result
     deadline = time.monotonic() + 9
     while not result.get("gui_ready") and result.get("gui_error") == "starting" and time.monotonic() < deadline:
         time.sleep(0.2)

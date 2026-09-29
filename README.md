@@ -32,11 +32,11 @@ The installer adds the same `codex-pet-event` command for `SessionStart`, `UserP
 
 ## Troubleshooting
 
-- `codex-pet status` reports `GUI=unavailable`: confirm the Android overlay permission and compatible app signatures, then run `codex-pet restart`.
+- `codex-pet status` reports `GUI=unavailable`: run `codex-pet start` to reconnect the overlay. If it still fails, confirm the Android overlay permission and compatible app signatures, then run `codex-pet restart`.
 - `codex-pet test` shows the six states without running a Codex turn.
 - Read `~/.cache/codex-pet/pet.log` for GUI or IPC errors. The log rotates at about 512 KB.
 - If a Codex prompt does not change the Pet, restart Codex and use `/hooks` to review/trust the new hook definition. Check `codex features list` for `hooks` and inspect `~/.codex/hooks.json`.
-- If Termux:GUI is killed, send another Codex prompt or run `codex-pet restart`.
+- If Termux:GUI is killed, send another Codex prompt or run `codex-pet start`.
 
 ## Uninstall
 
