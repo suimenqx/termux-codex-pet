@@ -33,20 +33,8 @@ def _overlay(connection: tg.Connection) -> tg.Activity:
 def _point(value: Any) -> tuple[float, float] | None:
     if not isinstance(value, dict):
         return None
-    if "x" in value and "y" in value:
-        try:
-            return float(value["x"]), float(value["y"])
-        except (TypeError, ValueError):
-            return None
-    pointers = value.get("pointers")
-    if not isinstance(pointers, list) or not pointers:
-        return None
-    group = pointers[-1]
-    if not isinstance(group, list) or not group or not isinstance(group[0], dict):
-        return None
-    p = group[0]
     try:
-        return float(p["x"]), float(p["y"])
+        return float(value["x"]), float(value["y"])
     except (KeyError, TypeError, ValueError):
         return None
 
@@ -70,6 +58,7 @@ class OverlayUI:
         self.caption.settextsize(12)
         self.caption.settextcolor(0xFFFFFFFF)
         self.caption.setbackgroundcolor(0xCC27313D)
+        self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
         self.bubble: tg.Activity | None = None
@@ -195,7 +184,8 @@ class OverlayUI:
             self.dragged = False
         elif action == "move" and self.down is not None:
             dx, dy = xy[0] - self.down[0], xy[1] - self.down[1]
-            if abs(dx) + abs(dy) > 14:
+            slop = 12 * self.density
+            if dx * dx + dy * dy > slop * slop:
                 self.dragged = True
             if self.dragged:
                 self.x = max(0, self.down[3] + int(dx))
