@@ -16,6 +16,9 @@ import termuxgui as tg
 from .art import icon
 
 LOG = logging.getLogger(__name__)
+PET_SIZE_DP = 64
+BUBBLE_WIDTH_DP = 196
+BUBBLE_GAP_DP = 8
 
 
 def _overlay(connection: tg.Connection) -> tg.Activity:
@@ -46,16 +49,36 @@ class OverlayUI:
         self.x, self.y = self._load_position()
         self.density = 3.0
         self.pet = _overlay(connection)
-        self.root = tg.LinearLayout(self.pet, vertical=True)
-        self.root.setdimensions(64, 64)
+        self.root = tg.LinearLayout(self.pet, vertical=False)
+        self.root.setdimensions(tg.View.WRAP_CONTENT, tg.View.WRAP_CONTENT)
         self.root.setbackgroundcolor(0)
+        self.detail_left = tg.TextView(self.pet, "", self.root, visibility=tg.View.GONE)
         self.face = tg.ImageView(self.pet, self.root)
-        self.face.setdimensions(64, 64)
+        self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
+        self.detail_right = tg.TextView(self.pet, "", self.root, visibility=tg.View.GONE)
+        for detail, side in ((self.detail_left, "right"), (self.detail_right, "left")):
+            detail.setdimensions(BUBBLE_WIDTH_DP, tg.View.WRAP_CONTENT)
+            detail.settextsize(14)
+            detail.settextcolor(0xFFFFFFFF)
+            detail.setbackgroundcolor(0xE02A2A2A)
+            detail.setmargin(BUBBLE_GAP_DP, side)
+            # The binding has no setpadding method, but Termux:GUI supports it.
+            self.c.send_msg({"method": "setPadding", "params": {
+                "aid": self.pet.aid, "id": detail.id, "padding": 10,
+            }})
+            detail.sendtouchevent(True)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
-        self.bubble: tg.Activity | None = None
+        self.bubble: tg.TextView | None = None
         self.detail: tg.TextView | None = None
+        self.bubble_width_px = 0
+        self.bubble_height_px = 0
+        self.bubble_x = 0
+        self.bubble_y = 0
+        self.detail_content = ""
+        self.bubble_measure_due: float | None = None
+        self.face_top_margin_dp = 0
         self.expanded = False
         self.manual_expand = False
         self.down: tuple[float, float, float, int, int] | None = None
@@ -88,46 +111,77 @@ class OverlayUI:
 
     def _measure_density(self) -> None:
         # getConfiguration never replies for an overlay on this binding/device.
-        # The measured 64 dp native View provides the density without Android APIs.
+        # The measured native View provides the density without Android APIs.
         time.sleep(0.12)
         old_timeout = self.c._main.gettimeout()
         try:
             self.c._main.settimeout(1.5)
             width = self.root.getdimensions()[0]
             if width > 0:
-                self.density = width / 64
+                self.density = width / PET_SIZE_DP
         except (OSError, ValueError):
             LOG.warning("Could not measure overlay density; using 3.0")
         finally:
             self.c._main.settimeout(old_timeout)
 
     def _set_bubble(self, show: bool) -> None:
-        if show and self.bubble is None:
-            self.bubble = _overlay(self.c)
-            self.detail = tg.TextView(self.bubble, "", None)
-            self.detail.setdimensions(218, 100)
-            self.detail.settextsize(14)
-            self.detail.settextcolor(0xFFFFFFFF)
-            self.detail.setbackgroundcolor(0xE02A2A2A)
-            self.detail.setmargin(8)
-            self.detail.sendtouchevent(True)
-            self._position_bubble()
-        elif not show and self.bubble is not None:
-            self.bubble.finish()
+        if show and not self.expanded:
+            self.expanded = True
+            self._choose_bubble_side()
+        elif not show and self.expanded:
+            assert self.bubble is not None
+            self.bubble.setvisibility(tg.View.GONE)
             self.bubble = None
             self.detail = None
-        self.expanded = show
+            self.detail_content = ""
+            self.bubble_measure_due = None
+            if self.face_top_margin_dp:
+                self.face.setmargin(0, "top")
+                self.face_top_margin_dp = 0
+            self.pet.setposition(self.x, self.y)
+            self.expanded = False
+
+    def _choose_bubble_side(self) -> bool:
+        width = self.bubble_width_px or int(BUBBLE_WIDTH_DP * self.density)
+        gap = int(BUBBLE_GAP_DP * self.density)
+        target = self.detail_left if self.x >= width + gap else self.detail_right
+        if self.bubble is target:
+            return False
+        if self.bubble is not None:
+            self.bubble.setvisibility(tg.View.GONE)
+        target.setvisibility(tg.View.VISIBLE)
+        self.bubble = target
+        self.detail = target
+        self.detail_content = ""
+        self.bubble_measure_due = None
+        self.bubble_width_px = int(BUBBLE_WIDTH_DP * self.density)
+        self.bubble_height_px = int(PET_SIZE_DP * self.density)
+        self._position_bubble()
+        return True
 
     def _position_bubble(self) -> None:
         if self.bubble is not None:
-            self.bubble.setposition(max(0, self.x - int(230 * self.density)), self.y)
+            gap = int(BUBBLE_GAP_DP * self.density)
+            pet_size = int(PET_SIZE_DP * self.density)
+            top_margin = min(max(0, int((self.bubble_height_px - pet_size) / self.density)),
+                             int(self.y / self.density))
+            if top_margin != self.face_top_margin_dp:
+                self.face.setmargin(top_margin, "top")
+                self.face_top_margin_dp = top_margin
+            window_y = self.y - int(top_margin * self.density)
+            if self.bubble is self.detail_left:
+                window_x = self.x - self.bubble_width_px - gap
+                self.bubble_x = window_x
+            else:
+                window_x = self.x
+                self.bubble_x = window_x + pet_size + gap
+            self.bubble_y = window_y
+            self.pet.setposition(window_x, window_y)
 
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
-        if state in ("approval", "done") and state != self.last_state and not self.manual_expand:
-            self._set_bubble(True)
-        elif state == "idle" and self.last_state in ("approval", "done", "interrupted") and not self.manual_expand:
-            self._set_bubble(False)
+        if state != self.last_state and not self.manual_expand:
+            self._set_bubble(state in ("approval", "done"))
         self.last_state = state
         self.face.setimage(icon(state, frame, snapshot["working_count"]))
         if self.detail is not None:
@@ -136,20 +190,34 @@ class OverlayUI:
                 "approval": "Codex needs approval", "done": "Done",
                 "interrupted": "Interrupted", "error": "Error",
             }
-            message = snapshot["message"]
-            project = snapshot["project"]
+            message = " ".join(snapshot["message"].split())
+            project = " ".join(snapshot["project"].split())
             if len(project) > 24:
                 project = project[:23] + "…"
             content = f"Codex · {project}\n{labels[state]}"
             if message:
                 content += "\n" + message[:72]
-            self.detail.settext(content)
+            if content != self.detail_content:
+                self.detail.settext(content)
+                self.detail_content = content
+                self.bubble_measure_due = time.monotonic() + 0.15
+            elif self.bubble_measure_due is not None and time.monotonic() >= self.bubble_measure_due:
+                try:
+                    width, height = self.detail.getdimensions()
+                    if width > 0:
+                        self.bubble_width_px = width
+                    if height > 0:
+                        self.bubble_height_px = height
+                except (OSError, ValueError):
+                    LOG.warning("Could not measure detail bubble; using previous size")
+                self.bubble_measure_due = None
+                self._position_bubble()
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):
             return False
         if event.type == tg.Event.touch:
-            if self.bubble is not None and event.value.get("aid") == self.bubble.aid:
+            if self.bubble is not None and event.value.get("id") == self.bubble.id:
                 self.manual_expand = True
             return False
         if event.type != tg.Event.overlaytouch:
@@ -161,6 +229,11 @@ class OverlayUI:
             return False
         action = event.value.get("action")
         if action == "down":
+            pet_size = PET_SIZE_DP * self.density
+            if not (self.x <= xy[0] < self.x + pet_size
+                    and self.y <= xy[1] < self.y + pet_size):
+                self.down = None
+                return False
             self.down = (xy[0], xy[1], time.monotonic(), self.x, self.y)
             self.dragged = False
         elif action == "move" and self.down is not None:
@@ -171,11 +244,16 @@ class OverlayUI:
             if self.dragged:
                 self.x = max(0, self.down[3] + int(dx))
                 self.y = max(0, self.down[4] + int(dy))
-                self.pet.setposition(self.x, self.y)
-                self._position_bubble()
+                if self.expanded:
+                    self._position_bubble()
+                else:
+                    self.pet.setposition(self.x, self.y)
         elif action in ("up", "cancel") and self.down is not None:
             if self.dragged:
                 self._save_position()
+                self.down = None
+                if self.expanded and self._choose_bubble_side():
+                    return True
             elif action == "up" and time.monotonic() - self.down[2] < 0.7:
                 self.manual_expand = not self.expanded
                 self._set_bubble(not self.expanded)
@@ -185,8 +263,6 @@ class OverlayUI:
         return False
 
     def close(self) -> None:
-        if self.bubble is not None:
-            self.bubble.finish()
         self.pet.finish()
 
 
@@ -224,6 +300,7 @@ class GuiWorker:
             connection: tg.Connection | None = None
             try:
                 connection = tg.Connection()
+                connection._main.settimeout(4.0)
                 self.ui = OverlayUI(connection, self.config_path)
                 self.on_status(True, "")
                 self._loop(connection)
@@ -256,6 +333,9 @@ class GuiWorker:
         while not self.stopping:
             state = self.snapshot()["state"]
             timeout = 2.0 if state == "working" else (1.4 if state == "approval" else None)
+            if self.ui.bubble_measure_due is not None:
+                measure_wait = max(0, self.ui.bubble_measure_due - time.monotonic())
+                timeout = measure_wait if timeout is None else min(timeout, measure_wait)
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
                 self.read_wake.recv(4096)

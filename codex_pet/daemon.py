@@ -61,7 +61,10 @@ class Daemon:
             state = self.sessions.snapshot()
             ui = self.gui.ui
             overlay = ({"x": ui.x, "y": ui.y, "expanded": ui.expanded,
-                        "touch_count": ui.touch_count, "last_touch": ui.last_touch}
+                        "touch_count": ui.touch_count, "last_touch": ui.last_touch,
+                        "bubble": ({"x": ui.bubble_x, "y": ui.bubble_y,
+                                    "width": ui.bubble_width_px, "height": ui.bubble_height_px}
+                                   if ui.bubble is not None else None)}
                        if ui is not None else None)
             return {"ok": True, "pid": os.getpid(), "gui_ready": self.gui_ready,
                     "overlay": overlay,

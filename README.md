@@ -24,7 +24,7 @@ codex-pet status      # daemon, GUI, state, session count
 codex-pet test        # show every state in sequence
 ```
 
-Tap the Pet to open or close its detail bubble. Drag it to a new position; the position is saved in `~/.config/codex-pet/config.json` and restored on restart. The icon-only Pet is about 64 dp wide. A working session changes its color and animates slowly; two or more working sessions show a count badge. Any approval has priority. Done and interrupted return to idle after a short hold. The test command can show `error`; Codex hooks do not infer errors from unrelated failures.
+Tap the Pet to open or close its compact detail bubble. The bubble normally opens on the left and moves to the right near the left edge. It grows to fit its short message, opens automatically for approval and completion, and closes when those states end. Touching an automatic detail keeps it open until you close it. Drag the Pet to a new position; the position is saved in `~/.config/codex-pet/config.json` and restored on restart. The icon-only Pet is about 64 dp wide. A working session changes its color and animates slowly; two or more working sessions show a count badge. Any approval has priority. Done and interrupted return to idle after a short hold. The test command can show `error`; Codex hooks do not infer errors from unrelated failures.
 
 ## Hook integration
 
