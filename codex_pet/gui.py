@@ -311,7 +311,9 @@ class OverlayUI:
             return False
         if event.type != tg.Event.overlaytouch:
             return False
-        if event.value.get("aid") != self.pet.aid:
+        # Termux:GUI may omit the Activity ID from overlay-wide touch events.
+        aid = event.value.get("aid")
+        if aid is not None and aid != self.pet.aid:
             return False
         self.touch_count += 1
         self.last_touch = str(event.value.get("action", ""))

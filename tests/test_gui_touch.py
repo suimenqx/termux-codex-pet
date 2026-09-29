@@ -161,6 +161,18 @@ class GuiTouchTests(unittest.TestCase):
         self.assertFalse(self.ui.expanded)
         self.assertEqual(self.saved, [])
 
+    def test_pet_overlay_touch_without_activity_id_still_toggles_bubble(self) -> None:
+        self.ui.handle(SimpleNamespace(type=tg.Event.overlaytouch,
+                                       value={"action": "down", "x": 730, "y": 460}))
+        self.ui.handle(SimpleNamespace(type=tg.Event.touch,
+                                       value={"aid": 1, "id": self.ui.face.id,
+                                              "action": "down"}))
+        self.assertTrue(self.ui.handle(SimpleNamespace(
+            type=tg.Event.overlaytouch,
+            value={"action": "up", "x": 730, "y": 460},
+        )))
+        self.assertTrue(self.ui.expanded)
+
     def test_drag_moves_and_saves_position(self) -> None:
         self.face_down(790, 510)
         self.ui.handle(touch("move", 830, 540))
