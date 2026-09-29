@@ -184,7 +184,7 @@ class GuiBindingTests(unittest.TestCase):
         self.assertEqual(
             [message["params"]["padding"] for message in connection.messages
              if message["method"] == "setPadding"],
-            [5, 5],
+            [6, 6],
         )
         self.assertEqual(
             [field.gravities for field in pet.detail_left_fields],
@@ -194,7 +194,7 @@ class GuiBindingTests(unittest.TestCase):
             [field.gravities for field in pet.detail_right_fields],
             [[(0, 0)], [(0, 0)], [(0, 0)]],
         )
-        self.assertEqual([field.text_sizes for field in pet.detail_left_fields], [[10], [14], [10]])
+        self.assertEqual([field.text_sizes for field in pet.detail_left_fields], [[11], [15], [11]])
 
 
 if __name__ == "__main__":

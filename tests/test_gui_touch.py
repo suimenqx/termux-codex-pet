@@ -208,6 +208,12 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual(self.saved, [])
         self.assertEqual(self.ui.pet.positions, [])
 
+    def test_drag_can_start_near_the_edge_of_the_robot_face(self) -> None:
+        self.face_down(874, 516)  # 26 dp from center, inside the enlarged grab zone.
+        self.ui.handle(touch("move", 916, 516))
+        self.ui.handle(touch("up", 916, 516))
+        self.assertEqual(self.saved, [(742, 420)])
+
     def test_cancelled_drag_returns_to_its_start_without_saving(self) -> None:
         self.ui.handle(touch("down", 790, 510))
         self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={

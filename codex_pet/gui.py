@@ -17,11 +17,11 @@ from .art import icon, speech_tail
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
-DRAG_RADIUS_DP = 24
+DRAG_RADIUS_DP = 27
 BUBBLE_WIDTH_DP = 116
 BUBBLE_TAIL_WIDTH_DP = 5
 BUBBLE_TAIL_HEIGHT_DP = 12
-BUBBLE_PADDING_DP = 5
+BUBBLE_PADDING_DP = 6
 MESSAGE_MARGIN_DP = 12
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
 STATUS_COLORS = {
@@ -128,12 +128,12 @@ class OverlayUI:
             view.setdimensions(tg.View.MATCH_PARENT, tg.View.WRAP_CONTENT)
             view.sendtouchevent(True)
             view.setgravity(text_gravity, 0)
-        project.settextsize(10)
+        project.settextsize(11)
         project.settextcolor(0xFFACC0CE)
-        status.settextsize(14)
+        status.settextsize(15)
         status.settextcolor(STATUS_COLORS["idle"])
         status.setmargin(3, "top")
-        message.settextsize(10)
+        message.settextsize(11)
         message.settextcolor(0xFFF0F5F9)
         message.setmargin(6, "top")
         return project, status, message

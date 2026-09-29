@@ -88,14 +88,44 @@ def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     rect(13, 46, 51, 49, accent)
     rect(10, 23, 13, 46, accent)
     rect(51, 23, 54, 46, accent)
-    # Expressive eyes and a tiny mouth.
-    disc(24, 32, 4, white)
-    disc(40, 32, 4, white)
-    rect(23, 31, 25, 34, shell)
-    rect(39, 31, 41, 34, shell)
-    rect(27, 41, 37, 43, accent)
-    dot(26, 40, accent)
-    dot(37, 40, accent)
+    # Small blush marks and a status light give the robot a little warmth.
+    blush = (226, 126, 147, 255)
+    disc(18, 39, 2, blush)
+    disc(46, 39, 2, blush)
+    rect(29, 51, 35, 55, face)
+    disc(32, 53, 2, accent)
+
+    # Let the face react to the same state as the status badge.
+    if state == "done":
+        for cx in (24, 40):
+            rect(cx - 4, 32, cx - 2, 34, white)
+            rect(cx - 2, 29, cx + 2, 32, white)
+            rect(cx + 2, 32, cx + 4, 34, white)
+    elif state == "interrupted":
+        rect(20, 31, 28, 33, white)
+        rect(36, 31, 44, 33, white)
+    else:
+        eye_radius = 5 if state == "approval" else 4
+        disc(24, 32, eye_radius, white)
+        disc(40, 32, eye_radius, white)
+        rect(23, 31, 25, 34, shell)
+        rect(39, 31, 41, 34, shell)
+
+    if state in ("idle", "done"):
+        rect(27, 41, 37, 43, accent)
+        dot(26, 40, accent)
+        dot(37, 40, accent)
+    elif state == "working":
+        rect(29, 42, 35, 44, accent)
+    elif state == "approval":
+        disc(32, 42, 3, accent)
+        disc(32, 42, 1, face)
+    elif state == "interrupted":
+        rect(29, 41, 35, 43, accent)
+    elif state == "error":
+        rect(27, 42, 29, 44, accent)
+        rect(29, 40, 35, 42, accent)
+        rect(35, 42, 37, 44, accent)
 
     if state == "working":
         for x, y in ([(3, 13), (58, 12), (60, 52)] if frame else [(2, 50), (57, 10), (60, 28)]):

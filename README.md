@@ -34,7 +34,7 @@ codex-pet status      # daemon, GUI connection, state, project, session counts
 codex-pet test        # cycle through all visual states
 ```
 
-Tap the robot to open or close its activity bubble; the robot stays visually still while the bubble changes. The compact card is 116 dp wide, with a 5 dp speech tail; its text aligns toward the robot so the project, colored status, and short message read as one conversation. The bubble switches sides near the left edge. Approval and completion open it automatically; touching it keeps it open until you close it. Start a drag near the robot's center; the point you grabbed stays under your finger, so the robot does not jump. Touches farther from the center can still tap it, but do not start a drag. The position is saved in `~/.config/codex-pet/config.json` and restored after restart. The collapsed robot is about 64 dp wide.
+Tap the robot to open or close its activity bubble; the robot stays visually still while the bubble changes. The robot's face reacts to its current state, with a friendly idle smile, focused working look, and distinct approval/completion/interruption/error expressions. The compact card is 116 dp wide, with a 5 dp speech tail; its text aligns toward the robot so the project, colored status, and short message read as one conversation. Slightly larger card text makes the status and summary easier to scan. The bubble switches sides near the left edge. Approval and completion open it automatically; touching it keeps it open until you close it. Start a drag anywhere within the center 27 dp radius; the point you grabbed stays under your finger, so the robot does not jump. Corner taps still open or close the card without moving the robot. The position is saved in `~/.config/codex-pet/config.json` and restored after restart. The collapsed robot is about 64 dp wide.
 
 | State | What you see | When it changes |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`,
 - **`GUI=unavailable`:** check the Termux:GUI overlay permission and matching app signatures, then run `codex-pet restart`. Read `~/.cache/codex-pet/pet.log` if it still fails.
 - **Pet works in `codex-pet test` but ignores prompts:** restart Codex, open `/hooks`, and trust the Pet hooks. Check the file matching `hooks_mode` in `~/.config/codex-pet/install.json`. `codex features list` should show `hooks` enabled.
 - **Pet shows an old design after updating:** run `codex-pet restart`; a running daemon does not reload Python files automatically.
-- **Drag or tap is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Start a drag near the robot's center; touching the activity card keeps it open rather than moving the robot.
+- **Drag or tap is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Start a drag within the robot's central area; touching the activity card keeps it open rather than moving the robot.
 
 ## Uninstall
 
