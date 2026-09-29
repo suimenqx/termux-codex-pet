@@ -109,6 +109,29 @@ class GuiTouchTests(unittest.TestCase):
         self.assertTrue(self.ui.handle(touch("up", 500, 460)))
         self.assertTrue(self.ui.expanded)
 
+    def test_taps_after_drag_keep_pet_position_when_touch_coordinates_shift(self) -> None:
+        self.ui._set_bubble = OverlayUI._set_bubble.__get__(self.ui)
+        self.ui._choose_bubble_side = OverlayUI._choose_bubble_side.__get__(self.ui)
+        self.ui._position_bubble = OverlayUI._position_bubble.__get__(self.ui)
+        self.face_down(790, 510)
+        self.ui.handle(touch("move", 830, 540))
+        self.ui.handle(touch("up", 830, 540))
+        self.assertEqual((self.ui.x, self.ui.y), (740, 450))
+
+        for expanded, window_position in ((True, (377, 450)),
+                                          (False, (740, 450)),
+                                          (True, (377, 450))):
+            self.ui.handle(touch("down", 790, 490))
+            self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
+                "id": self.ui.face.id, "action": "down",
+                "pointers": [[{"x": 20, "y": 32, "id": 0}]],
+            }))
+            self.assertTrue(self.ui.handle(touch("up", 790, 490)))
+            self.assertEqual(self.ui.expanded, expanded)
+            self.assertEqual((self.ui.x, self.ui.y), (740, 450))
+            self.assertEqual(self.ui.pet.positions[-1], window_position)
+        self.assertEqual(self.saved, [(740, 450)])
+
     def test_nested_image_pointer_keeps_grab_aligned_after_window_clamp(self) -> None:
         self.ui.handle(touch("down", 500, 460))
         self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
@@ -149,10 +172,15 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual(self.ui.pet.positions, [])
 
     def test_cancelled_drag_returns_to_its_start_without_saving(self) -> None:
-        self.face_down(790, 510)
+        self.ui.handle(touch("down", 790, 510))
+        self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
+            "id": self.ui.face.id, "action": "down",
+            "pointers": [[{"x": 20, "y": 32, "id": 0}]],
+        }))
         self.ui.handle(touch("move", 840, 550))
         self.ui.handle(touch("cancel", 840, 550))
         self.assertEqual(self.saved, [])
+        self.assertEqual((self.ui.x, self.ui.y), (700, 420))
         self.assertEqual(self.ui.pet.positions[-1], (700, 420))
 
     def test_auto_detail_closes_when_approval_resolves(self) -> None:

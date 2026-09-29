@@ -100,7 +100,8 @@ class OverlayUI:
         self.expanded = False
         self.manual_expand = False
         self.pending_down: tuple[float, float, float, int, int] | None = None
-        self.down: tuple[float, float, float, int, int] | None = None
+        # Screen down, time, corrected drag anchor, original logical position.
+        self.down: tuple[float, float, float, int, int, int, int] | None = None
         self.dragged = False
         self.drag_enabled = False
         self.touch_count = 0
@@ -282,20 +283,22 @@ class OverlayUI:
         if event.type == tg.Event.touch:
             if event.value.get("id") == self.face.id and event.value.get("action") == "down":
                 if self.pending_down is not None:
-                    raw_x, raw_y, started, _, _ = self.pending_down
+                    raw_x, raw_y, started, origin_x, origin_y = self.pending_down
                     local = _first_pointer(event.value.get("pointers"))
                     if local is not None and 0 <= local[0] <= PET_SIZE_DP and 0 <= local[1] <= PET_SIZE_DP:
                         # ImageView touch coordinates are in the 64 px icon, so
-                        # re-anchor when Android has clamped the overlay window.
-                        self.x = max(0, round(raw_x - local[0] * self.density))
-                        self.y = max(0, round(raw_y - local[1] * self.density))
+                        # use the actual grab point if Android clamped the window.
+                        anchor_x = max(0, round(raw_x - local[0] * self.density))
+                        anchor_y = max(0, round(raw_y - local[1] * self.density))
                     else:
-                        local = ((raw_x - self.x) / self.density,
-                                 (raw_y - self.y) / self.density)
+                        anchor_x, anchor_y = origin_x, origin_y
+                        local = ((raw_x - origin_x) / self.density,
+                                 (raw_y - origin_y) / self.density)
                     cx, cy = PET_SIZE_DP / 2, PET_SIZE_DP / 2
                     self.drag_enabled = ((local[0] - cx) ** 2 + (local[1] - cy) ** 2
                                          <= DRAG_RADIUS_DP ** 2)
-                    self.down = (raw_x, raw_y, started, self.x, self.y)
+                    self.down = (raw_x, raw_y, started, anchor_x, anchor_y,
+                                 origin_x, origin_y)
                 self.pending_down = None
                 self.dragged = False
             elif (self.bubble is not None and
@@ -335,7 +338,7 @@ class OverlayUI:
             self.pending_down = None
             if action == "cancel":
                 if self.dragged and self.drag_enabled:
-                    self.x, self.y = self.down[3], self.down[4]
+                    self.x, self.y = self.down[5], self.down[6]
                     if self.expanded:
                         self._position_bubble()
                     else:
