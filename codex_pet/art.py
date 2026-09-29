@@ -8,7 +8,7 @@ import zlib
 SIZE = 64
 
 
-def icon(state: str, frame: int = 0) -> bytes:
+def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     pixels = bytearray(SIZE * SIZE * 4)
 
     def dot(x: int, y: int, color: tuple[int, int, int, int]) -> None:
@@ -68,6 +68,27 @@ def icon(state: str, frame: int = 0) -> bytes:
     if state == "working":
         for x, y in ([(3, 13), (58, 12), (60, 52)] if frame else [(2, 50), (57, 10), (60, 28)]):
             disc(x, y, 2, accent)
+        if count > 1:
+            digits = {
+                "2": ("111", "001", "111", "100", "111"),
+                "3": ("111", "001", "111", "001", "111"),
+                "4": ("101", "101", "111", "001", "001"),
+                "5": ("111", "100", "111", "001", "111"),
+                "6": ("111", "100", "111", "101", "111"),
+                "7": ("111", "001", "010", "010", "010"),
+                "8": ("111", "101", "111", "101", "111"),
+                "9": ("111", "101", "111", "001", "111"),
+                "+": ("000", "010", "111", "010", "000"),
+            }
+            label = str(count) if count < 10 else "9+"
+            disc(55, 10, 10, shell)
+            disc(55, 10, 8, accent)
+            left = 55 - (4 * len(label) - 1) // 2
+            for column, char in enumerate(label):
+                for y, row in enumerate(digits[char]):
+                    for x, pixel in enumerate(row):
+                        if pixel == "1":
+                            dot(left + column * 4 + x, 8 + y, shell)
     elif state == "approval":
         disc(53, 12, 10 if frame else 9, (41, 49, 59, 255))
         disc(53, 12, 8, accent)

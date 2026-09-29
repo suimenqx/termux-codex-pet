@@ -47,17 +47,10 @@ class OverlayUI:
         self.density = 3.0
         self.pet = _overlay(connection)
         self.root = tg.LinearLayout(self.pet, vertical=True)
-        self.root.setdimensions(76, 76)
+        self.root.setdimensions(64, 64)
         self.root.setbackgroundcolor(0)
         self.face = tg.ImageView(self.pet, self.root)
-        self.face.setdimensions(56, 56)
-        self.face.setmargin(10, "left")
-        self.caption = tg.TextView(self.pet, "Codex", self.root)
-        self.caption.setdimensions(76, 20)
-        self.caption.setgravity(1, 1)
-        self.caption.settextsize(12)
-        self.caption.settextcolor(0xFFFFFFFF)
-        self.caption.setbackgroundcolor(0xCC27313D)
+        self.face.setdimensions(64, 64)
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
@@ -95,14 +88,14 @@ class OverlayUI:
 
     def _measure_density(self) -> None:
         # getConfiguration never replies for an overlay on this binding/device.
-        # The measured 76 dp native View provides the density without Android APIs.
+        # The measured 64 dp native View provides the density without Android APIs.
         time.sleep(0.12)
         old_timeout = self.c._main.gettimeout()
         try:
             self.c._main.settimeout(1.5)
             width = self.root.getdimensions()[0]
             if width > 0:
-                self.density = width / 76
+                self.density = width / 64
         except (OSError, ValueError):
             LOG.warning("Could not measure overlay density; using 3.0")
         finally:
@@ -136,19 +129,7 @@ class OverlayUI:
         elif state == "idle" and self.last_state in ("approval", "done", "interrupted") and not self.manual_expand:
             self._set_bubble(False)
         self.last_state = state
-        self.face.setimage(icon(state, frame))
-        captions = {
-            "idle": "Codex Pet", "working": "Working", "approval": "Approve",
-            "done": "Done", "interrupted": "Paused", "error": "Error",
-        }
-        count = snapshot["working_count"]
-        caption = f"Working {count}" if state == "working" and count > 1 else captions[state]
-        self.caption.settext(caption)
-        colors = {
-            "idle": 0xFFEAEAEA, "working": 0xFFFFC477, "approval": 0xFF65C0FF,
-            "done": 0xFF92E689, "interrupted": 0xFFFFBFAE, "error": 0xFF7777FF,
-        }
-        self.caption.settextcolor(colors[state])
+        self.face.setimage(icon(state, frame, snapshot["working_count"]))
         if self.detail is not None:
             labels = {
                 "idle": "Ready", "working": f"Working · {snapshot['elapsed']}s",
