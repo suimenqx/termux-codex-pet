@@ -122,7 +122,8 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(animation_interval("akita", "needs_input", 3), 0.85)
         self.assertEqual(advance_animation("akita", "idle", 5), 6)
         self.assertEqual(advance_animation("akita", "idle", 7), 0)
-        self.assertEqual(advance_animation("akita", "running", 5), 0)
+        self.assertEqual(AKITA_FRAME_COUNTS["running"], 5)
+        self.assertEqual(advance_animation("akita", "running", 4), 0)
         self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
 
     def test_idle_tail_wag_is_more_visible_without_moving_the_chest(self) -> None:

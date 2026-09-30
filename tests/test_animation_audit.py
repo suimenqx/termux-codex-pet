@@ -54,6 +54,20 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertIsInstance(tail, dict)
         self.assertTrue(tail["passed"])
 
+    def test_running_keeps_both_hind_leg_silhouettes_moving_each_beat(self) -> None:
+        result = render_audit("running", cycles=2, density=3)
+        hind_legs = result.report["hind_leg_motion"]
+        preview = _timeline("running", cycles=2)
+
+        self.assertIsInstance(hind_legs, dict)
+        self.assertTrue(hind_legs["passed"], hind_legs)
+        self.assertEqual(result.report["frame_count"], 10)
+        self.assertEqual(result.report["duration_seconds"], 1.0)
+        self.assertEqual(
+            [frame.frame for frame in result.frames],
+            [frame["frame"] for frame in preview],
+        )
+
     def test_audit_writes_a_contact_sheet_and_frame_manifest(self) -> None:
         result = render_audit("idle", cycles=1, density=3)
         with tempfile.TemporaryDirectory() as directory:

@@ -161,7 +161,8 @@ AKITA_READY_SEQUENCE = (
 AKITA_READY_LOOP_START = 5
 AKITA_FRAME_COUNTS = {
     "idle": 8,
-    "running": 6,
+    # The nearly duplicate airborne pose that hid one hind leg is omitted.
+    "running": 5,
     "needs_input": 4,
     "ready": len(AKITA_READY_SEQUENCE),
     "blocked": 4,
@@ -169,7 +170,7 @@ AKITA_FRAME_COUNTS = {
 AKITA_FRAME_INTERVALS = {
     # Slow breath, one quick blink, then a quiet pause before the next loop.
     "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    "running": (0.1,) * 6,
+    "running": (0.1,) * 5,
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
     # Let the entry hop breathe; the loop uses only subtle breathing and a slow blink.

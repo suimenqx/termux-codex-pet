@@ -36,6 +36,11 @@ CHEST_SOURCE_BOX = (45, 120, 165, 220)
 MIN_TAIL_CHANGED_PIXELS = 500
 MIN_TAIL_CENTROID_DELTA_DP = 1.0
 MIN_TAIL_EDGE_SWEEP_DP = 1.5
+HIND_LEG_SOURCE_BOXES = {
+    "hind_leg_back": (12, 180, 90, 245),
+    "hind_leg_forward": (90, 180, 158, 245),
+}
+MIN_HIND_LEG_SILHOUETTE_CHANGE = 0.015
 CHANGE_THRESHOLD = 12
 
 _FONT = {
@@ -231,6 +236,46 @@ def _tail_metrics(state: str, frames: tuple[RenderedFrame, ...], size: int,
     }
 
 
+def _hind_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
+                      size: int) -> dict[str, object] | None:
+    """Check that both lower hind-leg silhouettes visibly change on each beat."""
+    if state != "running" or len(frames) < AKITA_FRAME_COUNTS["running"]:
+        return None
+
+    cycle = frames[:AKITA_FRAME_COUNTS["running"]]
+    legs: dict[str, object] = {}
+    for name, source_box in HIND_LEG_SOURCE_BOXES.items():
+        x0, y0, x1, y1 = _scaled_box(source_box, size)
+        region_pixels = (x1 - x0) * (y1 - y0)
+        transitions = []
+        for before, after in zip(cycle, (*cycle[1:], cycle[0])):
+            changed = 0
+            for y in range(y0, y1):
+                for x in range(x0, x1):
+                    offset = (y * size + x) * 4 + 3
+                    changed += (before.rgba[offset] > 128) != (after.rgba[offset] > 128)
+            transitions.append({
+                "from_frame": before.frame,
+                "to_frame": after.frame,
+                "changed_silhouette_pixels": changed,
+                "region_pixels": region_pixels,
+                "change_fraction": round(changed / region_pixels, 4),
+            })
+
+        slowest = min(transitions, key=lambda item: item["change_fraction"])
+        legs[name] = {
+            "minimum_change_fraction": MIN_HIND_LEG_SILHOUETTE_CHANGE,
+            "slowest_transition": slowest,
+            "passed": slowest["change_fraction"] >= MIN_HIND_LEG_SILHOUETTE_CHANGE,
+        }
+
+    return {
+        "measurement": "binary alpha silhouette change per lower hind-leg region",
+        "passed": all(leg["passed"] for leg in legs.values()),
+        "legs": legs,
+    }
+
+
 def _draw_text(canvas: bytearray, width: int, x: int, y: int, label: str) -> None:
     scale = 2
     color = (222, 228, 236, 255)
@@ -328,6 +373,7 @@ def render_audit(state: str, cycles: int = 1,
 
     frames = tuple(rendered)
     tail_metrics = _tail_metrics(state, frames, display_size, density)
+    hind_leg_metrics = _hind_leg_metrics(state, frames, display_size)
     report: dict[str, object] = {
         "renderer": "rgba_icon with premultiplied bilinear downsampling",
         "state": state,
@@ -347,6 +393,7 @@ def render_audit(state: str, cycles: int = 1,
         ],
         "transitions": transitions,
         "tail_motion": tail_metrics,
+        "hind_leg_motion": hind_leg_metrics,
         "contact_sheet": "contact-sheet.png",
     }
     return RenderAudit(report, frames, _contact_sheet(frames, display_size))
@@ -392,6 +439,7 @@ def main() -> int:
     result = render_audit(args.state, args.cycles, args.density)
     manifest = write_audit(result, args.output)
     tail = result.report["tail_motion"]
+    hind_legs = result.report["hind_leg_motion"]
     if isinstance(tail, dict):
         print(
             f"Tail motion at {result.report['display_size_px']}px: "
@@ -401,9 +449,21 @@ def main() -> int:
             f"chest changes {tail['chest_changed_pixels_at_display_size']} pixels; "
             f"{'PASS' if tail['passed'] else 'FAIL'}"
         )
+    if isinstance(hind_legs, dict):
+        legs = hind_legs["legs"]
+        summary = ", ".join(
+            f"{name} {leg['slowest_transition']['change_fraction']:.1%}"
+            for name, leg in legs.items()
+        )
+        print(
+            f"Hind-leg silhouette at {result.report['display_size_px']}px: "
+            f"{summary}; minimum {MIN_HIND_LEG_SILHOUETTE_CHANGE:.1%}; "
+            f"{'PASS' if hind_legs['passed'] else 'FAIL'}"
+        )
     print(f"Rendered {result.report['frame_count']} frames over "
           f"{result.report['duration_seconds']}s to {manifest.parent}")
-    if isinstance(tail, dict) and not tail["passed"]:
+    if ((isinstance(tail, dict) and not tail["passed"])
+            or (isinstance(hind_legs, dict) and not hind_legs["passed"])):
         return 1
     return 0
 
