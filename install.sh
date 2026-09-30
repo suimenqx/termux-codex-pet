@@ -10,6 +10,9 @@ RUNTIME_DIR="$HOME/.cache/codex-pet"
 if ! command -v python >/dev/null 2>&1; then
   pkg install -y python
 fi
+if ! python -c 'import ctypes; ctypes.CDLL("libpng16.so")' >/dev/null 2>&1; then
+  pkg install -y libpng
+fi
 if ! python -c 'import termuxgui' >/dev/null 2>&1; then
   python -m pip install termuxgui
 fi

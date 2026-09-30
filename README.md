@@ -18,7 +18,7 @@ A small mascot that floats over Android apps and shows what Codex CLI is doing. 
    codex-pet test
    ```
 
-The installer installs Python and the official `termuxgui` Python binding if missing, creates the CLI links, merges the Pet hooks into the existing Codex configuration, starts the daemon, and runs an IPC smoke check. It backs up any Codex configuration file it changes. It does not install an Android APK or replace unrelated Codex settings. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends.
+The installer installs Python, libpng, and the official `termuxgui` Python binding if missing, creates the CLI links, merges the Pet hooks into the existing Codex configuration, starts the daemon, and runs an IPC smoke check. It backs up any Codex configuration file it changes. It does not install an Android APK or replace unrelated Codex settings. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends.
 
 **For live Codex events:** restart Codex after installation. On Codex CLI 0.156.1, open `/hooks` in the new session and trust the Pet hook commands if prompted. The installer uses inline hooks in `~/.codex/config.toml` when that config has inline event groups; otherwise it uses `~/.codex/hooks.json`. The install output reports which mode was used. You can inspect `~/.config/codex-pet/install.json` later. Pet hooks only observe events; they never approve or deny Codex actions.
 
@@ -37,15 +37,15 @@ codex-pet pet use akita
 codex-pet pet use robot
 ```
 
-The Pet is a single, roughly 64 dp floating icon. The Akita uses a cheerful, head-forward style: a large round cream face, bright orange-red crown with a pale blaze, small upright ears, and an open smiling mouth above a compact body. It breathes and flicks its tail while idle, runs with an alternating four-leg stride, raises a paw when it needs input, hops when ready, and settles into a puzzled pose when blocked. State colors stay on the collar and badge so the coat remains recognizable. The original robot is also selectable. `codex-pet pet list` shows the catalog and current choice; `codex-pet pet use <id>` switches to any listed appearance. The choice is saved alongside the overlay position in `~/.config/codex-pet/config.json` and changes the live overlay when the daemon is running. Tapping has no action. To move the Pet, drag from within the center 27 dp radius; the point you grabbed stays under your finger, so it does not jump. Move more than 12 dp to start a drag.
+The Pet is a single, roughly 64 dp floating icon. The Akita uses five high-resolution, transparent 256 × 256 illustrations in a cheerful style: a large round cream face, bright orange-red crown with a pale blaze, small upright ears, and an open smile above a compact body. It switches poses by state: a relaxed smile while idle, a bounding run, a raised paw when it needs input, a happy jump when ready, and a puzzled head tilt when blocked. These are still illustrations; the original robot remains selectable and animated. `codex-pet pet list` shows the catalog and current choice; `codex-pet pet use <id>` switches to any listed appearance. The choice is saved alongside the overlay position in `~/.config/codex-pet/config.json` and changes the live overlay when the daemon is running. Tapping has no action. To move the Pet, drag from within the center 27 dp radius; the point you grabbed stays under your finger, so it does not jump. Move more than 12 dp to start a drag.
 
 | State | What you see | When it changes |
 | --- | --- | --- |
-| Idle | Breathing Akita with a relaxed tail | Session starts, ends, or its turn is interrupted |
-| Running | Full-body running loop; a count badge appears with multiple active sessions | You submit a prompt or Codex resumes after a tool call |
-| Needs input | Alert ears and raised paw | Codex requests tool permission |
-| Ready | A short celebratory hop, then a happy pose | The turn stops; remains until a later event changes its state or the session ends |
-| Blocked | A puzzled, paw-to-cheek pose | Demo state only; hooks do not receive a definitive failed-turn event |
+| Idle | Relaxed, smiling pose | Session starts, ends, or its turn is interrupted |
+| Running | Bounding run pose; a count badge appears with multiple active sessions | You submit a prompt or Codex resumes after a tool call |
+| Needs input | Alert face with one paw raised | Codex requests tool permission |
+| Ready | Happy jump pose | The turn stops; remains until a later event changes its state or the session ends |
+| Blocked | Puzzled, paw-to-cheek pose | Demo state only; hooks do not receive a definitive failed-turn event |
 
 With multiple Codex sessions, status priority follows the public Pet order: Needs input, Blocked, Ready, Running. The mascot shows a count when two or more sessions are running.
 

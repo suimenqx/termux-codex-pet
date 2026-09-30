@@ -23,6 +23,24 @@ def png_pixel(image: bytes, x: int, y: int) -> tuple[int, int, int, int]:
     return tuple(row[start:start + 4])  # type: ignore[return-value]
 
 
+def png_dimensions(image: bytes) -> tuple[int, int]:
+    return struct.unpack_from(">II", image, 16)
+
+
+def png_first_pixel(image: bytes) -> tuple[int, int, int, int]:
+    offset = 8
+    compressed = bytearray()
+    while offset < len(image):
+        size = struct.unpack_from(">I", image, offset)[0]
+        kind = image[offset + 4:offset + 8]
+        if kind == b"IDAT":
+            compressed.extend(image[offset + 8:offset + 8 + size])
+        offset += size + 12
+    # PNG predictors have no left, above, or upper-left neighbors at (0, 0).
+    raw = zlib.decompress(compressed)
+    return tuple(raw[1:5])  # type: ignore[return-value]
+
+
 class RobotArtTests(unittest.TestCase):
     def test_pixels_outside_the_robot_silhouette_are_fully_transparent(self) -> None:
         for state in ("idle", "running", "needs_input", "ready", "blocked"):
@@ -50,36 +68,34 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(icon("idle"), icon("idle", appearance="akita"))
         self.assertNotEqual(icon("idle"), icon("idle", appearance="robot"))
 
-    def test_each_akita_state_has_distinct_animation_frames(self) -> None:
+    def test_akita_uses_transparent_high_resolution_state_illustrations(self) -> None:
+        images = []
         for state in ("idle", "running", "needs_input", "ready", "blocked"):
             with self.subTest(state=state):
-                frames = {icon(state, frame=frame) for frame in range(5)}
-                self.assertGreater(len(frames), 1)
+                image = icon(state)
+                self.assertEqual(png_dimensions(image), (256, 256))
+                self.assertEqual(image[24], 8)
+                self.assertEqual(image[25], 6)
+                self.assertEqual(png_first_pixel(image)[3], 0)
+                self.assertEqual(icon(state, frame=4), image)
+                images.append(image)
+        self.assertEqual(len(set(images)), 5)
 
-    def test_akita_face_uses_short_ears_and_a_blunt_dark_nose(self) -> None:
-        image = icon("idle", frame=0)
-        self.assertEqual(png_pixel(image, 21, 8)[3], 0)
-        self.assertEqual(png_pixel(image, 30, 22), (246, 231, 199, 255))
-        self.assertEqual(png_pixel(image, 32, 32), (246, 231, 199, 255))
-        self.assertEqual(png_pixel(image, 32, 36), (49, 39, 34, 255))
+    def test_akita_uses_state_specific_illustrations_and_count_badge(self) -> None:
+        self.assertNotEqual(icon("idle"), icon("running"))
+        self.assertNotEqual(icon("needs_input"), icon("blocked"))
+        self.assertNotEqual(icon("running", count=1), icon("running", count=2))
+        self.assertNotEqual(icon("running", count=2), icon("running", count=9))
+        self.assertNotEqual(icon("running", count=9), icon("running", count=10))
 
-    def test_akita_coat_uses_a_bright_orange_red(self) -> None:
-        image = icon("idle", frame=0)
-        self.assertEqual(png_pixel(image, 26, 22), (226, 106, 38, 255))
-
-    def test_animated_states_use_bounded_state_specific_cadence(self) -> None:
-        self.assertEqual(animation_interval("akita", "running", 0), 0.14)
-        self.assertEqual(animation_interval("akita", "ready", 4), None)
+    def test_akita_illustrations_do_not_schedule_pixel_animation_frames(self) -> None:
+        self.assertIsNone(animation_interval("akita", "running", 0))
+        self.assertIsNone(animation_interval("akita", "idle", 0))
         self.assertEqual(advance_animation("akita", "running", 3), 0)
-        self.assertEqual(advance_animation("akita", "ready", 4), 4)
+        self.assertEqual(advance_animation("akita", "ready", 4), 0)
 
     def test_unknown_configured_appearance_falls_back_to_akita(self) -> None:
         self.assertEqual(icon("idle", appearance="unknown"), icon("idle"))
-
-    def test_state_badges_and_multi_session_count_are_visible(self) -> None:
-        self.assertEqual(png_pixel(icon("needs_input"), 53, 4), (49, 39, 34, 255))
-        self.assertNotEqual(icon("running", count=1), icon("running", count=2))
-
 
 if __name__ == "__main__":
     unittest.main()
