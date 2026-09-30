@@ -13,8 +13,8 @@ from typing import Any, Callable
 import termuxgui as tg
 
 from .animation import AnimationTimeline
-from .art import SIZE, AKITA_SIZE, icon
-from .pets import DEFAULT_APPEARANCE
+from .art import icon
+from .pets import DEFAULT_APPEARANCE, appearance_for
 from .preferences import read_config, save_position
 
 LOG = logging.getLogger(__name__)
@@ -56,7 +56,8 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
 def _visual_key(snapshot: dict[str, Any]) -> tuple[Any, Any, int]:
     state = snapshot["state"]
     running_count = int(snapshot.get("running_count", 0)) if state == "running" else 0
-    return snapshot.get("appearance", DEFAULT_APPEARANCE), state, running_count
+    appearance = appearance_for(snapshot.get("appearance", DEFAULT_APPEARANCE)).id
+    return appearance, state, running_count
 
 
 class OverlayUI:
@@ -72,7 +73,7 @@ class OverlayUI:
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.face.sendtouchevent(True)
-        self.image_size_px = AKITA_SIZE
+        self.image_size_px = appearance_for(DEFAULT_APPEARANCE).image_size_px
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
@@ -110,10 +111,10 @@ class OverlayUI:
 
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
-        appearance = snapshot.get("appearance", DEFAULT_APPEARANCE)
-        self.image_size_px = SIZE if appearance == "robot" else AKITA_SIZE
+        appearance = appearance_for(snapshot.get("appearance", DEFAULT_APPEARANCE))
+        self.image_size_px = appearance.image_size_px
         count = snapshot["running_count"]
-        image = icon(state, frame, count, appearance)
+        image = icon(state, frame, count, appearance.id)
         # PNG decoding premultiplies alpha before Android draws it. Termux:GUI's
         # raw shared-buffer copy does not, so straight-alpha PNG pixels sent as
         # RGBA there produce bright colored specks around transparent edges.

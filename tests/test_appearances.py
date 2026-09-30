@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from codex_pet import cli, daemon
 from codex_pet.preferences import read_config, save_appearance, save_position, selected_appearance
+from codex_pet.pets import APPEARANCES
 
 
 class PetPreferenceTests(unittest.TestCase):
@@ -113,7 +114,7 @@ class PetAppearanceCliTests(unittest.TestCase):
         with patch.object(cli, "request") as request, redirect_stderr(error):
             self.assertEqual(cli._pet_use("fox"), 2)
         request.assert_not_called()
-        self.assertIn("akita, robot", error.getvalue())
+        self.assertIn(", ".join(item.id for item in APPEARANCES), error.getvalue())
 
 
 if __name__ == "__main__":

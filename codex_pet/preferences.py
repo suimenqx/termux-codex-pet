@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE
+from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE, appearance_for
 
 
 def read_config(path: Path) -> dict[str, Any]:
@@ -46,7 +46,7 @@ def update_config(path: Path, update: Callable[[dict[str, Any]], None]) -> dict[
 
 def selected_appearance(path: Path) -> str:
     value = read_config(path).get("appearance", DEFAULT_APPEARANCE)
-    return value if isinstance(value, str) and value in APPEARANCE_BY_ID else DEFAULT_APPEARANCE
+    return appearance_for(value).id
 
 
 def save_appearance(path: Path, appearance: str) -> dict[str, Any]:

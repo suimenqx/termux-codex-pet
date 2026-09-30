@@ -9,7 +9,7 @@ import struct
 import zlib
 
 from .animation import AKITA_FRAME_COUNTS, AKITA_READY_SEQUENCE, AKITA_STATES
-from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE
+from .pets import ART_PROFILE_AKITA, ART_PROFILE_ROBOT, DEFAULT_APPEARANCE, appearance_for
 
 SIZE = 64
 
@@ -322,22 +322,28 @@ def _akita_rgba(state: str, frame: int, count: int) -> bytes:
     return bytes(pixels)
 
 
+def _render_akita(state: str, frame: int, count: int) -> bytes:
+    state = state if state in AKITA_STATES else "idle"
+    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
+    bounded_count = max(0, min(int(count), 10))
+    return _akita_icon(state, frame, bounded_count if state == "running" else 0)
+
+
+_ART_RENDERERS = {
+    ART_PROFILE_AKITA: _render_akita,
+    ART_PROFILE_ROBOT: _robot_icon,
+}
+
+
 def icon(state: str, frame: int = 0, count: int = 0,
          appearance: str = DEFAULT_APPEARANCE) -> bytes:
     """Load one frame for a registered pet appearance."""
-    if appearance not in APPEARANCE_BY_ID:
-        appearance = DEFAULT_APPEARANCE
-    if appearance == "robot":
-        return _robot_icon(state, frame, count)
-    if appearance == "akita":
-        state = state if state in AKITA_STATES else "idle"
-        frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-        bounded_count = max(0, min(int(count), 10))
-        return _akita_icon(state, frame, bounded_count if state == "running" else 0)
-    # Bad or future config values must never prevent the overlay from rendering.
-    state = state if state in AKITA_STATES else "idle"
-    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-    return _akita_icon(state, frame, 0)
+    spec = appearance_for(appearance)
+    try:
+        renderer = _ART_RENDERERS[spec.art_profile]
+    except KeyError as exc:
+        raise ValueError(f"Unsupported art profile: {spec.art_profile}") from exc
+    return renderer(state, frame, count)
 
 
 def rgba_icon(state: str, frame: int = 0, count: int = 0) -> bytes:

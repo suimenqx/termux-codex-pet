@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from codex_pet import gui
 from codex_pet.art import icon
+from codex_pet.pets import APPEARANCES
 
 
 class FakeMainSocket:
@@ -106,13 +107,15 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(gui.tg, "TextView", side_effect=AssertionError("text UI is not allowed")), \
              patch.object(gui.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
-            for appearance in ("akita", "robot"):
+            for appearance in APPEARANCES:
                 for state in ("idle", "running", "needs_input", "ready", "blocked"):
                     pet.render({"state": state, "running_count": 2,
-                                "appearance": appearance, "project": "repo",
+                                "appearance": appearance.id, "project": "repo",
                                 "elapsed": 10, "message": "hidden detail"})
-                    self.assertEqual(pet.face.image, icon(state, 0, 2, appearance))
-            self.assertEqual(len(pet.face.image_updates), 10)
+                    self.assertEqual(pet.face.image,
+                                     icon(state, 0, 2, appearance.id))
+                    self.assertEqual(pet.image_size_px, appearance.image_size_px)
+            self.assertEqual(len(pet.face.image_updates), len(APPEARANCES) * 5)
             pet.render({"state": "running", "running_count": 2, "appearance": "akita"})
             self.assertEqual(pet.face.image, icon("running", 0, 2))
             pet.close()

@@ -16,7 +16,8 @@ Codex lifecycle hook JSON on stdin
 | --- | --- | --- |
 | Hook configuration | `codex_pet/hooks_config.py`, `install.sh`, `uninstall.sh` | Merge/remove only Pet hooks; back up changed Codex files |
 | Hook entrypoint | `bin/codex-pet-event`, `codex_pet/hook.py` | Bounded JSON parsing, fail-open handling, and hook-side notification fallback |
-| Human CLI | `bin/codex-pet`, `codex_pet/cli.py`, `codex_pet/pets.py`, `codex_pet/preferences.py` | Daemon controls, appearance catalog and selection; daemon code is imported only by the `daemon` command |
+| Appearance catalog | `codex_pet/pets.py` | Supported IDs, default choice, source image dimensions, and renderer/animation profiles |
+| Human CLI | `bin/codex-pet`, `codex_pet/cli.py`, `codex_pet/preferences.py` | Daemon controls and appearance selection; daemon code is imported only by the `daemon` command |
 | Process and IPC | `codex_pet/runtime.py`, `codex_pet/daemon.py` | Paths, locks, Unix socket, event delivery and retry, signals, log rotation, notification fallback |
 | Session model | `codex_pet/state.py` | Defensive event normalization, session priority, turn ordering, counts |
 | Animation playback | `codex_pet/animation.py` | Per-appearance frame sequence, timing, loop/hold behavior, monotonic playback timeline, finite schedule for offline tools |
@@ -24,6 +25,8 @@ Codex lifecycle hook JSON on stdin
 | Android UI | `codex_pet/gui.py`, `codex_pet/pets.py`, `codex_pet/preferences.py` | Overlay and GUI connection, touch, saved position and appearance, rendering the current playback frame |
 
 The two `bin` scripts add the checkout to `sys.path`; the installed CLI entries are symlinks into this repository. The hook entrypoint and ordinary CLI commands do not import the daemon or Termux:GUI binding. A running daemon retains imported code until restarted. Moving the checkout requires reinstalling the links.
+
+`pets.py` is the source of truth for each appearance's ID, default status, source image dimensions, art profile, and animation profile. `art.py` and `animation.py` implement those profiles; `gui.py` reads the registered image dimensions for touch-coordinate scaling as well as rendering.
 
 ## Contracts to preserve
 
@@ -35,7 +38,7 @@ The two `bin` scripts add the checkout to `sys.path`; the installed CLI entries 
 
 ## Overlay and touch details
 
-`OverlayUI` keeps one 64 dp `ImageView` in one native overlay. There are no text views, detail cards, speech tails, or secondary overlays. `codex-pet pet list` exposes the appearance catalog; `codex-pet pet use <id>` persists a selection and updates a running daemon. `art.icon()` returns the PNG frame sent to the `ImageView`; `art.rgba_icon()` exposes straight-alpha pixels for offline rendering and animation audits. libpng draws the running-session count badge into each Akita frame. Android's PNG decoder premultiplies the alpha before drawing. Do not send `rgba_icon()` directly to Termux:GUI's raw shared bitmap buffer, which copies bytes without premultiplying them. `self.x`/`self.y` are the mascot's logical screen position; the overlay moves only during a drag. The overlay belongs to the GUI worker thread.
+`OverlayUI` keeps one 64 dp `ImageView` in one native overlay. There are no text views, detail cards, speech tails, or secondary overlays. `codex-pet pet list` exposes the appearance catalog; `codex-pet pet use <id>` persists a selection and updates a running daemon. `art.icon()` resolves the appearance's registered art profile and returns the PNG frame sent to the `ImageView`; `art.rgba_icon()` exposes straight-alpha Akita pixels for offline rendering and animation audits. libpng draws the running-session count badge into each Akita frame. Android's PNG decoder premultiplies the alpha before drawing. Do not send `rgba_icon()` directly to Termux:GUI's raw shared bitmap buffer, which copies bytes without premultiplying them. `self.x`/`self.y` are the mascot's logical screen position; the overlay moves only during a drag. The overlay belongs to the GUI worker thread.
 
 Termux:GUI emits an overlay-wide touch event with absolute screen coordinates for every touch in the overlay window. Use it as the drag gesture source so recognition does not depend on the ordering of events from separate paths. A tap has no action; dragging can start anywhere on the 64 dp icon after 6 dp of movement. The saved starting position plus the screen-coordinate delta keeps the original grab point under the finger. The targeted View touch event is optional and only refines the grab anchor near screen edges; its nested `pointers` report source-image pixels, so scale those coordinates to the 64 dp view before applying them. Releasing saves the new position; a cancelled gesture restores its start. Apply anchor corrections only after touch-down, so a tap never changes the logical position.
 

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE
+from .pets import (
+    ANIMATION_PROFILE_AKITA, ANIMATION_PROFILE_ROBOT, appearance_for,
+)
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
 AKITA_READY_SEQUENCE = (
@@ -46,7 +48,7 @@ class PlaybackFrame:
 
 
 def _appearance_id(appearance: str) -> str:
-    return appearance if appearance in APPEARANCE_BY_ID else DEFAULT_APPEARANCE
+    return appearance_for(appearance).id
 
 
 def _akita_state(state: str) -> str:
@@ -54,30 +56,33 @@ def _akita_state(state: str) -> str:
 
 
 def _state_id(appearance: str, state: str) -> str:
-    return _akita_state(state) if appearance == "akita" else state
+    profile = appearance_for(appearance).animation_profile
+    return _akita_state(state) if profile == ANIMATION_PROFILE_AKITA else state
 
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:
     """Return the frame's duration, or None when its final pose holds."""
-    appearance = _appearance_id(appearance)
-    if appearance == "akita":
+    profile = appearance_for(appearance).animation_profile
+    if profile == ANIMATION_PROFILE_AKITA:
         state = _akita_state(state)
         frame = max(0, int(frame))
         intervals = AKITA_FRAME_INTERVALS[state]
         if state not in AKITA_LOOP_STATES and frame >= len(intervals):
             return None
         return intervals[frame % len(intervals)]
-    if state == "running":
-        return 2.0
-    if state == "needs_input":
-        return 1.4
-    return None
+    if profile == ANIMATION_PROFILE_ROBOT:
+        if state == "running":
+            return 2.0
+        if state == "needs_input":
+            return 1.4
+        return None
+    raise ValueError(f"Unsupported animation profile: {profile}")
 
 
 def advance_animation(appearance: str, state: str, frame: int) -> int:
     """Return the next logical frame, preserving each appearance's cycle."""
-    appearance = _appearance_id(appearance)
-    if appearance == "akita":
+    profile = appearance_for(appearance).animation_profile
+    if profile == ANIMATION_PROFILE_AKITA:
         state = _akita_state(state)
         frame = max(0, int(frame))
         frame_count = AKITA_FRAME_COUNTS[state]
@@ -86,21 +91,27 @@ def advance_animation(appearance: str, state: str, frame: int) -> int:
         if state in AKITA_LOOP_STATES:
             return (frame + 1) % frame_count
         return min(frame + 1, frame_count)
-    if state in ("running", "needs_input"):
-        return 1 - frame
-    return frame
+    if profile == ANIMATION_PROFILE_ROBOT:
+        if state in ("running", "needs_input"):
+            return 1 - frame
+        return frame
+    raise ValueError(f"Unsupported animation profile: {profile}")
 
 
 def _cycle_bounds(appearance: str, state: str) -> tuple[int, int] | None:
-    if appearance == "akita":
+    profile = appearance_for(appearance).animation_profile
+    if profile == ANIMATION_PROFILE_AKITA:
         state = _akita_state(state)
         if state == "ready":
             return AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS[state] - 1
         if state in AKITA_LOOP_STATES:
             return 0, AKITA_FRAME_COUNTS[state] - 1
-    elif appearance == "robot" and state in ("running", "needs_input"):
-        return 0, 1
-    return None
+        return None
+    if profile == ANIMATION_PROFILE_ROBOT:
+        if state in ("running", "needs_input"):
+            return 0, 1
+        return None
+    raise ValueError(f"Unsupported animation profile: {profile}")
 
 
 class AnimationTimeline:
