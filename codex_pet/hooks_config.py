@@ -34,12 +34,17 @@ def _write(path: Path, data: str) -> None:
     temp.replace(path)
 
 
+def _has_inline_hooks(config: dict) -> bool:
+    hooks = config.get("hooks")
+    return isinstance(hooks, dict) and any(isinstance(groups, list) for groups in hooks.values())
+
+
 def install() -> None:
     CODEX.mkdir(mode=0o700, parents=True, exist_ok=True)
     MANIFEST.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     config = tomllib.loads(TOML.read_text()) if TOML.exists() else {}
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
-    if "hooks" in config:
+    if _has_inline_hooks(config):
         content = TOML.read_text()
         block = BEGIN + "\n"
         for name in HOOK_STATES:
