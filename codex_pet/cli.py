@@ -139,15 +139,15 @@ def _test() -> int:
         if observed["session_count"] == 1 and observed["state"] != state:
             print(f"Unexpected state at {state}: {observed['state']}", file=sys.stderr)
             return 1
-        if state in ("needs_input", "ready") and observed["session_count"] == 1 and not observed["overlay"]["expanded"]:
-            print(f"{state} detail did not expand", file=sys.stderr)
+        if not isinstance(observed.get("overlay"), dict):
+            print(f"Overlay was not created at {state}", file=sys.stderr)
             return 1
         if state == "ready":
-            print(f"{state} (persistent until acknowledged)", flush=True)
+            print(f"{state} icon (persistent until the next event)", flush=True)
             time.sleep(seconds)
             after = _status()
             if after is not None and after["session_count"] == 1 and after["state"] != "ready":
-                print("Ready did not remain until acknowledged", file=sys.stderr)
+                print("Ready did not remain visible through the test interval", file=sys.stderr)
                 return 1
             continue
         print(f"{state} ({seconds:g}s)", flush=True)

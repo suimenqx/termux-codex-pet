@@ -18,11 +18,11 @@ A small robot that floats over Android apps and shows what Codex CLI is doing. C
    codex-pet test
    ```
 
-The installer installs Python and the official `termuxgui` Python binding if missing, creates the CLI links, merges the Pet hooks into the existing Codex configuration, starts the daemon, and runs an IPC smoke check. It backs up any Codex configuration file it changes. It does not install an Android APK or replace unrelated Codex settings. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible until acknowledged.
+The installer installs Python and the official `termuxgui` Python binding if missing, creates the CLI links, merges the Pet hooks into the existing Codex configuration, starts the daemon, and runs an IPC smoke check. It backs up any Codex configuration file it changes. It does not install an Android APK or replace unrelated Codex settings. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends.
 
 **For live Codex events:** restart Codex after installation. On Codex CLI 0.156.1, open `/hooks` in the new session and trust the Pet hook commands if prompted. The installer uses inline hooks in `~/.codex/config.toml` when that config already has hooks; otherwise it uses `~/.codex/hooks.json`. The install output reports which mode was used. You can inspect `~/.config/codex-pet/install.json` later. Pet hooks only observe events; they never approve or deny Codex actions.
 
-Submit a prompt to see **Running**. When Codex requests tool permission, the Pet shows **Needs input**. A tool response moves the session back to **Running**. When the turn stops, the Pet shows **Ready** until you tap the activity card or robot to acknowledge it.
+Submit a prompt to see **Running**. When Codex requests tool permission, the Pet shows **Needs input**. A tool response moves the session back to **Running**. When the turn stops, the Pet shows **Ready** until a later event changes that session's state or the session ends.
 
 ## Daily use
 
@@ -34,19 +34,19 @@ codex-pet status      # daemon, GUI connection, state, project, session counts
 codex-pet test        # cycle through all visual states
 ```
 
-Tap the robot to open or close its activity bubble; the robot stays visually still while the bubble changes. Its face reacts to Idle, Running, Needs input, Ready, and Blocked. The compact card is 116 dp wide, with a 5 dp speech tail; its text aligns toward the robot so the project, colored status, and short message read as one conversation. Slightly larger card text makes the status and summary easier to scan. The bubble switches sides near the left edge. Needs input and Ready open it automatically; touching the card or robot acknowledges Ready, while other manual touches keep the card open until you close it. Start a drag anywhere within the center 27 dp radius; the point you grabbed stays under your finger, so the robot does not jump. Corner taps still open or close the card without moving the robot. The position is saved in `~/.config/codex-pet/config.json` and restored after restart. The collapsed robot is about 64 dp wide.
+The Pet is a single, roughly 64 dp floating robot icon. Its expression, accent color, and small badge show Idle, Running, Needs input, Ready, or Blocked without labels or message cards. Tapping has no action. To move it, drag from within the center 27 dp radius; the point you grabbed stays under your finger, so the robot does not jump. Move more than 12 dp to start a drag. The position is saved in `~/.config/codex-pet/config.json` and restored after restart.
 
 | State | What you see | When it changes |
 | --- | --- | --- |
 | Idle | Quiet robot | Session starts, ends, or its turn is interrupted |
-| Running | Slow animation and elapsed time in the card | You submit a prompt or Codex resumes after a tool call |
-| Needs input | Prominent alert and open card | Codex requests tool permission |
-| Ready | Completion feedback and open card | The turn stops; remains until you acknowledge the activity |
+| Running | Animated face and running badge | You submit a prompt or Codex resumes after a tool call |
+| Needs input | Alert expression and badge | Codex requests tool permission |
+| Ready | Completion expression and badge | The turn stops; remains until a later event changes its state or the session ends |
 | Blocked | Error expression | Demo state only; hooks do not receive a definitive failed-turn event |
 
 With multiple Codex sessions, status priority follows the public Pet order: Needs input, Blocked, Ready, Running. The robot shows a count when two or more sessions are running.
 
-**State accuracy:** Codex documents the four activity names and their priority, but this hook integration does not receive the same internal status stream as the desktop app. Hooks expose prompt, tool-permission, tool, stop, interrupt, and session lifecycle events; they do not report whether a stopped turn failed, whether activity is unread, or when Codex asks a text-only question. A denied permission with no tool result may stay at Needs input until another hook event arrives. This implementation never infers Blocked from an error-looking tool result, and treats a tap on the visible Ready summary as acknowledgement. A Stop hook from another integration can also request a continuation, briefly changing Ready back to Running when the next prompt event arrives. A definitive failed-turn signal requires every CLI session to use the same App Server event stream; that is not enabled by this hooks-only Termux integration.
+**State accuracy:** Codex documents the four activity names and their priority, but this hook integration does not receive the same internal status stream as the desktop app. Hooks expose prompt, tool-permission, tool, stop, interrupt, and session lifecycle events; they do not report whether a stopped turn failed, whether activity is unread, or when Codex asks a text-only question. A denied permission with no tool result may stay at Needs input until another hook event arrives. This implementation never infers Blocked from an error-looking tool result. Ready stays visible as an icon until a later event changes that session's state or the session ends. A Stop hook from another integration can also request a continuation, briefly changing Ready back to Running when the next prompt event arrives. A definitive failed-turn signal requires every CLI session to use the same App Server event stream; that is not enabled by this hooks-only Termux integration.
 
 ## Update
 
@@ -70,7 +70,7 @@ The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`,
 - **`GUI=unavailable`:** check the Termux:GUI overlay permission and matching app signatures, then run `codex-pet restart`. Read `~/.cache/codex-pet/pet.log` if it still fails.
 - **Pet works in `codex-pet test` but ignores prompts:** restart Codex, open `/hooks`, and trust the Pet hooks. Check the file matching `hooks_mode` in `~/.config/codex-pet/install.json`. `codex features list` should show `hooks` enabled.
 - **Pet shows an old design after updating:** run `codex-pet restart`; a running daemon does not reload Python files automatically.
-- **Drag or tap is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Start a drag within the robot's central area; touching the activity card keeps it open rather than moving the robot.
+- **Drag is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Start a drag within the robot's central area and move it at least 12 dp.
 
 ## Uninstall
 

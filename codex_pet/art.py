@@ -23,23 +23,6 @@ def _png(width: int, height: int, pixels: bytearray) -> bytes:
     )
 
 
-def speech_tail(toward: str) -> bytes:
-    """Return a small transparent triangle pointing toward the robot."""
-    if toward not in ("left", "right"):
-        raise ValueError("speech tail direction must be 'left' or 'right'")
-    width, height = 16, 28
-    color = (32, 43, 54, 238)
-    pixels = bytearray(width * height * 4)
-    center = (height - 1) / 2
-    for y in range(height):
-        span = max(1, round(width * (1 - abs(y - center) / (height / 2))))
-        for offset in range(span):
-            x = offset if toward == "right" else width - 1 - offset
-            start = (y * width + x) * 4
-            pixels[start:start + 4] = bytes(color)
-    return _png(width, height, pixels)
-
-
 def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     pixels = bytearray(SIZE * SIZE * 4)
 

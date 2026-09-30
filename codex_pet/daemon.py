@@ -28,18 +28,12 @@ class Daemon:
         self.gui_error = "starting"
         self.stopping = False
         self.signal_read, self.signal_write = socket.socketpair()
-        self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status, self.acknowledge_ready)
+        self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status)
         self.last_notification: tuple[str, str, str] | None = None
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
             return self.sessions.snapshot()
-
-    def acknowledge_ready(self, session_id: str | None) -> None:
-        with self.lock:
-            changed = self.sessions.mark_ready_read(session_id)
-        if changed:
-            self.gui.wake()
 
     def gui_status(self, ready: bool, error: str) -> None:
         with self.lock:
@@ -65,11 +59,8 @@ class Daemon:
         with self.lock:
             state = self.sessions.snapshot()
             ui = self.gui.ui
-            overlay = ({"x": ui.x, "y": ui.y, "expanded": ui.expanded,
-                        "touch_count": ui.touch_count, "last_touch": ui.last_touch,
-                        "bubble": ({"x": ui.bubble_x, "y": ui.bubble_y,
-                                    "width": ui.bubble_width_px}
-                                   if ui.bubble is not None else None)}
+            overlay = ({"x": ui.x, "y": ui.y,
+                        "touch_count": ui.touch_count, "last_touch": ui.last_touch}
                        if ui is not None else None)
             return {"ok": True, "pid": os.getpid(), "gui_ready": self.gui_ready,
                     "overlay": overlay,

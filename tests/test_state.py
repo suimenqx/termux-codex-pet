@@ -46,7 +46,7 @@ class StateSynchronizationTests(unittest.TestCase):
         store.apply(event("running", "thread-1", "turn-1"))
         self.assertEqual(store.snapshot()["state"], "running")
 
-    def test_ready_persists_until_the_visible_session_is_acknowledged(self) -> None:
+    def test_ready_persists_until_a_later_hook_event_changes_the_session(self) -> None:
         store = SessionStore()
         store.apply(event("ready", "thread-1", "turn-1", "Finished the task"))
         snapshot = store.snapshot()
@@ -54,9 +54,9 @@ class StateSynchronizationTests(unittest.TestCase):
         self.assertEqual(snapshot["message"], "Finished the task")
         self.assertEqual(snapshot["session_id"], "thread-1")
         self.assertEqual(store.snapshot()["state"], "ready")
-        self.assertTrue(store.mark_ready_read(snapshot["session_id"]))
-        self.assertEqual(store.snapshot()["state"], "idle")
-        self.assertFalse(store.mark_ready_read("thread-1"))
+
+        store.apply(event("running", "thread-1", "turn-1"))
+        self.assertEqual(store.snapshot()["state"], "running")
 
     def test_late_events_from_a_previous_turn_are_ignored(self) -> None:
         store = SessionStore()

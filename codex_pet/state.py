@@ -120,19 +120,6 @@ class SessionStore:
         )
         return True
 
-    def mark_ready_read(self, session_id: str | None = None) -> bool:
-        """Acknowledge the visible Ready session when its detail card is opened."""
-        if session_id is None:
-            current = self.snapshot()
-            session_id = current.get("session_id")
-        session = self.sessions.get(session_id) if session_id else None
-        if session is None or session.state != "ready":
-            return False
-        session.state = "idle"
-        session.message = ""
-        session.changed_at = time.monotonic()
-        return True
-
     def snapshot(self) -> dict[str, Any]:
         if not self.sessions:
             return {"state": "idle", "project": "Codex", "message": "", "elapsed": 0,
