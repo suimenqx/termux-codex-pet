@@ -23,6 +23,13 @@ def png_pixel(image: bytes, x: int, y: int) -> tuple[int, int, int, int]:
 
 
 class RobotArtTests(unittest.TestCase):
+    def test_pixels_outside_the_robot_silhouette_are_fully_transparent(self) -> None:
+        for state in ("idle", "running", "needs_input", "ready", "blocked"):
+            with self.subTest(state=state):
+                image = icon(state)
+                self.assertEqual(png_pixel(image, 14, 15)[3], 0)
+                self.assertEqual(png_pixel(image, 63, 63)[3], 0)
+
     def test_face_expression_changes_with_status(self) -> None:
         blush = (226, 126, 147, 255)
         face = (43, 55, 70, 255)

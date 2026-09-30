@@ -53,8 +53,7 @@ def icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     face = (43, 55, 70, 255)
     white = (241, 249, 255, 255)
 
-    # Antenna, ears, softly rounded head and small body.
-    disc(32, 34, 28, (18, 28, 39, 180))
+    # Empty pixels around the mascot stay transparent; draw only the robot silhouette.
     rect(30, 5, 34, 14, accent)
     disc(32, 5, 4, accent)
     rect(6, 29, 13, 40, accent)
