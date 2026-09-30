@@ -48,6 +48,14 @@ def png_first_pixel(image: bytes) -> tuple[int, int, int, int]:
     return tuple(raw[1:5])  # type: ignore[return-value]
 
 
+def rgba_region(image: bytes, box: tuple[int, int, int, int]) -> bytes:
+    x0, y0, x1, y1 = box
+    return b"".join(
+        image[(y * 256 + x0) * 4:(y * 256 + x1) * 4]
+        for y in range(y0, y1)
+    )
+
+
 class RobotArtTests(unittest.TestCase):
     def test_pixels_outside_the_robot_silhouette_are_fully_transparent(self) -> None:
         for state in ("idle", "running", "needs_input", "ready", "blocked"):
@@ -122,12 +130,39 @@ class AkitaArtTests(unittest.TestCase):
             frame = advance_animation("akita", "ready", frame)
         self.assertEqual(frame, AKITA_READY_LOOP_START)
 
-        self.assertEqual(animation_interval("akita", "ready", frame), 0.6)
+        self.assertEqual(animation_interval("akita", "ready", frame), 0.8)
         self.assertEqual(animation_interval("akita", "ready", 10), 0.18)
-        self.assertEqual(animation_interval("akita", "ready", 11), 0.6)
+        self.assertEqual(animation_interval("akita", "ready", 11), 0.8)
         for _ in range(AKITA_FRAME_COUNTS["ready"] - AKITA_READY_LOOP_START):
             frame = advance_animation("akita", "ready", frame)
         self.assertEqual(frame, AKITA_READY_LOOP_START)
+
+    def test_ready_blink_only_changes_the_face_not_the_chest(self) -> None:
+        before_blink = rgba_icon("ready", 5)
+        blink = rgba_icon("ready", 6)
+        after_blink = rgba_icon("ready", 7)
+
+        chest = (70, 120, 180, 205)
+        eyes = (62, 45, 195, 118)
+        self.assertNotEqual(rgba_region(before_blink, eyes), rgba_region(blink, eyes))
+        self.assertNotEqual(rgba_region(blink, eyes), rgba_region(after_blink, eyes))
+        self.assertEqual(rgba_region(before_blink, chest), rgba_region(blink, chest))
+        self.assertEqual(rgba_region(blink, chest), rgba_region(after_blink, chest))
+
+    def test_ready_blink_is_slower_and_less_frequent(self) -> None:
+        self.assertGreaterEqual(animation_interval("akita", "ready", 6) or 0, 0.14)
+        cycle = sum(animation_interval("akita", "ready", frame) or 0
+                    for frame in range(AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS["ready"]))
+        self.assertGreaterEqual(cycle, 3.5)
+
+    def test_ready_hop_has_time_to_prepare_and_settle(self) -> None:
+        hop = [animation_interval("akita", "ready", frame) or 0 for frame in range(4)]
+
+        self.assertGreaterEqual(hop[0], 0.2)
+        self.assertGreaterEqual(hop[1], 0.14)
+        self.assertGreaterEqual(hop[2], 0.14)
+        self.assertGreaterEqual(hop[3], 0.22)
+        self.assertGreaterEqual(sum(hop), 0.72)
 
     def test_akita_blocked_reaction_plays_once_then_holds(self) -> None:
         frame_count = AKITA_FRAME_COUNTS["blocked"]

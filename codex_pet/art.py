@@ -155,8 +155,8 @@ def _robot_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
 AKITA_READY_SEQUENCE = (
     ("ready", 0), ("ready", 1), ("ready", 2), ("ready", 3),
-    ("idle", 0), ("idle", 1), ("idle", 2), ("idle", 3), ("idle", 4), ("idle", 5),
-    ("ready", 1), ("idle", 0),
+    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 4),
+    ("ready", 1), ("idle", 5),
 )
 AKITA_READY_LOOP_START = 4
 AKITA_FRAME_COUNTS = {
@@ -172,9 +172,8 @@ AKITA_FRAME_INTERVALS = {
     "running": (0.1,) * 6,
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
-    # Celebrate once on entry, then breathe and offer a small paw cue every
-    # ~2.8 s while Ready remains selected.
-    "ready": (0.12, 0.1, 0.1, 0.16, 0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.18, 0.6),
+    # Give the hop time to prepare and land; blink slowly during the quiet loop.
+    "ready": (0.22, 0.16, 0.18, 0.28, 0.8, 0.18, 0.16, 0.22, 0.6, 0.8, 0.18, 0.8),
     # Blocked is a brief reaction that settles and holds its final pose.
     "blocked": (0.12, 0.18, 0.18, 0.12),
 }
@@ -300,6 +299,29 @@ def _add_count_badge(image: bytes, count: int) -> bytes:
     return _png(width, height, pixels)
 
 
+@lru_cache(maxsize=1)
+def _ready_blink_icon() -> bytes:
+    """Build a blink from one stable body pose so the chest does not jump."""
+    base = _akita_asset("idle", 0)
+    try:
+        width, height, pixels = _decode_rgba_png(base)
+        blink_width, blink_height, blink_pixels = _decode_rgba_png(_akita_asset("idle", 2))
+    except ValueError:
+        # The static PNG path still works on systems without libpng.
+        return base
+    if (width, height) != (blink_width, blink_height):
+        return base
+
+    # Replace just the eyes and their immediate fur, leaving the torso pixels
+    # byte-for-byte identical to the open-eye frame around the blink.
+    x0, y0, x1, y1 = 58, 54, 198, 116
+    for y in range(y0, y1):
+        start = (y * width + x0) * 4
+        end = (y * width + x1) * 4
+        pixels[start:end] = blink_pixels[start:end]
+    return _png(width, height, pixels)
+
+
 @lru_cache(maxsize=80)
 def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
     if state not in AKITA_STATES:
@@ -307,7 +329,7 @@ def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
     frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
     asset_state, asset_frame = (AKITA_READY_SEQUENCE[frame]
                                 if state == "ready" else (state, frame))
-    image = _akita_asset(asset_state, asset_frame)
+    image = _ready_blink_icon() if asset_state == "blink" else _akita_asset(asset_state, asset_frame)
     if state == "running" and count > 1:
         try:
             return _add_count_badge(image, count)
