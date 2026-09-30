@@ -12,14 +12,13 @@ from typing import Any, Callable
 
 import termuxgui as tg
 
-from .art import AKITA_SIZE, advance_animation, animation_interval, icon, rgba_icon
+from .art import SIZE, AKITA_SIZE, advance_animation, animation_interval, icon, rgba_icon
 from .pets import DEFAULT_APPEARANCE
 from .preferences import read_config, save_position
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
-DRAG_RADIUS_DP = 27
-DRAG_SLOP_DP = 12
+DRAG_SLOP_DP = 6
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
 
 
@@ -72,17 +71,16 @@ class OverlayUI:
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.face.sendtouchevent(True)
+        self.image_size_px = AKITA_SIZE
         self.image_buffer: tg.Buffer | None = None
         self.buffer_bound = False
         self.buffer_unavailable = False
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
-        self.pending_down: tuple[float, float, int, int] | None = None
         # Screen down, corrected drag anchor, original logical position.
         self.down: tuple[float, float, int, int, int, int] | None = None
         self.dragged = False
-        self.drag_enabled = False
         self.touch_count = 0
         self.last_touch = ""
         self._measure_density()
@@ -115,6 +113,7 @@ class OverlayUI:
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
         appearance = snapshot.get("appearance", DEFAULT_APPEARANCE)
+        self.image_size_px = SIZE if appearance == "robot" else AKITA_SIZE
         count = snapshot["running_count"]
         image = icon(state, frame, count, appearance)
         if appearance == "robot":
@@ -155,25 +154,20 @@ class OverlayUI:
         if event.type == tg.Event.touch:
             if (event.value.get("aid") == self.pet.aid and
                 event.value.get("id") == self.face.id and
-                event.value.get("action") == "down"):
-                if self.pending_down is not None:
-                    raw_x, raw_y, origin_x, origin_y = self.pending_down
-                    local = _first_pointer(event.value.get("pointers"))
-                    if local is not None and 0 <= local[0] <= PET_SIZE_DP and 0 <= local[1] <= PET_SIZE_DP:
-                        # ImageView touch coordinates are in the 64 px icon, so
-                        # use the actual grab point if Android clamped the window.
-                        anchor_x = max(0, round(raw_x - local[0] * self.density))
-                        anchor_y = max(0, round(raw_y - local[1] * self.density))
-                    else:
-                        anchor_x, anchor_y = origin_x, origin_y
-                        local = ((raw_x - origin_x) / self.density,
-                                 (raw_y - origin_y) / self.density)
-                    cx, cy = PET_SIZE_DP / 2, PET_SIZE_DP / 2
-                    self.drag_enabled = ((local[0] - cx) ** 2 + (local[1] - cy) ** 2
-                                         <= DRAG_RADIUS_DP ** 2)
+                event.value.get("action") == "down" and self.down is not None):
+                local_px = _first_pointer(event.value.get("pointers"))
+                if (local_px is not None and
+                    0 <= local_px[0] <= self.image_size_px and
+                    0 <= local_px[1] <= self.image_size_px):
+                    # ImageView pointer coordinates use source-image pixels.
+                    # Normalize them to the 64 dp view before correcting a
+                    # system-clamped overlay position.
+                    local_x = local_px[0] * PET_SIZE_DP / self.image_size_px
+                    local_y = local_px[1] * PET_SIZE_DP / self.image_size_px
+                    raw_x, raw_y, _, _, origin_x, origin_y = self.down
+                    anchor_x = max(0, round(raw_x - local_x * self.density))
+                    anchor_y = max(0, round(raw_y - local_y * self.density))
                     self.down = (raw_x, raw_y, anchor_x, anchor_y, origin_x, origin_y)
-                self.pending_down = None
-                self.dragged = False
             return False
         if event.type != tg.Event.overlaytouch:
             return False
@@ -188,32 +182,33 @@ class OverlayUI:
             return False
         action = event.value.get("action")
         if action == "down":
-            self.pending_down = (xy[0], xy[1], self.x, self.y)
-            self.down = None
+            # overlayTouch is the gesture source. View touch events are only
+            # an optional source of a more precise anchor near screen edges.
+            # They arrive on a separate event path, so requiring both downs
+            # makes drag behavior depend on event ordering.
+            self.down = (xy[0], xy[1], self.x, self.y, self.x, self.y)
             self.dragged = False
-            self.drag_enabled = False
         elif action == "move" and self.down is not None:
             dx, dy = xy[0] - self.down[0], xy[1] - self.down[1]
             slop = DRAG_SLOP_DP * self.density
             if dx * dx + dy * dy > slop * slop:
                 self.dragged = True
-            if self.dragged and self.drag_enabled:
+            if self.dragged:
                 self.x = max(0, self.down[2] + round(dx))
                 self.y = max(0, self.down[3] + round(dy))
                 self.pet.setposition(self.x, self.y)
         elif action in ("up", "cancel") and self.down is not None:
-            self.pending_down = None
             if action == "cancel":
-                if self.dragged and self.drag_enabled:
+                if self.dragged:
                     self.x, self.y = self.down[4], self.down[5]
                     self.pet.setposition(self.x, self.y)
                 self.down = None
                 return False
-            if self.dragged and self.drag_enabled:
+            if self.dragged:
                 self._save_position()
             self.down = None
         elif action in ("up", "cancel"):
-            self.pending_down = None
+            self.down = None
         return False
 
     def close(self) -> None:

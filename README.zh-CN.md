@@ -37,7 +37,7 @@ codex-pet pet use akita
 codex-pet pet use robot
 ```
 
-Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 256 高清 PNG 帧：奶油白圆脸、明亮橘红额顶和浅色额心、短立耳、张嘴露舌的笑脸，以及紧凑的身体。待机时缓慢呼吸并偶尔眨眼；运行时循环小跑；需要输入时轻轻挥爪；就绪时开心跃起一次，受阻时短暂歪头，然后停在各自的最终姿势。经典机器人仍可切换，并保留原有动画。运行 `codex-pet pet list` 查看已支持形象和当前选择，用 `codex-pet pet use <id>` 切换到列表中的任一形象，例如 `codex-pet pet use robot`。选择与悬浮位置一起保存在 `~/.config/codex-pet/config.json`；daemon 正在运行时会立即切换。点击没有操作；如需移动，在 Pet 中心 27dp 半径范围内按住拖动，抓取点会持续跟随手指，不会突然跳位。移动超过 12dp 才会开始拖动。
+Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 256 高清 PNG 帧：奶油白圆脸、明亮橘红额顶和浅色额心、短立耳、张嘴露舌的笑脸，以及紧凑的身体。待机时缓慢呼吸并偶尔眨眼；运行时循环小跑；需要输入时轻轻挥爪；就绪时开心跃起一次，受阻时短暂歪头，然后停在各自的最终姿势。经典机器人仍可切换，并保留原有动画。运行 `codex-pet pet list` 查看已支持形象和当前选择，用 `codex-pet pet use <id>` 切换到列表中的任一形象，例如 `codex-pet pet use robot`。选择与悬浮位置一起保存在 `~/.config/codex-pet/config.json`；daemon 正在运行时会立即切换。点击没有操作；如需移动，从 Pet 图标的任意位置拖动即可，移动约 6dp 后就会跟随手指。
 
 | 状态 | 显示内容 | 触发与持续时间 |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ codex-pet status
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
 - **更新后还是旧界面：**运行 `codex-pet restart`；正在运行的 daemon 不会自动重载 Python 文件。
-- **拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从 Pet 中心区域开始拖动，并移动至少 12dp。
+- **拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从 Pet 图标任意位置开始拖动，移动约 6dp 即可。
 
 ## 卸载
 

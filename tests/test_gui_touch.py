@@ -38,10 +38,9 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.face = PetView(5)
         self.ui.x, self.ui.y = 700, 420
         self.ui.density = 3.0
-        self.ui.pending_down = None
+        self.ui.image_size_px = 256
         self.ui.down = None
         self.ui.dragged = False
-        self.ui.drag_enabled = False
         self.ui.touch_count = 0
         self.ui.last_touch = ""
         self.saved: list[tuple[int, int]] = []
@@ -61,11 +60,11 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual(self.ui.pet.positions, [])
         self.assertEqual(self.saved, [])
 
-    def test_touch_without_face_target_does_not_activate_pet(self) -> None:
-        self.ui.handle(touch("down", 730, 460))
-        self.assertFalse(self.ui.handle(touch("up", 730, 460)))
-        self.assertEqual(self.ui.pet.positions, [])
-        self.assertEqual(self.saved, [])
+    def test_overlay_touch_alone_can_start_drag(self) -> None:
+        self.ui.handle(touch("down", 790, 510))
+        self.ui.handle(touch("move", 830, 540))
+        self.ui.handle(touch("up", 830, 540))
+        self.assertEqual(self.saved, [(740, 450)])
 
     def test_events_for_another_overlay_are_ignored(self) -> None:
         self.ui.handle(touch("down", 790, 510, aid=2))
@@ -82,6 +81,18 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.handle(touch("up", 830, 540, aid=None))
         self.assertEqual(self.saved, [(740, 450)])
 
+    def test_view_down_before_overlay_down_still_starts_drag(self) -> None:
+        # Android reports the targeted View touch and overlay-wide touch via
+        # separate event paths; either one can reach the GUI worker first.
+        self.ui.handle(SimpleNamespace(type=tg.Event.touch, value={
+            "aid": 1, "id": self.ui.face.id, "action": "down",
+        }))
+        self.ui.handle(touch("down", 790, 510))
+        self.ui.handle(touch("move", 830, 540))
+        self.ui.handle(touch("up", 830, 540))
+
+        self.assertEqual(self.saved, [(740, 450)])
+
     def test_drag_moves_and_saves_position(self) -> None:
         self.face_down(790, 510)
         self.ui.handle(touch("move", 830, 540))
@@ -93,22 +104,29 @@ class GuiTouchTests(unittest.TestCase):
         self.assertEqual(self.ui.last_touch, "up")
 
     def test_nested_image_pointer_keeps_grab_aligned_after_window_clamp(self) -> None:
-        self.face_down(500, 460, pointers=[[{"x": 20, "y": 32, "id": 0}]])
+        self.face_down(500, 460, pointers=[[{"x": 80, "y": 128, "id": 0}]])
         self.ui.handle(touch("move", 550, 500))
         self.ui.handle(touch("up", 550, 500))
         self.assertEqual(self.saved, [(490, 404)])
 
-    def test_outer_image_touch_cannot_start_a_drag(self) -> None:
+    def test_drag_can_start_near_the_edge_of_the_icon(self) -> None:
         self.face_down(710, 430)
         self.ui.handle(touch("move", 760, 480))
         self.ui.handle(touch("up", 760, 480))
-        self.assertEqual(self.saved, [])
-        self.assertEqual(self.ui.pet.positions, [])
+        self.assertEqual(self.saved, [(750, 470)])
+        self.assertEqual(self.ui.pet.positions[-1], (750, 470))
 
-    def test_short_movement_does_not_move_or_save(self) -> None:
+    def test_movement_between_six_and_twelve_dp_starts_drag(self) -> None:
         self.face_down(790, 510)
         self.ui.handle(touch("move", 814, 528))
         self.ui.handle(touch("up", 814, 528))
+        self.assertEqual(self.saved, [(724, 438)])
+        self.assertEqual(self.ui.pet.positions[-1], (724, 438))
+
+    def test_movement_below_six_dp_does_not_move_or_save(self) -> None:
+        self.face_down(790, 510)
+        self.ui.handle(touch("move", 799, 519))
+        self.ui.handle(touch("up", 799, 519))
         self.assertEqual(self.saved, [])
         self.assertEqual(self.ui.pet.positions, [])
 
