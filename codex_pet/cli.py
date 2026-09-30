@@ -1,71 +1,19 @@
-"""Human CLI and silent, fail-open Codex hook helper."""
+"""Human-facing Pet controls."""
 
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 import time
-import traceback
 from typing import Any
 
-from . import daemon
 from .pets import APPEARANCES, APPEARANCE_BY_ID, DEFAULT_APPEARANCE
 from .preferences import save_appearance, selected_appearance
-from .runtime import CONFIG, LOG, SOCKET, _daemon_lock_held, directories, notification, request, start_daemon
-from .state import STATES, direct_event, event_from_hook
-
-
-def _send(event: dict[str, Any], quick: bool = False) -> bool:
-    try:
-        reply = request({"action": "event", "event": event}, 0.2 if quick else 0.5)
-        if reply.get("ok"):
-            return True
-    except (OSError, ValueError, ConnectionError):
-        pass
-    start_daemon(0.65 if quick else 1.2)
-    try:
-        reply = request({"action": "event", "event": event}, 0.2 if quick else 0.5)
-        return bool(reply.get("ok"))
-    except (OSError, ValueError, ConnectionError):
-        return False
-
-
-def _log_hook_error(exc: BaseException) -> None:
-    try:
-        directories()
-        with open(LOG, "a", encoding="utf-8") as file:
-            file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} hook helper: {exc!r}\n")
-            traceback.print_exception(exc, file=file)
-    except OSError:
-        pass
-
-
-def event_main() -> None:
-    parser = argparse.ArgumentParser(prog="codex-pet-event")
-    parser.add_argument("--state", choices=sorted(STATES - {"end"}))
-    parser.add_argument("--session-id", default="manual")
-    parser.add_argument("--project", default="Codex")
-    parser.add_argument("--message", default="")
-    args = parser.parse_args()
-    try:
-        if args.state:
-            event = direct_event({"state": args.state, "session_id": args.session_id,
-                                  "project": args.project, "message": args.message})
-        else:
-            raw = sys.stdin.buffer.read(65537)
-            if len(raw) > 65536:
-                return
-            event = event_from_hook(json.loads(raw)) if raw.strip() else None
-        if event is None:
-            return
-        if not _send(event, quick=True):
-            notification(event["state"], event["project"], event["message"])
-    except Exception as exc:
-        _log_hook_error(exc)
-        if "event" in locals() and event is not None:
-            notification(event["state"], event["project"], event["message"])
+from .runtime import (
+    CONFIG, LOG, SOCKET, _daemon_lock_held, request, send_event, start_daemon,
+)
+from .state import direct_event
 
 
 def _status() -> dict[str, Any] | None:
@@ -130,7 +78,7 @@ def _test() -> int:
         event = direct_event({"state": state, "session_id": sid,
                               "project": "Pet test", "message": "The test status is visible here."})
         assert event is not None
-        if not _send(event):
+        if not send_event(event):
             print(f"IPC failed at {state}", file=sys.stderr)
             return 1
         time.sleep(0.25)
@@ -156,7 +104,7 @@ def _test() -> int:
         time.sleep(seconds)
     end = direct_event({"state": "end", "session_id": sid})
     assert end is not None
-    _send(end)
+    send_event(end)
     final = _status()
     if final is None or not final.get("gui_ready"):
         print("GUI unavailable after test", file=sys.stderr)
@@ -216,7 +164,9 @@ def main() -> None:
         code = _pet_list() if args.pet_action == "list" else _pet_use(args.appearance)
         raise SystemExit(code)
     if args.command == "daemon":
-        daemon.main()
+        from .daemon import main as daemon_main
+
+        daemon_main()
         return
     if args.command == "start":
         code = _start()

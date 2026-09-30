@@ -46,6 +46,23 @@ def request(payload: dict[str, Any], timeout: float = 0.25) -> dict[str, Any]:
     return json.loads(response.split(b"\n", 1)[0])
 
 
+def send_event(event: dict[str, Any], quick: bool = False) -> bool:
+    timeout = 0.2 if quick else 0.5
+    try:
+        reply = request({"action": "event", "event": event}, timeout)
+        if reply.get("ok"):
+            return True
+    except (OSError, ValueError, ConnectionError):
+        pass
+
+    start_daemon(0.65 if quick else 1.2)
+    try:
+        reply = request({"action": "event", "event": event}, timeout)
+        return bool(reply.get("ok"))
+    except (OSError, ValueError, ConnectionError):
+        return False
+
+
 def _daemon_lock_held() -> bool:
     if not RUNTIME.exists():
         return False

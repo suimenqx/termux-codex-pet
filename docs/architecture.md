@@ -6,8 +6,8 @@ This is the reference for agents changing hook ingestion, sessions, IPC, daemon 
 
 ```text
 Codex lifecycle hook JSON on stdin
-  → bin/codex-pet-event → cli.event_main → state.event_from_hook
-  → runtime.request over ~/.cache/codex-pet/pet.sock
+  → bin/codex-pet-event → hook.event_main → state.event_from_hook
+  → runtime.send_event / runtime.request over ~/.cache/codex-pet/pet.sock
   → daemon.Daemon.process → state.SessionStore
   → GuiWorker wake socket → AnimationTimeline → OverlayUI.render → Termux:GUI overlay
 ```
@@ -15,14 +15,15 @@ Codex lifecycle hook JSON on stdin
 | Seam | Owner | What it owns |
 | --- | --- | --- |
 | Hook configuration | `codex_pet/hooks_config.py`, `install.sh`, `uninstall.sh` | Merge/remove only Pet hooks; back up changed Codex files |
-| Hook entrypoint and human CLI | `bin/*`, `codex_pet/cli.py`, `codex_pet/pets.py`, `codex_pet/preferences.py` | Fail-open JSON parsing, daemon controls, appearance catalog and selection |
-| Process and IPC | `codex_pet/runtime.py`, `codex_pet/daemon.py` | Paths, locks, Unix socket, signals, log rotation, notification fallback |
+| Hook entrypoint | `bin/codex-pet-event`, `codex_pet/hook.py` | Bounded JSON parsing, fail-open handling, and hook-side notification fallback |
+| Human CLI | `bin/codex-pet`, `codex_pet/cli.py`, `codex_pet/pets.py`, `codex_pet/preferences.py` | Daemon controls, appearance catalog and selection; daemon code is imported only by the `daemon` command |
+| Process and IPC | `codex_pet/runtime.py`, `codex_pet/daemon.py` | Paths, locks, Unix socket, event delivery and retry, signals, log rotation, notification fallback |
 | Session model | `codex_pet/state.py` | Defensive event normalization, session priority, turn ordering, counts |
 | Animation playback | `codex_pet/animation.py` | Per-appearance frame sequence, timing, loop/hold behavior, monotonic playback timeline, finite schedule for offline tools |
 | Artwork rendering | `codex_pet/art.py`, `codex_pet/assets/` | Draw robot pixels, load Akita frames, compose badges and blink frames into PNG/RGBA images |
 | Android UI | `codex_pet/gui.py`, `codex_pet/pets.py`, `codex_pet/preferences.py` | Overlay and GUI connection, touch, saved position and appearance, rendering the current playback frame |
 
-The two `bin` scripts add the checkout to `sys.path`; the installed CLI entries are symlinks into this repository. A running daemon retains imported code until restarted. Moving the checkout requires reinstalling the links.
+The two `bin` scripts add the checkout to `sys.path`; the installed CLI entries are symlinks into this repository. The hook entrypoint and ordinary CLI commands do not import the daemon or Termux:GUI binding. A running daemon retains imported code until restarted. Moving the checkout requires reinstalling the links.
 
 ## Contracts to preserve
 
