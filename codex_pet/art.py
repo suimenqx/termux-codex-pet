@@ -153,11 +153,17 @@ def _robot_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
 
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
+AKITA_READY_SEQUENCE = (
+    ("ready", 0), ("ready", 1), ("ready", 2), ("ready", 3),
+    ("idle", 0), ("idle", 1), ("idle", 2), ("idle", 3), ("idle", 4), ("idle", 5),
+    ("ready", 1), ("idle", 0),
+)
+AKITA_READY_LOOP_START = 4
 AKITA_FRAME_COUNTS = {
     "idle": 6,
     "running": 6,
     "needs_input": 4,
-    "ready": 4,
+    "ready": len(AKITA_READY_SEQUENCE),
     "blocked": 4,
 }
 AKITA_FRAME_INTERVALS = {
@@ -166,11 +172,13 @@ AKITA_FRAME_INTERVALS = {
     "running": (0.1,) * 6,
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
-    # These reactions play once, then rest on their final pose.
-    "ready": (0.12, 0.1, 0.1, 0.16),
+    # Celebrate once on entry, then breathe and offer a small paw cue every
+    # ~2.8 s while Ready remains selected.
+    "ready": (0.12, 0.1, 0.1, 0.16, 0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.18, 0.6),
+    # Blocked is a brief reaction that settles and holds its final pose.
     "blocked": (0.12, 0.18, 0.18, 0.12),
 }
-AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input"))
+AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input", "ready"))
 AKITA_SIZE = 256
 AKITA_ASSET_DIR = Path(__file__).resolve().parent / "assets" / "akita"
 
@@ -297,7 +305,9 @@ def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
     if state not in AKITA_STATES:
         state = "idle"
     frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-    image = _akita_asset(state, frame)
+    asset_state, asset_frame = (AKITA_READY_SEQUENCE[frame]
+                                if state == "ready" else (state, frame))
+    image = _akita_asset(asset_state, asset_frame)
     if state == "running" and count > 1:
         try:
             return _add_count_badge(image, count)
@@ -362,6 +372,8 @@ def advance_animation(appearance: str, state: str, frame: int) -> int:
         state = state if state in AKITA_FRAME_COUNTS else "idle"
         frame = max(0, int(frame))
         frame_count = AKITA_FRAME_COUNTS[state]
+        if state == "ready" and frame >= frame_count - 1:
+            return AKITA_READY_LOOP_START
         if state in AKITA_LOOP_STATES:
             return (frame + 1) % frame_count
         return min(frame + 1, frame_count)

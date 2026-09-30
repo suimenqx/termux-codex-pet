@@ -4,6 +4,7 @@ import zlib
 
 from codex_pet.art import (
     AKITA_FRAME_COUNTS,
+    AKITA_READY_LOOP_START,
     advance_animation,
     animation_interval,
     icon,
@@ -80,12 +81,17 @@ class AkitaArtTests(unittest.TestCase):
             with self.subTest(state=state):
                 frames = [icon(state, frame=frame)
                           for frame in range(AKITA_FRAME_COUNTS[state])]
-                self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state])
                 for image in frames:
                     self.assertEqual(png_dimensions(image), (256, 256))
                     self.assertEqual(image[24], 8)
                     self.assertEqual(image[25], 6)
                     self.assertEqual(png_first_pixel(image)[3], 0)
+                if state == "ready":
+                    # The loop deliberately reuses the small paw cue and a
+                    # resting pose after the one-time full hop.
+                    self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state] - 2)
+                else:
+                    self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state])
                 self.assertEqual(icon(state, frame=AKITA_FRAME_COUNTS[state]), frames[-1])
                 state_images.append(frames[0])
         self.assertEqual(len(set(state_images)), 5)
@@ -109,18 +115,30 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(advance_animation("akita", "running", 5), 0)
         self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
 
-    def test_akita_ready_and_blocked_reactions_play_once_then_hold(self) -> None:
-        for state in ("ready", "blocked"):
-            with self.subTest(state=state):
-                frame_count = AKITA_FRAME_COUNTS[state]
-                frame = 0
-                for _ in range(frame_count):
-                    self.assertIsNotNone(animation_interval("akita", state, frame))
-                    frame = advance_animation("akita", state, frame)
-                self.assertEqual(frame, frame_count)
-                self.assertIsNone(animation_interval("akita", state, frame))
-                self.assertEqual(advance_animation("akita", state, frame), frame)
-                self.assertEqual(icon(state, frame), icon(state, frame_count - 1))
+    def test_akita_ready_hops_once_then_loops_a_quiet_cue(self) -> None:
+        frame = 0
+        for _ in range(AKITA_READY_LOOP_START):
+            self.assertIsNotNone(animation_interval("akita", "ready", frame))
+            frame = advance_animation("akita", "ready", frame)
+        self.assertEqual(frame, AKITA_READY_LOOP_START)
+
+        self.assertEqual(animation_interval("akita", "ready", frame), 0.6)
+        self.assertEqual(animation_interval("akita", "ready", 10), 0.18)
+        self.assertEqual(animation_interval("akita", "ready", 11), 0.6)
+        for _ in range(AKITA_FRAME_COUNTS["ready"] - AKITA_READY_LOOP_START):
+            frame = advance_animation("akita", "ready", frame)
+        self.assertEqual(frame, AKITA_READY_LOOP_START)
+
+    def test_akita_blocked_reaction_plays_once_then_holds(self) -> None:
+        frame_count = AKITA_FRAME_COUNTS["blocked"]
+        frame = 0
+        for _ in range(frame_count):
+            self.assertIsNotNone(animation_interval("akita", "blocked", frame))
+            frame = advance_animation("akita", "blocked", frame)
+        self.assertEqual(frame, frame_count)
+        self.assertIsNone(animation_interval("akita", "blocked", frame))
+        self.assertEqual(advance_animation("akita", "blocked", frame), frame)
+        self.assertEqual(icon("blocked", frame), icon("blocked", frame_count - 1))
 
     def test_robot_animation_timing_remains_unchanged(self) -> None:
         self.assertEqual(animation_interval("robot", "running", 0), 2.0)
