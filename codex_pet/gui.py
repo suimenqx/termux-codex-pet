@@ -58,6 +58,45 @@ def _visual_key(snapshot: dict[str, Any]) -> tuple[Any, Any, int]:
     return snapshot.get("appearance", DEFAULT_APPEARANCE), state, running_count
 
 
+class AnimationClock:
+    """Keep frame changes on a monotonic schedule instead of render completion."""
+
+    def __init__(self, appearance: str, state: str, frame: int, now: float) -> None:
+        self.deadline: float | None = None
+        self.reset(appearance, state, frame, now)
+
+    def reset(self, appearance: str, state: str, frame: int, now: float) -> None:
+        interval = animation_interval(appearance, state, frame)
+        self.deadline = now + interval if interval is not None else None
+
+    def timeout(self, now: float) -> float | None:
+        if self.deadline is None:
+            return None
+        return max(0.0, self.deadline - now)
+
+    def due(self, now: float) -> bool:
+        return self.deadline is not None and now >= self.deadline
+
+    def advance(self, appearance: str, state: str, frame: int, now: float) -> int:
+        """Advance to the frame due now, skipping missed frames without a burst."""
+        if not self.due(now):
+            return frame
+
+        assert self.deadline is not None
+        next_deadline = self.deadline
+        while True:
+            frame = advance_animation(appearance, state, frame)
+            interval = animation_interval(appearance, state, frame)
+            if interval is None:
+                self.deadline = None
+                return frame
+
+            next_deadline += interval
+            if next_deadline > now:
+                self.deadline = next_deadline
+                return frame
+
+
 class OverlayUI:
     def __init__(self, connection: tg.Connection, config_path: Path) -> None:
         self.c = connection
@@ -296,11 +335,11 @@ class GuiWorker:
         current = self.snapshot()
         appearance = current.get("appearance", DEFAULT_APPEARANCE)
         state = current["state"]
-        running_count = current.get("running_count", 0)
         visual = _visual_key(current)
         self.ui.render(current, frame)
+        clock = AnimationClock(appearance, state, frame, time.monotonic())
         while not self.stopping:
-            timeout = animation_interval(appearance, state, frame)
+            timeout = clock.timeout(time.monotonic())
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
                 self.read_wake.recv(4096)
@@ -309,11 +348,11 @@ class GuiWorker:
                 current = self.snapshot()
                 appearance = current.get("appearance", DEFAULT_APPEARANCE)
                 state = current["state"]
-                running_count = current.get("running_count", 0)
                 next_visual = _visual_key(current)
                 if next_visual != visual:
                     frame = 0
                     visual = next_visual
+                    clock.reset(appearance, state, frame, time.monotonic())
                 self.ui.render(current, frame)
             if connection._event in readable:
                 if not connection._event.recv(1, socket.MSG_PEEK):
@@ -322,7 +361,16 @@ class GuiWorker:
                 if event is not None:
                     if self.ui.handle(event):
                         self.ui.render(self.snapshot(), frame)
-            if not readable:
-                frame = advance_animation(appearance, state, frame)
+            now = time.monotonic()
+            if clock.due(now):
                 current = self.snapshot()
+                next_visual = _visual_key(current)
+                if next_visual != visual:
+                    appearance = current.get("appearance", DEFAULT_APPEARANCE)
+                    state = current["state"]
+                    visual = next_visual
+                    frame = 0
+                    clock.reset(appearance, state, frame, now)
+                else:
+                    frame = clock.advance(appearance, state, frame, now)
                 self.ui.render(current, frame)
