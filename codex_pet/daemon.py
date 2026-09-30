@@ -30,9 +30,11 @@ class Daemon:
         self.gui_error = "starting"
         self.stopping = False
         self.appearance = selected_appearance(CONFIG)
+        # Acquire notification_lock only after lock; never hold either for the command.
+        self.notification_lock = threading.Lock()
+        self.last_notification: tuple[str, str, str] | None = None
         self.signal_read, self.signal_write = socket.socketpair()
         self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status)
-        self.last_notification: tuple[str, str, str] | None = None
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
@@ -42,21 +44,28 @@ class Daemon:
         with self.lock:
             self.gui_ready = ready
             self.gui_error = error
-            snapshot = self.sessions.snapshot()
+            if ready:
+                with self.notification_lock:
+                    self.last_notification = None
         if ready:
             LOGGING.info("Termux:GUI overlay ready")
-            self.last_notification = None
         else:
             LOGGING.error("Termux:GUI unavailable: %s", error)
-            self._fallback(snapshot)
+            self._fallback()
 
-    def _fallback(self, snapshot: dict[str, Any]) -> None:
-        if snapshot["state"] not in ("needs_input", "ready"):
-            return
-        key = (snapshot["state"], snapshot["project"], snapshot["message"])
-        if key != self.last_notification:
-            notification(*key)
-            self.last_notification = key
+    def _fallback(self) -> None:
+        with self.lock:
+            if self.gui_ready or self.gui_error == "starting":
+                return
+            snapshot = self.sessions.snapshot()
+            if snapshot["state"] not in ("needs_input", "ready"):
+                return
+            key = (snapshot["state"], snapshot["project"], snapshot["message"])
+            with self.notification_lock:
+                if key == self.last_notification:
+                    return
+                self.last_notification = key
+        notification(*key)
 
     def status(self) -> dict[str, Any]:
         with self.lock:
@@ -107,10 +116,8 @@ class Daemon:
                 self.sessions.apply(event)
                 snapshot = self.sessions.snapshot()
                 ready = self.gui_ready
-                error = self.gui_error
             self.gui.wake()
-            if not ready and error != "starting":
-                self._fallback(snapshot)
+            self._fallback()
             return {"ok": True, "gui_ready": ready, "state": snapshot["state"]}
         return {"ok": False, "error": "unknown action"}
 
