@@ -14,7 +14,7 @@ class PetAppearance:
 
 DEFAULT_APPEARANCE = "akita"
 APPEARANCES = (
-    PetAppearance("akita", "Akita", "A lively red-and-cream Akita Inu."),
+    PetAppearance("akita", "Akita", "A compact red-and-cream Akita with a curled tail."),
     PetAppearance("robot", "Robot", "The original dark pixel robot."),
 )
 APPEARANCE_BY_ID = {appearance.id: appearance for appearance in APPEARANCES}

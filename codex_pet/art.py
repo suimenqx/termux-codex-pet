@@ -275,103 +275,116 @@ def _akita_sitting(state: str, frame: int,
           color: tuple[int, int, int, int]) -> None:
         rect(x0, y0 + bob, x1, y1 + bob, color)
 
-    # The curled tail sits behind the body; the transparent center reads as a curl.
-    tail_x = 10 + (1 if state == "idle" and frame == 1 else 0)
-    d(tail_x, 39, 7, outline)
-    d(tail_x, 39, 5, coat)
-    d(tail_x, 39, 2, (0, 0, 0, 0))
-    r(4, 33, 9, 37, cream)
-    r(12, 36, 20, 43, coat_shadow)
+    # A thick curl peeks over the hip instead of floating away from the body.
+    tail_x = 15 + (1 if state == "idle" and frame == 1 else 0)
+    d(tail_x, 40, 7, outline)
+    d(tail_x, 40, 5, coat_light)
+    d(tail_x, 40, 2, (0, 0, 0, 0))
+    r(tail_x - 6, 34, tail_x - 3, 37, cream)
+    r(16, 38, 24, 46, coat_shadow)
 
-    # Seated body, chest bib, and two broad front paws.
-    r(19, 39, 45, 54, outline)
-    d(24, 46, 7, outline)
-    d(40, 46, 7, outline)
-    r(21, 39, 43, 52, coat)
-    d(25, 44, 6, coat)
-    d(39, 44, 6, coat)
-    r(24, 47, 40, 53, coat)
-    r(23, 51, 31, 59, outline)
-    r(33, 51, 41, 59, outline)
-    r(24, 52, 30, 57, coat_light)
-    r(34, 52, 40, 57, coat_light)
-    r(25, 54, 29, 57, cream_shadow)
-    r(35, 54, 39, 57, cream_shadow)
-    r(28, 41, 36, 53, cream_shadow)
-    r(27, 42, 37, 52, cream)
+    # Broad haunches, a deep chest, and short, sturdy front legs.
+    r(18, 39, 46, 55, outline)
+    d(24, 46, 8, outline)
+    d(40, 46, 8, outline)
+    r(20, 39, 44, 53, coat)
+    d(25, 45, 6, coat)
+    d(39, 45, 6, coat_light)
+    r(24, 47, 40, 54, coat)
+    r(22, 51, 31, 60, outline)
+    r(33, 51, 42, 60, outline)
+    r(24, 52, 30, 58, coat_light)
+    r(34, 52, 40, 58, coat_light)
+    r(25, 55, 29, 58, cream_shadow)
+    r(35, 55, 39, 58, cream_shadow)
+    r(29, 44, 35, 55, cream_shadow)
+    r(27, 44, 37, 53, cream)
 
-    # Upright ears: their tips perk higher when the dog is listening.
-    ear_top = 5 if state == "needs_input" else 8
+    # Short, broad ears sit close to the skull. Listening lifts them slightly.
+    ear_top = 10 if state == "needs_input" else 12
     if state == "blocked":
-        ear_top = 10
-    for center in (21, 43):
-        for row in range(11):
-            width = 2 + row
+        ear_top = 14
+    ear_widths = (2, 3, 5, 7, 8, 9, 10, 10)
+    for center in (23, 41):
+        for row, width in enumerate(ear_widths):
             y = ear_top + row
             left = center - width // 2
             rect(left, y + bob, left + width, y + bob + 1, outline)
             if row >= 2:
-                inner_width = max(1, width - 4)
+                inner_width = max(1, width - 5)
                 inner_left = center - inner_width // 2
-                rect(inner_left, y + 1 + bob, inner_left + inner_width, y + 2 + bob,
-                     coat_shadow)
+                rect(inner_left, y + 1 + bob, inner_left + inner_width,
+                     y + 2 + bob, coat_shadow)
 
-    # Broad Akita head and the pale urajiro cheeks.
-    d(32, 29, 17, outline)
-    r(17, 21, 47, 38, outline)
-    d(32, 28, 15, coat)
-    r(19, 21, 45, 36, coat)
-    d(20, 31, 7, cream)
-    d(44, 31, 7, cream)
-    r(20, 29, 25, 38, cream)
-    r(39, 29, 44, 38, cream)
-    d(32, 36, 7, cream)
-    r(25, 34, 39, 39, cream)
+    # A rounded, cheeky head with the pale cheek and muzzle markings of urajiro.
+    d(32, 29, 16, outline)
+    r(20, 21, 44, 37, outline)
+    d(32, 29, 14, coat)
+    r(21, 21, 43, 36, coat)
+    d(22, 34, 4, cream)
+    d(42, 34, 4, cream)
+    r(19, 33, 26, 39, cream)
+    r(38, 33, 45, 39, cream)
+    d(32, 35, 6, cream)
+    r(27, 34, 37, 40, cream)
     r(29, 37, 35, 40, cream_shadow)
 
     if state == "needs_input":
-        d(25, 28, 2, dark)
-        d(39, 28, 2, dark)
-        dot(24, 27 + bob, eye_glint)
-        dot(38, 27 + bob, eye_glint)
-        d(32, 40, 2, dark)
-        r(31, 42, 33, 43, tongue)
+        d(26, 28, 2, dark)
+        d(38, 28, 2, dark)
+        dot(25, 27 + bob, eye_glint)
+        dot(37, 27 + bob, eye_glint)
+        # Short, wide muzzle with a blunt dark nose and open mouth.
+        r(30, 36, 34, 38, dark)
+        dot(29, 36, dark)
+        dot(34, 36, dark)
+        r(31, 39, 33, 41, dark)
+        r(30, 41, 34, 43, tongue)
     elif state == "ready":
-        line(21, 29 + bob, 28, 29 + bob, dark, 2)
-        line(36, 29 + bob, 43, 29 + bob, dark, 2)
-        d(32, 39, 3, dark)
+        line(22, 28 + bob, 28, 28 + bob, dark, 2)
+        line(36, 28 + bob, 42, 28 + bob, dark, 2)
+        r(30, 36, 34, 38, dark)
+        dot(29, 36, dark)
+        dot(34, 36, dark)
+        r(31, 39, 33, 41, dark)
         r(30, 41, 34, 43, tongue)
     elif state == "blocked":
-        line(21, 27 + bob, 28, 29 + bob, dark, 2)
-        line(36, 29 + bob, 43, 27 + bob, dark, 2)
-        d(25, 30, 2, dark)
-        d(39, 30, 2, dark)
-        line(28, 43 + bob, 31, 41 + bob, dark, 2)
-        line(31, 41 + bob, 34, 41 + bob, dark, 2)
-        line(34, 41 + bob, 37, 43 + bob, dark, 2)
+        line(22, 27 + bob, 28, 29 + bob, dark, 2)
+        line(36, 29 + bob, 42, 27 + bob, dark, 2)
+        d(26, 30, 2, dark)
+        d(38, 30, 2, dark)
+        r(30, 36, 34, 38, dark)
+        dot(29, 36, dark)
+        dot(34, 36, dark)
+        line(29, 42 + bob, 32, 40 + bob, dark, 2)
+        line(32, 40 + bob, 35, 42 + bob, dark, 2)
     else:
-        d(25, 29, 2, dark)
-        d(39, 29, 2, dark)
-        dot(24, 28 + bob, eye_glint)
-        dot(38, 28 + bob, eye_glint)
-        line(27, 40 + bob, 31, 42 + bob, dark, 2)
-        line(31, 42 + bob, 33, 42 + bob, dark, 2)
-        line(33, 42 + bob, 37, 40 + bob, dark, 2)
+        d(26, 29, 2, dark)
+        d(38, 29, 2, dark)
+        dot(25, 28 + bob, eye_glint)
+        dot(37, 28 + bob, eye_glint)
+        r(30, 36, 34, 38, dark)
+        dot(29, 36, dark)
+        dot(34, 36, dark)
+        r(31, 39, 33, 41, dark)
+        line(28, 41 + bob, 31, 43 + bob, dark, 2)
+        line(31, 43 + bob, 33, 43 + bob, dark, 2)
+        line(33, 43 + bob, 36, 41 + bob, dark, 2)
 
-    # A colored collar keeps the status readable without recoloring the coat.
-    r(23, 45, 41, 48, accent)
-    d(32, 49, 3, outline)
-    d(32, 49, 1, accent)
+    # A colored collar stays visible beneath the head without recoloring the coat.
+    r(23, 46, 41, 49, accent)
+    d(32, 50, 3, outline)
+    d(32, 50, 1, accent)
 
     if state == "needs_input":
-        # The raised paw asks for attention; it moves closer to the muzzle each beat.
-        paw_y = 43 if frame in (0, 3) else 41
-        r(39, paw_y, 45, paw_y + 7, outline)
-        r(40, paw_y + 1, 44, paw_y + 5, coat_light)
-        r(41, paw_y + 4, 44, paw_y + 6, cream)
+        # The raised forepaw asks for attention beside the broad cheek.
+        paw_y = 40 if frame in (0, 3) else 38
+        r(40, paw_y, 46, paw_y + 7, outline)
+        r(41, paw_y + 1, 45, paw_y + 5, coat_light)
+        r(42, paw_y + 4, 45, paw_y + 6, cream)
     elif state == "blocked":
         # A paw to the cheek gives the stuck pose a puzzled, mildly comic feel.
-        paw_y = 32 if frame % 2 else 34
+        paw_y = 31 if frame % 2 else 33
         r(43, paw_y, 48, paw_y + 5, outline)
         r(44, paw_y + 1, 47, paw_y + 4, coat_light)
         r(45, paw_y + 3, 47, paw_y + 5, cream)
@@ -399,63 +412,69 @@ def _akita_running(frame: int,
           color: tuple[int, int, int, int]) -> None:
         rect(x0, y0 + body_y, x1, y1 + body_y, color)
 
-    # Speed marks and curled tail stay inside the transparent 64 px canvas.
+    # Speed marks and the high Akita tail curl stay inside the canvas.
     for x, y, length in ((3, 20, 7), (5, 31, 5), (2, 43, 8)):
         r(x, y + pose % 2, x + length, y + pose % 2 + 2, accent)
-    tail_y = 29 + (pose in (0, 3)) + body_y
-    disc(12, tail_y, 7, outline)
-    disc(12, tail_y, 5, coat)
-    disc(12, tail_y, 2, (0, 0, 0, 0))
-    r(6, tail_y - 7 - body_y, 10, tail_y - 4 - body_y, cream)
+    tail_y = 25 + int(pose in (0, 3)) + body_y
+    disc(16, tail_y, 7, outline)
+    disc(16, tail_y, 5, coat_light)
+    disc(16, tail_y, 2, (0, 0, 0, 0))
+    r(9, tail_y - 5 - body_y, 12, tail_y - 2 - body_y, cream)
 
-    # Four articulated legs alternate between extension and tuck phases.
+    # Four short, thick legs alternate through a compact springing stride.
     feet = (
-        ((55, 49), (42, 51), (13, 50), (25, 47)),
-        ((37, 50), (51, 46), (29, 51), (12, 46)),
-        ((52, 47), (39, 51), (11, 47), (27, 51)),
-        ((35, 48), (50, 51), (24, 51), (13, 45)),
+        ((48, 49), (41, 51), (14, 49), (23, 51)),
+        ((39, 51), (49, 48), (18, 51), (12, 47)),
+        ((49, 48), (41, 51), (13, 48), (24, 51)),
+        ((39, 50), (49, 51), (20, 51), (12, 46)),
     )[pose]
-    anchors = ((40, 34), (36, 35), (20, 35), (24, 35))
-    bends = ((45, 39), (39, 43), (16, 42), (22, 42))
-    for (ax, ay), (bx, by), (fx, fy) in zip(anchors, bends, feet):
-        line(ax, ay + body_y, bx, by + body_y, outline, 6)
-        line(ax, ay + body_y, bx, by + body_y, coat, 4)
-        line(bx, by + body_y, fx, fy + body_y, outline, 5)
-        line(bx, by + body_y, fx, fy + body_y, coat_light, 3)
-        disc(fx, fy + body_y, 2, cream_shadow)
+    anchors = ((38, 34), (35, 35), (22, 35), (25, 35))
+    bends = ((44, 39), (39, 42), (17, 41), (22, 42))
+    for index, ((ax, ay), (bx, by), (fx, fy)) in enumerate(zip(anchors, bends, feet)):
+        far = index in (1, 3)
+        leg = coat_shadow if far else coat
+        paw = cream_shadow if far else coat_light
+        line(ax, ay + body_y, bx, by + body_y, outline, 7)
+        line(ax, ay + body_y, bx, by + body_y, leg, 5)
+        line(bx, by + body_y, fx, fy + body_y, outline, 6)
+        line(bx, by + body_y, fx, fy + body_y, leg, 4)
+        r(fx - 3, fy - 1, fx + 3, fy + 2, paw)
 
-    # Compact, strong body; the light undercoat and collar mark the shoulder.
-    r(16, 25, 44, 40, outline)
-    disc(23, 32 + body_y, 9, outline)
-    disc(38, 32 + body_y, 9, outline)
-    r(17, 26, 43, 38, coat)
-    disc(23, 31 + body_y, 7, coat)
-    disc(38, 31 + body_y, 7, coat_light)
-    r(24, 34, 41, 40, cream)
-    r(38, 32, 45, 38, accent)
-    r(39, 33, 44, 36, outline)
+    # A compact, deep-chested body gives the running pose a sturdy silhouette.
+    r(17, 25, 43, 41, outline)
+    disc(24, 32 + body_y, 10, outline)
+    disc(37, 32 + body_y, 10, outline)
+    r(20, 25, 41, 39, coat)
+    disc(24, 31 + body_y, 8, coat)
+    disc(37, 31 + body_y, 8, coat_light)
+    r(30, 33, 41, 40, cream)
+    r(36, 31, 44, 38, accent)
+    r(37, 32, 43, 36, outline)
 
-    # Side-facing head, alert ears, cream muzzle, and dark nose.
-    r(37, 18, 52, 35, outline)
-    disc(44, 26 + body_y, 10, outline)
-    r(39, 19, 51, 33, coat)
-    disc(45, 25 + body_y, 8, coat_light)
-    for center, top in ((41, 11), (49, 14)):
-        for row in range(8):
-            width = 2 + row
+    # Broad side-view skull, small set ears, blunt muzzle, and visible jaw.
+    disc(45, 27 + body_y, 10, outline)
+    r(40, 20 + body_y, 51, 34 + body_y, outline)
+    disc(45, 27 + body_y, 8, coat)
+    r(41, 21 + body_y, 50, 32 + body_y, coat_light)
+    for center, top, height in ((43, 14, 7), (50, 16, 6)):
+        widths = (2, 3, 5, 7, 8, 8, 8)[:height]
+        for row, width in enumerate(widths):
             x0 = center - width // 2
-            rect(x0, top + row + body_y, x0 + width, top + row + body_y + 1, outline)
+            y = top + row + body_y
+            rect(x0, y, x0 + width, y + 1, outline)
             if row >= 2:
-                inner = max(1, width - 4)
-                rect(center - inner // 2, top + row + 1 + body_y,
-                     center - inner // 2 + inner, top + row + 2 + body_y, coat_shadow)
-    r(47, 27, 59, 35, outline)
-    r(48, 28, 58, 33, cream)
-    r(55, 27, 60, 30, dark)
-    dot(48, 24 + body_y, dark)
-    dot(47, 23 + body_y, (255, 249, 232, 255))
-    r(51, 35, 55, 37, dark)
-    r(51, 37, 54, 38, tongue)
+                inner = max(1, width - 5)
+                rect(center - inner // 2, y + 1,
+                     center - inner // 2 + inner, y + 2, coat_shadow)
+
+    r(47, 28 + body_y, 59, 36 + body_y, outline)
+    r(48, 29 + body_y, 57, 34 + body_y, cream)
+    r(56, 28 + body_y, 60, 31 + body_y, dark)
+    dot(45, 24 + body_y, dark)
+    dot(44, 23 + body_y, (255, 249, 232, 255))
+    r(52, 35 + body_y, 56, 37 + body_y, dark)
+    if pose in (0, 2):
+        r(53, 37 + body_y, 56, 39 + body_y, tongue)
 
     # A single stride spark keeps the loop energetic without obscuring the dog.
     if pose in (0, 2):

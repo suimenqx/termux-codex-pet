@@ -56,6 +56,12 @@ class AkitaArtTests(unittest.TestCase):
                 frames = {icon(state, frame=frame) for frame in range(5)}
                 self.assertGreater(len(frames), 1)
 
+    def test_akita_face_uses_short_ears_and_a_blunt_dark_nose(self) -> None:
+        image = icon("idle", frame=0)
+        self.assertEqual(png_pixel(image, 21, 8)[3], 0)
+        self.assertEqual(png_pixel(image, 32, 34), (246, 231, 199, 255))
+        self.assertEqual(png_pixel(image, 32, 36), (49, 39, 34, 255))
+
     def test_animated_states_use_bounded_state_specific_cadence(self) -> None:
         self.assertEqual(animation_interval("akita", "running", 0), 0.14)
         self.assertEqual(animation_interval("akita", "ready", 4), None)
