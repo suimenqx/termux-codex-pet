@@ -275,7 +275,7 @@ def _akita_sitting(state: str, frame: int,
           color: tuple[int, int, int, int]) -> None:
         rect(x0, y0 + bob, x1, y1 + bob, color)
 
-    # A thick curl peeks over the hip instead of floating away from the body.
+    # The small body stays behind a large, friendly head.
     tail_x = 15 + (1 if state == "idle" and frame == 1 else 0)
     d(tail_x, 40, 7, outline)
     d(tail_x, 40, 5, coat_light)
@@ -283,29 +283,27 @@ def _akita_sitting(state: str, frame: int,
     r(tail_x - 6, 34, tail_x - 3, 37, cream)
     r(16, 38, 24, 46, coat_shadow)
 
-    # Broad haunches, a deep chest, and short, sturdy front legs.
-    r(18, 39, 46, 55, outline)
-    d(24, 46, 8, outline)
-    d(40, 46, 8, outline)
-    r(20, 39, 44, 53, coat)
-    d(25, 45, 6, coat)
-    d(39, 45, 6, coat_light)
-    r(24, 47, 40, 54, coat)
-    r(22, 51, 31, 60, outline)
-    r(33, 51, 42, 60, outline)
-    r(24, 52, 30, 58, coat_light)
-    r(34, 52, 40, 58, coat_light)
-    r(25, 55, 29, 58, cream_shadow)
-    r(35, 55, 39, 58, cream_shadow)
-    r(29, 44, 35, 55, cream_shadow)
-    r(27, 44, 37, 53, cream)
+    # Compact body and paws peek out below the large head.
+    r(19, 41, 45, 56, outline)
+    d(25, 48, 7, outline)
+    d(39, 48, 7, outline)
+    r(21, 41, 43, 54, coat)
+    d(25, 47, 5, coat_light)
+    d(39, 47, 5, coat)
+    r(24, 49, 40, 55, cream_shadow)
+    r(22, 52, 31, 60, outline)
+    r(33, 52, 42, 60, outline)
+    r(24, 53, 30, 58, coat_light)
+    r(34, 53, 40, 58, coat_light)
+    r(25, 56, 29, 58, cream_shadow)
+    r(35, 56, 39, 58, cream_shadow)
 
-    # Short, broad ears sit close to the skull. Listening lifts them slightly.
-    ear_top = 10 if state == "needs_input" else 12
+    # Small, integrated ears frame the orange crown instead of making a fox point.
+    ear_top = 7 if state == "needs_input" else 9
     if state == "blocked":
-        ear_top = 14
-    ear_widths = (2, 3, 5, 7, 8, 9, 10, 10)
-    for center in (23, 41):
+        ear_top = 11
+    ear_widths = (2, 3, 5, 6, 7, 8, 9)
+    for center in (22, 42):
         for row, width in enumerate(ear_widths):
             y = ear_top + row
             left = center - width // 2
@@ -316,78 +314,67 @@ def _akita_sitting(state: str, frame: int,
                 rect(inner_left, y + 1 + bob, inner_left + inner_width,
                      y + 2 + bob, coat_shadow)
 
-    # A rounded, cheeky head with the pale cheek and muzzle markings of urajiro.
-    d(32, 29, 16, outline)
-    r(20, 21, 44, 37, outline)
-    d(32, 29, 14, coat)
-    r(21, 21, 43, 36, coat)
-    d(22, 34, 4, cream)
-    d(42, 34, 4, cream)
-    r(19, 33, 26, 39, cream)
-    r(38, 33, 45, 39, cream)
-    d(32, 35, 6, cream)
-    r(27, 34, 37, 40, cream)
-    r(29, 37, 35, 40, cream_shadow)
+    # Round head, orange cap, broad pale face, and a narrow forehead blaze.
+    d(32, 29, 20, outline)
+    r(14, 22, 50, 40, outline)
+    d(32, 29, 18, coat)
+    r(16, 21, 48, 38, coat)
+    r(30, 14, 34, 28, cream)
+    r(31, 13, 33, 25, cream_shadow)
+    d(32, 36, 14, cream)
+    r(19, 29, 45, 44, cream)
+    d(20, 37, 7, cream)
+    d(44, 37, 7, cream)
+    r(24, 41, 40, 47, cream)
+    r(25, 43, 39, 45, cream_shadow)
+
+    # Tiny eyes sit in the pale face; the black nose and open smile read at icon size.
+    r(22, 27, 26, 31, dark)
+    r(38, 27, 42, 31, dark)
+    dot(23, 27 + bob, eye_glint)
+    dot(39, 27 + bob, eye_glint)
+    r(30, 34, 34, 36, dark)
+    dot(29, 34, dark)
+    dot(34, 34, dark)
 
     if state == "needs_input":
-        d(26, 28, 2, dark)
-        d(38, 28, 2, dark)
-        dot(25, 27 + bob, eye_glint)
-        dot(37, 27 + bob, eye_glint)
-        # Short, wide muzzle with a blunt dark nose and open mouth.
-        r(30, 36, 34, 38, dark)
-        dot(29, 36, dark)
-        dot(34, 36, dark)
-        r(31, 39, 33, 41, dark)
-        r(30, 41, 34, 43, tongue)
+        # The eager, open smile pairs with the raised paw.
+        r(31, 36, 33, 38, dark)
+        r(29, 38, 35, 43, dark)
+        r(30, 41, 34, 44, tongue)
     elif state == "ready":
-        line(22, 28 + bob, 28, 28 + bob, dark, 2)
-        line(36, 28 + bob, 42, 28 + bob, dark, 2)
-        r(30, 36, 34, 38, dark)
-        dot(29, 36, dark)
-        dot(34, 36, dark)
-        r(31, 39, 33, 41, dark)
-        r(30, 41, 34, 43, tongue)
+        line(22, 28 + bob, 26, 28 + bob, dark, 2)
+        line(38, 28 + bob, 42, 28 + bob, dark, 2)
+        r(31, 36, 33, 38, dark)
+        r(29, 38, 35, 43, dark)
+        r(29, 40, 35, 44, tongue)
     elif state == "blocked":
-        line(22, 27 + bob, 28, 29 + bob, dark, 2)
-        line(36, 29 + bob, 42, 27 + bob, dark, 2)
-        d(26, 30, 2, dark)
-        d(38, 30, 2, dark)
-        r(30, 36, 34, 38, dark)
-        dot(29, 36, dark)
-        dot(34, 36, dark)
-        line(29, 42 + bob, 32, 40 + bob, dark, 2)
-        line(32, 40 + bob, 35, 42 + bob, dark, 2)
+        line(22, 26 + bob, 26, 29 + bob, dark, 2)
+        line(38, 29 + bob, 42, 26 + bob, dark, 2)
+        line(30, 40 + bob, 32, 42 + bob, dark, 2)
+        line(32, 42 + bob, 35, 39 + bob, dark, 2)
     else:
-        d(26, 29, 2, dark)
-        d(38, 29, 2, dark)
-        dot(25, 28 + bob, eye_glint)
-        dot(37, 28 + bob, eye_glint)
-        r(30, 36, 34, 38, dark)
-        dot(29, 36, dark)
-        dot(34, 36, dark)
-        r(31, 39, 33, 41, dark)
-        line(28, 41 + bob, 31, 43 + bob, dark, 2)
-        line(31, 43 + bob, 33, 43 + bob, dark, 2)
-        line(33, 43 + bob, 36, 41 + bob, dark, 2)
+        r(31, 36, 33, 38, dark)
+        r(29, 38, 35, 42, dark)
+        r(30, 40, 34, 43, tongue)
 
-    # A colored collar stays visible beneath the head without recoloring the coat.
-    r(23, 46, 41, 49, accent)
-    d(32, 50, 3, outline)
-    d(32, 50, 1, accent)
+    # Keep the status collar on the small visible chest below the chin.
+    r(24, 49, 40, 52, accent)
+    d(32, 53, 3, outline)
+    d(32, 53, 1, accent)
 
     if state == "needs_input":
-        # The raised forepaw asks for attention beside the broad cheek.
-        paw_y = 40 if frame in (0, 3) else 38
-        r(40, paw_y, 46, paw_y + 7, outline)
-        r(41, paw_y + 1, 45, paw_y + 5, coat_light)
-        r(42, paw_y + 4, 45, paw_y + 6, cream)
+        # Raise a small paw beside the cheek so the face stays readable.
+        paw_y = 44 if frame in (0, 3) else 42
+        r(43, paw_y, 49, paw_y + 7, outline)
+        r(44, paw_y + 1, 48, paw_y + 5, coat_light)
+        r(45, paw_y + 4, 48, paw_y + 6, cream)
     elif state == "blocked":
         # A paw to the cheek gives the stuck pose a puzzled, mildly comic feel.
-        paw_y = 31 if frame % 2 else 33
-        r(43, paw_y, 48, paw_y + 5, outline)
-        r(44, paw_y + 1, 47, paw_y + 4, coat_light)
-        r(45, paw_y + 3, 47, paw_y + 5, cream)
+        paw_y = 34 if frame % 2 else 36
+        r(42, paw_y, 48, paw_y + 6, outline)
+        r(43, paw_y + 1, 47, paw_y + 5, coat_light)
+        r(44, paw_y + 3, 47, paw_y + 5, cream)
 
     if state == "ready" and frame in (1, 2):
         for x, y in ((8, 20), (12, 15), (48, 24)):
@@ -455,7 +442,7 @@ def _akita_running(frame: int,
     disc(45, 27 + body_y, 10, outline)
     r(40, 20 + body_y, 51, 34 + body_y, outline)
     disc(45, 27 + body_y, 8, coat)
-    r(41, 21 + body_y, 50, 32 + body_y, coat_light)
+    r(41, 21 + body_y, 50, 30 + body_y, coat)
     for center, top, height in ((43, 14, 7), (50, 16, 6)):
         widths = (2, 3, 5, 7, 8, 8, 8)[:height]
         for row, width in enumerate(widths):
@@ -467,6 +454,10 @@ def _akita_running(frame: int,
                 rect(center - inner // 2, y + 1,
                      center - inner // 2 + inner, y + 2, coat_shadow)
 
+    # Repeat the Akita's orange crown and pale face split in profile.
+    r(43, 18 + body_y, 45, 28 + body_y, cream)
+    disc(43, 30 + body_y, 7, cream)
+    r(42, 28 + body_y, 50, 34 + body_y, cream)
     r(47, 28 + body_y, 59, 36 + body_y, outline)
     r(48, 29 + body_y, 57, 34 + body_y, cream)
     r(56, 28 + body_y, 60, 31 + body_y, dark)

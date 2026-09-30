@@ -59,12 +59,13 @@ class AkitaArtTests(unittest.TestCase):
     def test_akita_face_uses_short_ears_and_a_blunt_dark_nose(self) -> None:
         image = icon("idle", frame=0)
         self.assertEqual(png_pixel(image, 21, 8)[3], 0)
-        self.assertEqual(png_pixel(image, 32, 34), (246, 231, 199, 255))
+        self.assertEqual(png_pixel(image, 30, 22), (246, 231, 199, 255))
+        self.assertEqual(png_pixel(image, 32, 32), (246, 231, 199, 255))
         self.assertEqual(png_pixel(image, 32, 36), (49, 39, 34, 255))
 
     def test_akita_coat_uses_a_bright_orange_red(self) -> None:
         image = icon("idle", frame=0)
-        self.assertEqual(png_pixel(image, 32, 22), (226, 106, 38, 255))
+        self.assertEqual(png_pixel(image, 26, 22), (226, 106, 38, 255))
 
     def test_animated_states_use_bounded_state_specific_cadence(self) -> None:
         self.assertEqual(animation_interval("akita", "running", 0), 0.14)
