@@ -12,7 +12,7 @@ from typing import Any, Callable
 
 import termuxgui as tg
 
-from .art import SIZE, AKITA_SIZE, advance_animation, animation_interval, icon, rgba_icon
+from .art import SIZE, AKITA_SIZE, advance_animation, animation_interval, icon
 from .pets import DEFAULT_APPEARANCE
 from .preferences import read_config, save_position
 
@@ -111,9 +111,6 @@ class OverlayUI:
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.face.sendtouchevent(True)
         self.image_size_px = AKITA_SIZE
-        self.image_buffer: tg.Buffer | None = None
-        self.buffer_bound = False
-        self.buffer_unavailable = False
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
@@ -155,36 +152,9 @@ class OverlayUI:
         self.image_size_px = SIZE if appearance == "robot" else AKITA_SIZE
         count = snapshot["running_count"]
         image = icon(state, frame, count, appearance)
-        if appearance == "robot":
-            self.buffer_bound = False
-            self.face.setimage(image)
-            return
-        self._render_akita(state, frame, count, image)
-
-    def _render_akita(self, state: str, frame: int, count: int, image: bytes) -> None:
-        if not self.buffer_unavailable:
-            if self.image_buffer is None:
-                try:
-                    self.image_buffer = tg.Buffer(self.c, AKITA_SIZE, AKITA_SIZE)
-                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                    self.buffer_unavailable = True
-                    LOG.warning("Termux:GUI shared image buffer unavailable; using PNG frames: %s", exc)
-            if self.image_buffer is not None:
-                try:
-                    pixels = rgba_icon(state, frame, count)
-                    if len(pixels) != len(self.image_buffer.mem):
-                        raise ValueError("Termux:GUI shared image buffer has an unexpected size")
-                    if not self.buffer_bound:
-                        self.face.setbuffer(self.image_buffer)
-                        self.buffer_bound = True
-                    self.image_buffer.mem[:] = pixels
-                    self.image_buffer.blit()
-                    self.face.refresh()
-                    return
-                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                    self.buffer_unavailable = True
-                    self.buffer_bound = False
-                    LOG.warning("Termux:GUI shared image buffer failed; using PNG frames: %s", exc)
+        # PNG decoding premultiplies alpha before Android draws it. Termux:GUI's
+        # raw shared-buffer copy does not, so straight-alpha PNG pixels sent as
+        # RGBA there produce bright colored specks around transparent edges.
         self.face.setimage(image)
 
     def handle(self, event: tg.Event) -> bool:
@@ -251,21 +221,7 @@ class OverlayUI:
         return False
 
     def close(self) -> None:
-        try:
-            if self.image_buffer is not None and self.buffer_bound:
-                try:
-                    self.face.setimage(icon("idle"))
-                except OSError:
-                    LOG.debug("Could not detach Pet image buffer before closing")
-                self.buffer_bound = False
-            self.pet.finish()
-        finally:
-            if self.image_buffer is not None:
-                try:
-                    self.image_buffer.remove()
-                except (AttributeError, OSError, RuntimeError) as exc:
-                    LOG.debug("Could not remove Pet image buffer: %s", exc)
-                self.image_buffer = None
+        self.pet.finish()
 
 
 class GuiWorker:

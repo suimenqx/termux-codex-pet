@@ -73,6 +73,7 @@ The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`,
 - **`GUI=unavailable`:** check the Termux:GUI overlay permission and matching app signatures, then run `codex-pet restart`. Read `~/.cache/codex-pet/pet.log` if it still fails.
 - **Pet works in `codex-pet test` but ignores prompts:** restart Codex, open `/hooks`, and trust the Pet hooks. Check the file matching `hooks_mode` in `~/.config/codex-pet/install.json`. `codex features list` should show `hooks` enabled.
 - **Pet shows an old design after updating:** run `codex-pet restart`; a running daemon does not reload Python files automatically.
+- **Colored specks around Akita edges:** update the checkout and run `codex-pet restart`. Akita frames now use PNG decoding so Android composites their transparent edges correctly; an older daemon keeps the raw-buffer renderer until restarted.
 - **Drag is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Drag from anywhere on the icon and move it about 6 dp.
 
 ## Uninstall

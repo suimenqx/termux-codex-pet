@@ -111,7 +111,7 @@ class AkitaArtTests(unittest.TestCase):
         self.assertNotEqual(icon("running", count=2), icon("running", count=9))
         self.assertNotEqual(icon("running", count=9), icon("running", count=10))
 
-    def test_akita_rgba_frames_are_ready_for_the_shared_image_buffer(self) -> None:
+    def test_akita_rgba_frames_remain_available_for_offline_audits(self) -> None:
         self.assertEqual(len(rgba_icon("idle", 0)), 256 * 256 * 4)
         self.assertNotEqual(rgba_icon("running", 0, 1), rgba_icon("running", 0, 2))
 

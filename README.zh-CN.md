@@ -73,6 +73,7 @@ codex-pet status
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
 - **更新后还是旧界面：**运行 `codex-pet restart`；正在运行的 daemon 不会自动重载 Python 文件。
+- **秋田犬边缘出现彩色噪点：**更新代码后运行 `codex-pet restart`。新版通过 PNG 解码正确混合透明边缘；旧 daemon 重启前仍会使用原来的共享缓冲区渲染路径。
 - **拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从 Pet 图标任意位置开始拖动，移动约 6dp 即可。
 
 ## 卸载
