@@ -11,7 +11,9 @@ import traceback
 from typing import Any
 
 from . import daemon
-from .runtime import LOG, SOCKET, _daemon_lock_held, directories, notification, request, start_daemon
+from .pets import APPEARANCES, APPEARANCE_BY_ID, DEFAULT_APPEARANCE
+from .preferences import save_appearance, selected_appearance
+from .runtime import CONFIG, LOG, SOCKET, _daemon_lock_held, directories, notification, request, start_daemon
 from .state import STATES, direct_event, event_from_hook
 
 
@@ -163,10 +165,56 @@ def _test() -> int:
     return 0
 
 
+def _pet_list() -> int:
+    selected = selected_appearance(CONFIG)
+    print("Supported pet appearances:")
+    for appearance in APPEARANCES:
+        marker = "*" if appearance.id == selected else " "
+        default = "; default" if appearance.id == DEFAULT_APPEARANCE else ""
+        print(f"{marker} {appearance.id} — {appearance.name}{default}: {appearance.description}")
+    return 0
+
+
+def _pet_use(appearance: str) -> int:
+    if appearance not in APPEARANCE_BY_ID:
+        available = ", ".join(item.id for item in APPEARANCES)
+        print(f"Unknown pet appearance '{appearance}'. Available: {available}", file=sys.stderr)
+        return 2
+
+    try:
+        result = request({"action": "set_appearance", "appearance": appearance}, 0.5)
+    except (OSError, ValueError, ConnectionError):
+        result = None
+    if result is not None and result.get("ok"):
+        print(f"Pet appearance set to {APPEARANCE_BY_ID[appearance].name} ({appearance}).")
+        return 0
+
+    try:
+        save_appearance(CONFIG, appearance)
+    except OSError as exc:
+        print(f"Could not save pet appearance: {exc}", file=sys.stderr)
+        return 1
+    if _status() is None:
+        print(f"Pet appearance saved as {appearance}; it will be used next time Pet starts.")
+    else:
+        print(f"Pet appearance saved as {appearance}; run 'codex-pet restart' to apply it.")
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="codex-pet")
-    parser.add_argument("command", choices=["start", "stop", "restart", "status", "test", "daemon"])
+    commands = parser.add_subparsers(dest="command", required=True)
+    for command in ("start", "stop", "restart", "status", "test", "daemon"):
+        commands.add_parser(command)
+    pet_parser = commands.add_parser("pet", help="list or switch pet appearances")
+    pet_commands = pet_parser.add_subparsers(dest="pet_action", required=True)
+    pet_commands.add_parser("list", help="list supported pet appearances")
+    use_parser = pet_commands.add_parser("use", help="select a pet appearance")
+    use_parser.add_argument("appearance")
     args = parser.parse_args()
+    if args.command == "pet":
+        code = _pet_list() if args.pet_action == "list" else _pet_use(args.appearance)
+        raise SystemExit(code)
     if args.command == "daemon":
         daemon.main()
         return
@@ -187,6 +235,7 @@ def main() -> None:
             gui = "ready" if result["gui_ready"] else f"unavailable ({result['gui_error']})"
             running_count = result.get("running_count", result.get("working_count", 0))
             print(f"Codex Pet running; pid={result['pid']}; GUI={gui}; state={result['state']}; "
+                  f"pet={result.get('appearance', DEFAULT_APPEARANCE)}; "
                   f"project={result['project']}; sessions={result['session_count']}; "
                   f"running={running_count}")
             code = 0

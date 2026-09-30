@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
 import select
@@ -13,7 +12,9 @@ from typing import Any, Callable
 
 import termuxgui as tg
 
-from .art import icon
+from .art import advance_animation, animation_interval, icon
+from .pets import DEFAULT_APPEARANCE
+from .preferences import read_config, save_position
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
@@ -79,24 +80,13 @@ class OverlayUI:
 
     def _load_position(self) -> tuple[int, int]:
         try:
-            data = json.loads(self.config_path.read_text())
-            pos = data.get("position", {})
+            pos = read_config(self.config_path).get("position", {})
             return max(0, int(pos["x"])), max(0, int(pos["y"]))
-        except (FileNotFoundError, ValueError, KeyError, TypeError):
+        except (KeyError, TypeError, ValueError):
             return 700, 420
 
     def _save_position(self) -> None:
-        self.config_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        try:
-            data = json.loads(self.config_path.read_text())
-            if not isinstance(data, dict):
-                data = {}
-        except (FileNotFoundError, ValueError):
-            data = {}
-        data["position"] = {"x": self.x, "y": self.y}
-        temp = self.config_path.with_suffix(".tmp")
-        temp.write_text(json.dumps(data, indent=2) + "\n")
-        temp.replace(self.config_path)
+        save_position(self.config_path, self.x, self.y)
 
     def _measure_density(self) -> None:
         # getConfiguration never replies for an overlay on this binding/device.
@@ -115,7 +105,8 @@ class OverlayUI:
 
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
-        self.face.setimage(icon(state, frame, snapshot["running_count"]))
+        appearance = snapshot.get("appearance", DEFAULT_APPEARANCE)
+        self.face.setimage(icon(state, frame, snapshot["running_count"], appearance))
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):
@@ -252,17 +243,28 @@ class GuiWorker:
     def _loop(self, connection: tg.Connection) -> None:
         assert self.ui is not None
         frame = 0
-        self.ui.render(self.snapshot(), frame)
+        current = self.snapshot()
+        appearance = current.get("appearance", DEFAULT_APPEARANCE)
+        state = current["state"]
+        running_count = current.get("running_count", 0)
+        visual = (appearance, state, running_count)
+        self.ui.render(current, frame)
         while not self.stopping:
-            state = self.snapshot()["state"]
-            timeout = 2.0 if state == "running" else (1.4 if state == "needs_input" else None)
+            timeout = animation_interval(appearance, state, frame)
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
                 self.read_wake.recv(4096)
                 if self.stopping:
                     break
-                frame = 0
-                self.ui.render(self.snapshot(), frame)
+                current = self.snapshot()
+                appearance = current.get("appearance", DEFAULT_APPEARANCE)
+                state = current["state"]
+                running_count = current.get("running_count", 0)
+                next_visual = (appearance, state, running_count)
+                if next_visual != visual:
+                    frame = 0
+                    visual = next_visual
+                self.ui.render(current, frame)
             if connection._event in readable:
                 if not connection._event.recv(1, socket.MSG_PEEK):
                     raise ConnectionError("Termux:GUI disconnected")
@@ -271,5 +273,6 @@ class GuiWorker:
                     if self.ui.handle(event):
                         self.ui.render(self.snapshot(), frame)
             if not readable:
-                frame = 1 - frame
-                self.ui.render(self.snapshot(), frame)
+                frame = advance_animation(appearance, state, frame)
+                current = self.snapshot()
+                self.ui.render(current, frame)

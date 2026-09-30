@@ -85,10 +85,12 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(gui.tg, "ImageView", FakeView), \
              patch.object(gui.tg, "TextView", side_effect=AssertionError("text UI is not allowed")):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
-            for state in ("idle", "running", "needs_input", "ready", "blocked"):
-                pet.render({"state": state, "running_count": 2,
-                            "project": "repo", "elapsed": 10, "message": "hidden detail"})
-                self.assertEqual(pet.face.image, icon(state, 0, 2))
+            for appearance in ("akita", "robot"):
+                for state in ("idle", "running", "needs_input", "ready", "blocked"):
+                    pet.render({"state": state, "running_count": 2,
+                                "appearance": appearance, "project": "repo",
+                                "elapsed": 10, "message": "hidden detail"})
+                    self.assertEqual(pet.face.image, icon(state, 0, 2, appearance))
 
         self.assertEqual(connection.next_aid, 2)
 

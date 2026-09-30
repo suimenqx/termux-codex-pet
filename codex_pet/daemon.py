@@ -14,6 +14,8 @@ import threading
 from typing import Any
 
 from .gui import GuiWorker
+from .pets import APPEARANCE_BY_ID
+from .preferences import save_appearance, selected_appearance
 from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, directories, notification
 from .state import SessionStore, direct_event
 
@@ -27,13 +29,14 @@ class Daemon:
         self.gui_ready = False
         self.gui_error = "starting"
         self.stopping = False
+        self.appearance = selected_appearance(CONFIG)
         self.signal_read, self.signal_write = socket.socketpair()
         self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status)
         self.last_notification: tuple[str, str, str] | None = None
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
-            return self.sessions.snapshot()
+            return {**self.sessions.snapshot(), "appearance": self.appearance}
 
     def gui_status(self, ready: bool, error: str) -> None:
         with self.lock:
@@ -57,7 +60,7 @@ class Daemon:
 
     def status(self) -> dict[str, Any]:
         with self.lock:
-            state = self.sessions.snapshot()
+            state = {**self.sessions.snapshot(), "appearance": self.appearance}
             ui = self.gui.ui
             overlay = ({"x": ui.x, "y": ui.y,
                         "touch_count": ui.touch_count, "last_touch": ui.last_touch}
@@ -78,6 +81,20 @@ class Daemon:
                     self.gui_error = "starting"
                     self.gui.wake()
             return self.status()
+        if action == "set_appearance":
+            appearance = payload.get("appearance")
+            if not isinstance(appearance, str) or appearance not in APPEARANCE_BY_ID:
+                return {"ok": False, "error": "unknown appearance",
+                        "available": list(APPEARANCE_BY_ID)}
+            try:
+                save_appearance(CONFIG, appearance)
+            except OSError as exc:
+                return {"ok": False, "error": f"could not save appearance: {exc}"}
+            with self.lock:
+                self.appearance = appearance
+            self.gui.wake()
+            return {"ok": True, "appearance": appearance,
+                    "name": APPEARANCE_BY_ID[appearance].name}
         if action == "stop":
             self.stopping = True
             self.signal_write.send(b"s")

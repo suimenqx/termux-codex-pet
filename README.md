@@ -2,7 +2,7 @@
 
 [简体中文使用指南](README.zh-CN.md)
 
-A small robot that floats over Android apps and shows what Codex CLI is doing. Codex hooks send events through a private Unix socket to one Termux:GUI process. There is no polling, web server, or separate APK. Android notifications are used only when the overlay is unavailable for a needs-input or ready event.
+A small mascot that floats over Android apps and shows what Codex CLI is doing. The default appearance is a lively Akita Inu; the original robot remains available. Codex hooks send events through a private Unix socket to one Termux:GUI process. There is no polling, web server, or separate APK. Android notifications are used only when the overlay is unavailable for a needs-input or ready event.
 
 ## Install and first check
 
@@ -30,21 +30,24 @@ Submit a prompt to see **Running**. When Codex requests tool permission, the Pet
 codex-pet start       # start if needed; safe to run twice
 codex-pet stop        # close the overlay and daemon
 codex-pet restart     # reload the installed code and reconnect the overlay
-codex-pet status      # daemon, GUI connection, state, project, session counts
+codex-pet status      # daemon, GUI connection, state, pet, project, session counts
 codex-pet test        # cycle through all visual states
+codex-pet pet list    # list supported appearances
+codex-pet pet use akita
+codex-pet pet use robot
 ```
 
-The Pet is a single, roughly 64 dp floating robot icon. Its expression, accent color, and small badge show Idle, Running, Needs input, Ready, or Blocked without labels or message cards. Tapping has no action. To move it, drag from within the center 27 dp radius; the point you grabbed stays under your finger, so the robot does not jump. Move more than 12 dp to start a drag. The position is saved in `~/.config/codex-pet/config.json` and restored after restart.
+The Pet is a single, roughly 64 dp floating icon. The Akita has a red coat, cream urajiro markings, upright ears, and a curled tail. It breathes and flicks its tail while idle, runs with an alternating four-leg stride, raises a paw when it needs input, hops when ready, and settles into a puzzled pose when blocked. State colors stay on the collar and badge so the coat remains recognizable. The original robot is also selectable. `codex-pet pet list` shows the catalog and current choice; `codex-pet pet use <id>` switches to any listed appearance. The choice is saved alongside the overlay position in `~/.config/codex-pet/config.json` and changes the live overlay when the daemon is running. Tapping has no action. To move the Pet, drag from within the center 27 dp radius; the point you grabbed stays under your finger, so it does not jump. Move more than 12 dp to start a drag.
 
 | State | What you see | When it changes |
 | --- | --- | --- |
-| Idle | Quiet robot | Session starts, ends, or its turn is interrupted |
-| Running | Animated face and running badge | You submit a prompt or Codex resumes after a tool call |
-| Needs input | Alert expression and badge | Codex requests tool permission |
-| Ready | Completion expression and badge | The turn stops; remains until a later event changes its state or the session ends |
-| Blocked | Error expression | Demo state only; hooks do not receive a definitive failed-turn event |
+| Idle | Breathing Akita with a relaxed tail | Session starts, ends, or its turn is interrupted |
+| Running | Full-body running loop; a count badge appears with multiple active sessions | You submit a prompt or Codex resumes after a tool call |
+| Needs input | Alert ears and raised paw | Codex requests tool permission |
+| Ready | A short celebratory hop, then a happy pose | The turn stops; remains until a later event changes its state or the session ends |
+| Blocked | A puzzled, paw-to-cheek pose | Demo state only; hooks do not receive a definitive failed-turn event |
 
-With multiple Codex sessions, status priority follows the public Pet order: Needs input, Blocked, Ready, Running. The robot shows a count when two or more sessions are running.
+With multiple Codex sessions, status priority follows the public Pet order: Needs input, Blocked, Ready, Running. The mascot shows a count when two or more sessions are running.
 
 **State accuracy:** Codex documents the four activity names and their priority, but this hook integration does not receive the same internal status stream as the desktop app. Hooks expose prompt, tool-permission, tool, stop, interrupt, and session lifecycle events; they do not report whether a stopped turn failed, whether activity is unread, or when Codex asks a text-only question. A denied permission with no tool result may stay at Needs input until another hook event arrives. This implementation never infers Blocked from an error-looking tool result. Ready stays visible as an icon until a later event changes that session's state or the session ends. A Stop hook from another integration can also request a continuation, briefly changing Ready back to Running when the next prompt event arrives. A definitive failed-turn signal requires every CLI session to use the same App Server event stream; that is not enabled by this hooks-only Termux integration.
 
@@ -70,7 +73,7 @@ The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`,
 - **`GUI=unavailable`:** check the Termux:GUI overlay permission and matching app signatures, then run `codex-pet restart`. Read `~/.cache/codex-pet/pet.log` if it still fails.
 - **Pet works in `codex-pet test` but ignores prompts:** restart Codex, open `/hooks`, and trust the Pet hooks. Check the file matching `hooks_mode` in `~/.config/codex-pet/install.json`. `codex features list` should show `hooks` enabled.
 - **Pet shows an old design after updating:** run `codex-pet restart`; a running daemon does not reload Python files automatically.
-- **Drag is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Start a drag within the robot's central area and move it at least 12 dp.
+- **Drag is unreliable:** confirm `GUI=ready` with `codex-pet status`, then run `codex-pet restart`. Start a drag within the Pet's central area and move it at least 12 dp.
 
 ## Uninstall
 
@@ -79,7 +82,7 @@ cd ~/codex-pet
 ./uninstall.sh
 ```
 
-This stops the daemon, removes its CLI links and runtime files, and removes only the Pet hook commands. It preserves Python dependencies, Codex configuration backups, and the saved position for a later reinstall.
+This stops the daemon, removes its CLI links and runtime files, and removes only the Pet hook commands. It preserves Python dependencies, Codex configuration backups, and the saved position and appearance for a later reinstall.
 
 ## License
 
