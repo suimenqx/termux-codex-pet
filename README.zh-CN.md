@@ -31,7 +31,7 @@ Codex Pet 是一个悬浮在 Android 应用上方的小伙伴形象，默认是�
 ```sh
 codex-pet start       # 按需启动；重复执行不会创建第二份 daemon
 codex-pet stop        # 关闭悬浮窗与 daemon
-codex-pet restart     # 重新加载代码并连接 Termux:GUI
+codex-pet restart     # 重启当前安装版本并重新连接 Termux:GUI
 codex-pet status      # 查看 daemon、GUI、状态、形象、项目及会话数
 codex-pet test        # 依次演示官方 Pet 活动状态
 codex-pet pet list    # 查看支持的形象和当前选择
@@ -73,8 +73,8 @@ codex-pet status
 - **Pet 消失：**先运行 `codex-pet status`；如果已停止，运行 `codex-pet start`。下一个 Codex 事件也会尝试自动拉起 daemon。
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
-- **更新后还是旧界面：**运行 `codex-pet restart`；正在运行的 daemon 不会自动重载 Python 文件。
-- **秋田犬边缘出现彩色噪点：**更新代码后运行 `codex-pet restart`。新版通过 PNG 解码正确混合透明边缘；旧 daemon 重启前仍会使用原来的共享缓冲区渲染路径。
+- **更新源码后还是旧界面：**在源码仓库中运行 `bash ./install.sh`，部署新版本并重启 daemon。单独运行 `codex-pet restart` 只会重启当前已安装版本。
+- **秋田犬边缘出现彩色噪点：**更新源码后运行 `bash ./install.sh`，部署 PNG 渲染修复并重启 daemon。旧安装版本仍会使用原来的共享缓冲区渲染路径，直到重新部署。
 - **拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从 Pet 图标任意位置开始拖动，移动约 6dp 即可。
 
 ## 卸载
