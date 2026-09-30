@@ -9,7 +9,7 @@ class AnimationPreviewTests(unittest.TestCase):
         frames = _timeline("running", cycles=2)
 
         self.assertEqual([frame["frame"] for frame in frames], list(range(8)) * 2)
-        self.assertEqual([frame["seconds"] for frame in frames], [0.06] * 16)
+        self.assertEqual([frame["seconds"] for frame in frames], [0.08] * 16)
         self.assertTrue(all(str(frame["src"]).startswith("data:image/png;base64,")
                             for frame in frames))
 

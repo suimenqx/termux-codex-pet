@@ -170,8 +170,8 @@ AKITA_FRAME_COUNTS = {
 AKITA_FRAME_INTERVALS = {
     # Slow breath, one quick blink, then a quiet pause before the next loop.
     "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    # Add poses without slowing the existing half-second gallop cadence.
-    "running": (0.06,) * 8,
+    # Slightly relaxed cadence: eight poses complete one cycle in 0.64 seconds.
+    "running": (0.08,) * 8,
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
     # Let the entry hop breathe; the loop uses only subtle breathing and a slow blink.

@@ -73,7 +73,7 @@ class AnimationAuditTests(unittest.TestCase):
                                 and point["mean_blue_channel"] >= 120.0
                                 for point in leg["positions"]))
         self.assertEqual(result.report["frame_count"], 16)
-        self.assertEqual(result.report["duration_seconds"], 0.96)
+        self.assertEqual(result.report["duration_seconds"], 1.28)
         self.assertEqual(
             [frame.frame for frame in result.frames],
             [frame["frame"] for frame in preview],
