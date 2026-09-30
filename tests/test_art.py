@@ -4,6 +4,7 @@ import zlib
 
 from codex_pet.art import (
     AKITA_FRAME_COUNTS,
+    AKITA_READY_SEQUENCE,
     AKITA_READY_LOOP_START,
     advance_animation,
     animation_interval,
@@ -95,8 +96,7 @@ class AkitaArtTests(unittest.TestCase):
                     self.assertEqual(image[25], 6)
                     self.assertEqual(png_first_pixel(image)[3], 0)
                 if state == "ready":
-                    # The loop deliberately reuses the small paw cue and a
-                    # resting pose after the one-time full hop.
+                    # The loop deliberately reuses resting poses after its one-time hop.
                     self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state] - 2)
                 else:
                     self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state])
@@ -123,7 +123,7 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(advance_animation("akita", "running", 5), 0)
         self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
 
-    def test_akita_ready_hops_once_then_loops_a_quiet_cue(self) -> None:
+    def test_akita_ready_hops_once_then_loops_breath_and_blink(self) -> None:
         frame = 0
         for _ in range(AKITA_READY_LOOP_START):
             self.assertIsNotNone(animation_interval("akita", "ready", frame))
@@ -131,16 +131,30 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(frame, AKITA_READY_LOOP_START)
 
         self.assertEqual(animation_interval("akita", "ready", frame), 0.8)
-        self.assertEqual(animation_interval("akita", "ready", 10), 0.18)
-        self.assertEqual(animation_interval("akita", "ready", 11), 0.8)
+        self.assertEqual(animation_interval("akita", "ready", 11), 0.6)
+        self.assertEqual(animation_interval("akita", "ready", 12), 0.8)
         for _ in range(AKITA_FRAME_COUNTS["ready"] - AKITA_READY_LOOP_START):
             frame = advance_animation("akita", "ready", frame)
         self.assertEqual(frame, AKITA_READY_LOOP_START)
 
+    def test_ready_loop_does_not_replay_a_jump_pose(self) -> None:
+        loop = AKITA_READY_SEQUENCE[AKITA_READY_LOOP_START:]
+
+        self.assertTrue(all(asset_state in ("idle", "blink")
+                            for asset_state, _ in loop))
+
+    def test_ready_hop_bends_down_before_lifting_off(self) -> None:
+        self.assertEqual(
+            AKITA_READY_SEQUENCE[:5],
+            (("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3)),
+        )
+        self.assertEqual(AKITA_READY_LOOP_START, 5)
+        self.assertNotEqual(icon("ready", 0), icon("ready", 1))
+
     def test_ready_blink_only_changes_the_face_not_the_chest(self) -> None:
-        before_blink = rgba_icon("ready", 5)
-        blink = rgba_icon("ready", 6)
-        after_blink = rgba_icon("ready", 7)
+        before_blink = rgba_icon("ready", 6)
+        blink = rgba_icon("ready", 7)
+        after_blink = rgba_icon("ready", 8)
 
         chest = (70, 120, 180, 205)
         eyes = (62, 45, 195, 118)
@@ -150,19 +164,20 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(rgba_region(blink, chest), rgba_region(after_blink, chest))
 
     def test_ready_blink_is_slower_and_less_frequent(self) -> None:
-        self.assertGreaterEqual(animation_interval("akita", "ready", 6) or 0, 0.14)
+        self.assertGreaterEqual(animation_interval("akita", "ready", 7) or 0, 0.18)
         cycle = sum(animation_interval("akita", "ready", frame) or 0
                     for frame in range(AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS["ready"]))
         self.assertGreaterEqual(cycle, 3.5)
 
     def test_ready_hop_has_time_to_prepare_and_settle(self) -> None:
-        hop = [animation_interval("akita", "ready", frame) or 0 for frame in range(4)]
+        hop = [animation_interval("akita", "ready", frame) or 0 for frame in range(AKITA_READY_LOOP_START)]
 
-        self.assertGreaterEqual(hop[0], 0.2)
+        self.assertGreaterEqual(hop[0], 0.3)
         self.assertGreaterEqual(hop[1], 0.14)
-        self.assertGreaterEqual(hop[2], 0.14)
-        self.assertGreaterEqual(hop[3], 0.22)
-        self.assertGreaterEqual(sum(hop), 0.72)
+        self.assertGreaterEqual(hop[2], 0.18)
+        self.assertGreaterEqual(hop[3], 0.2)
+        self.assertGreaterEqual(hop[4], 0.32)
+        self.assertGreaterEqual(sum(hop), 1.2)
 
     def test_akita_blocked_reaction_plays_once_then_holds(self) -> None:
         frame_count = AKITA_FRAME_COUNTS["blocked"]

@@ -37,14 +37,14 @@ codex-pet pet use akita
 codex-pet pet use robot
 ```
 
-The Pet is a single, roughly 64 dp floating icon. The Akita uses high-resolution, transparent 256 × 256 PNG frames in a cheerful style: a large round cream face, bright orange-red crown with a pale blaze, small upright ears, and an open smile above a compact body. Idle breathes and blinks slowly; Running loops a lively small run; Needs input gives a gentle paw wave. Ready makes one relaxed happy hop, then breathes with a slow face-only blink and a small raised-paw cue about every four seconds. Blocked plays a short thoughtful head tilt and rests on its final pose. A steady animation clock keeps frame timing consistent while touch events are handled. The original robot remains selectable and animated. `codex-pet pet list` shows the catalog and current choice; `codex-pet pet use <id>` switches to any listed appearance. The choice is saved alongside the overlay position in `~/.config/codex-pet/config.json` and changes the live overlay when the daemon is running. Tapping has no action. To move the Pet, drag from anywhere on the icon; it follows your finger after about 6 dp of movement.
+The Pet is a single, roughly 64 dp floating icon. The Akita uses high-resolution, transparent 256 × 256 PNG frames in a cheerful style: a large round cream face, bright orange-red crown with a pale blaze, small upright ears, and an open smile above a compact body. Idle breathes and blinks slowly; Running loops a lively small run; Needs input gives a gentle paw wave. Ready crouches slightly before one relaxed happy hop on entry, then loops slow breathing with a slow face-only blink. Blocked plays a short thoughtful head tilt and rests on its final pose. A steady animation clock keeps frame timing consistent while touch events are handled. The original robot remains selectable and animated. `codex-pet pet list` shows the catalog and current choice; `codex-pet pet use <id>` switches to any listed appearance. The choice is saved alongside the overlay position in `~/.config/codex-pet/config.json` and changes the live overlay when the daemon is running. Tapping has no action. To move the Pet, drag from anywhere on the icon; it follows your finger after about 6 dp of movement.
 
 | State | What you see | When it changes |
 | --- | --- | --- |
 | Idle | Slow breath and occasional blink | Session starts, ends, or its turn is interrupted |
 | Running | Small running loop; a count badge appears with multiple active sessions | You submit a prompt or Codex resumes after a tool call |
 | Needs input | Gentle raised-paw wave | Codex requests tool permission |
-| Ready | One relaxed hop, then slow breathing, a face-only blink, and a small raised-paw cue about every four seconds | The turn stops; remains until a later event changes its state or the session ends |
+| Ready | A slight crouch and one relaxed hop on entry, then slow breathing and a slow face-only blink | The turn stops; remains until a later event changes its state or the session ends |
 | Blocked | Brief thoughtful head tilt, then a resting pose | Demo state only; hooks do not receive a definitive failed-turn event |
 
 With multiple Codex sessions, status priority follows the public Pet order: Needs input, Blocked, Ready, Running. The mascot shows a count when two or more sessions are running.
