@@ -2,7 +2,13 @@ import struct
 import unittest
 import zlib
 
-from codex_pet.art import advance_animation, animation_interval, icon
+from codex_pet.art import (
+    AKITA_FRAME_COUNTS,
+    advance_animation,
+    animation_interval,
+    icon,
+    rgba_icon,
+)
 from codex_pet.pets import DEFAULT_APPEARANCE
 
 
@@ -68,18 +74,21 @@ class AkitaArtTests(unittest.TestCase):
         self.assertEqual(icon("idle"), icon("idle", appearance="akita"))
         self.assertNotEqual(icon("idle"), icon("idle", appearance="robot"))
 
-    def test_akita_uses_transparent_high_resolution_state_illustrations(self) -> None:
-        images = []
+    def test_akita_uses_transparent_high_resolution_animation_frames(self) -> None:
+        state_images = []
         for state in ("idle", "running", "needs_input", "ready", "blocked"):
             with self.subTest(state=state):
-                image = icon(state)
-                self.assertEqual(png_dimensions(image), (256, 256))
-                self.assertEqual(image[24], 8)
-                self.assertEqual(image[25], 6)
-                self.assertEqual(png_first_pixel(image)[3], 0)
-                self.assertEqual(icon(state, frame=4), image)
-                images.append(image)
-        self.assertEqual(len(set(images)), 5)
+                frames = [icon(state, frame=frame)
+                          for frame in range(AKITA_FRAME_COUNTS[state])]
+                self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state])
+                for image in frames:
+                    self.assertEqual(png_dimensions(image), (256, 256))
+                    self.assertEqual(image[24], 8)
+                    self.assertEqual(image[25], 6)
+                    self.assertEqual(png_first_pixel(image)[3], 0)
+                self.assertEqual(icon(state, frame=AKITA_FRAME_COUNTS[state]), frames[-1])
+                state_images.append(frames[0])
+        self.assertEqual(len(set(state_images)), 5)
 
     def test_akita_uses_state_specific_illustrations_and_count_badge(self) -> None:
         self.assertNotEqual(icon("idle"), icon("running"))
@@ -88,11 +97,34 @@ class AkitaArtTests(unittest.TestCase):
         self.assertNotEqual(icon("running", count=2), icon("running", count=9))
         self.assertNotEqual(icon("running", count=9), icon("running", count=10))
 
-    def test_akita_illustrations_do_not_schedule_pixel_animation_frames(self) -> None:
-        self.assertIsNone(animation_interval("akita", "running", 0))
-        self.assertIsNone(animation_interval("akita", "idle", 0))
-        self.assertEqual(advance_animation("akita", "running", 3), 0)
-        self.assertEqual(advance_animation("akita", "ready", 4), 0)
+    def test_akita_rgba_frames_are_ready_for_the_shared_image_buffer(self) -> None:
+        self.assertEqual(len(rgba_icon("idle", 0)), 256 * 256 * 4)
+        self.assertNotEqual(rgba_icon("running", 0, 1), rgba_icon("running", 0, 2))
+
+    def test_akita_looping_states_use_slow_idle_and_fluid_action_timing(self) -> None:
+        self.assertEqual(animation_interval("akita", "idle", 0), 0.6)
+        self.assertEqual(animation_interval("akita", "running", 0), 0.1)
+        self.assertEqual(animation_interval("akita", "needs_input", 3), 0.85)
+        self.assertEqual(advance_animation("akita", "idle", 5), 0)
+        self.assertEqual(advance_animation("akita", "running", 5), 0)
+        self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
+
+    def test_akita_ready_and_blocked_reactions_play_once_then_hold(self) -> None:
+        for state in ("ready", "blocked"):
+            with self.subTest(state=state):
+                frame_count = AKITA_FRAME_COUNTS[state]
+                frame = 0
+                for _ in range(frame_count):
+                    self.assertIsNotNone(animation_interval("akita", state, frame))
+                    frame = advance_animation("akita", state, frame)
+                self.assertEqual(frame, frame_count)
+                self.assertIsNone(animation_interval("akita", state, frame))
+                self.assertEqual(advance_animation("akita", state, frame), frame)
+                self.assertEqual(icon(state, frame), icon(state, frame_count - 1))
+
+    def test_robot_animation_timing_remains_unchanged(self) -> None:
+        self.assertEqual(animation_interval("robot", "running", 0), 2.0)
+        self.assertEqual(advance_animation("robot", "running", 0), 1)
 
     def test_unknown_configured_appearance_falls_back_to_akita(self) -> None:
         self.assertEqual(icon("idle", appearance="unknown"), icon("idle"))

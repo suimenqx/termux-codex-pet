@@ -12,7 +12,7 @@ from typing import Any, Callable
 
 import termuxgui as tg
 
-from .art import advance_animation, animation_interval, icon
+from .art import AKITA_SIZE, advance_animation, animation_interval, icon, rgba_icon
 from .pets import DEFAULT_APPEARANCE
 from .preferences import read_config, save_position
 
@@ -53,6 +53,12 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
     return _point(first)
 
 
+def _visual_key(snapshot: dict[str, Any]) -> tuple[Any, Any, int]:
+    state = snapshot["state"]
+    running_count = int(snapshot.get("running_count", 0)) if state == "running" else 0
+    return snapshot.get("appearance", DEFAULT_APPEARANCE), state, running_count
+
+
 class OverlayUI:
     def __init__(self, connection: tg.Connection, config_path: Path) -> None:
         self.c = connection
@@ -66,6 +72,9 @@ class OverlayUI:
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.face.sendtouchevent(True)
+        self.image_buffer: tg.Buffer | None = None
+        self.buffer_bound = False
+        self.buffer_unavailable = False
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
@@ -106,7 +115,39 @@ class OverlayUI:
     def render(self, snapshot: dict[str, Any], frame: int = 0) -> None:
         state = snapshot["state"]
         appearance = snapshot.get("appearance", DEFAULT_APPEARANCE)
-        self.face.setimage(icon(state, frame, snapshot["running_count"], appearance))
+        count = snapshot["running_count"]
+        image = icon(state, frame, count, appearance)
+        if appearance == "robot":
+            self.buffer_bound = False
+            self.face.setimage(image)
+            return
+        self._render_akita(state, frame, count, image)
+
+    def _render_akita(self, state: str, frame: int, count: int, image: bytes) -> None:
+        if not self.buffer_unavailable:
+            if self.image_buffer is None:
+                try:
+                    self.image_buffer = tg.Buffer(self.c, AKITA_SIZE, AKITA_SIZE)
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                    self.buffer_unavailable = True
+                    LOG.warning("Termux:GUI shared image buffer unavailable; using PNG frames: %s", exc)
+            if self.image_buffer is not None:
+                try:
+                    pixels = rgba_icon(state, frame, count)
+                    if len(pixels) != len(self.image_buffer.mem):
+                        raise ValueError("Termux:GUI shared image buffer has an unexpected size")
+                    if not self.buffer_bound:
+                        self.face.setbuffer(self.image_buffer)
+                        self.buffer_bound = True
+                    self.image_buffer.mem[:] = pixels
+                    self.image_buffer.blit()
+                    self.face.refresh()
+                    return
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                    self.buffer_unavailable = True
+                    self.buffer_bound = False
+                    LOG.warning("Termux:GUI shared image buffer failed; using PNG frames: %s", exc)
+        self.face.setimage(image)
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):
@@ -176,7 +217,21 @@ class OverlayUI:
         return False
 
     def close(self) -> None:
-        self.pet.finish()
+        try:
+            if self.image_buffer is not None and self.buffer_bound:
+                try:
+                    self.face.setimage(icon("idle"))
+                except OSError:
+                    LOG.debug("Could not detach Pet image buffer before closing")
+                self.buffer_bound = False
+            self.pet.finish()
+        finally:
+            if self.image_buffer is not None:
+                try:
+                    self.image_buffer.remove()
+                except (AttributeError, OSError, RuntimeError) as exc:
+                    LOG.debug("Could not remove Pet image buffer: %s", exc)
+                self.image_buffer = None
 
 
 class GuiWorker:
@@ -247,7 +302,7 @@ class GuiWorker:
         appearance = current.get("appearance", DEFAULT_APPEARANCE)
         state = current["state"]
         running_count = current.get("running_count", 0)
-        visual = (appearance, state, running_count)
+        visual = _visual_key(current)
         self.ui.render(current, frame)
         while not self.stopping:
             timeout = animation_interval(appearance, state, frame)
@@ -260,7 +315,7 @@ class GuiWorker:
                 appearance = current.get("appearance", DEFAULT_APPEARANCE)
                 state = current["state"]
                 running_count = current.get("running_count", 0)
-                next_visual = (appearance, state, running_count)
+                next_visual = _visual_key(current)
                 if next_visual != visual:
                     frame = 0
                     visual = next_visual

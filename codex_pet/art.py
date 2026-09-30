@@ -153,6 +153,25 @@ def _robot_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
 
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
+AKITA_FRAME_COUNTS = {
+    "idle": 6,
+    "running": 6,
+    "needs_input": 4,
+    "ready": 4,
+    "blocked": 4,
+}
+AKITA_FRAME_INTERVALS = {
+    # Slow breath, one quick blink, then a quiet pause before the next loop.
+    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6),
+    "running": (0.1,) * 6,
+    # A small wave with a longer hold at the raised paw.
+    "needs_input": (0.2, 0.18, 0.18, 0.85),
+    # These reactions play once, then rest on their final pose.
+    "ready": (0.12, 0.1, 0.1, 0.16),
+    "blocked": (0.12, 0.18, 0.18, 0.12),
+}
+AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input"))
+AKITA_SIZE = 256
 AKITA_ASSET_DIR = Path(__file__).resolve().parent / "assets" / "akita"
 
 
@@ -180,9 +199,15 @@ except (AttributeError, OSError):
     _LIBPNG = None
 
 
-@lru_cache(maxsize=5)
-def _akita_asset(state: str) -> bytes:
-    return (AKITA_ASSET_DIR / f"{state}.png").read_bytes()
+@lru_cache(maxsize=24)
+def _akita_asset(state: str, frame: int) -> bytes:
+    path = AKITA_ASSET_DIR / "frames" / state / f"{frame:02}.png"
+    try:
+        return path.read_bytes()
+    except FileNotFoundError:
+        # Keep the original illustrations available as a safe fallback if an
+        # animation frame is missing from a partial or older installation.
+        return (AKITA_ASSET_DIR / f"{state}.png").read_bytes()
 
 
 def _decode_rgba_png(image: bytes) -> tuple[int, int, bytearray]:
@@ -267,11 +292,12 @@ def _add_count_badge(image: bytes, count: int) -> bytes:
     return _png(width, height, pixels)
 
 
-@lru_cache(maxsize=3)
-def _akita_icon(state: str, count: int = 0) -> bytes:
+@lru_cache(maxsize=80)
+def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
     if state not in AKITA_STATES:
         state = "idle"
-    image = _akita_asset(state)
+    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
+    image = _akita_asset(state, frame)
     if state == "running" and count > 1:
         try:
             return _add_count_badge(image, count)
@@ -279,6 +305,14 @@ def _akita_icon(state: str, count: int = 0) -> bytes:
             # Art remains visible if an asset is replaced with an unsupported PNG.
             return image
     return image
+
+
+@lru_cache(maxsize=80)
+def _akita_rgba(state: str, frame: int, count: int) -> bytes:
+    width, height, pixels = _decode_rgba_png(_akita_icon(state, frame, count))
+    if (width, height) != (AKITA_SIZE, AKITA_SIZE):
+        raise ValueError(f"unexpected Akita frame size: {width}x{height}")
+    return bytes(pixels)
 
 
 def icon(state: str, frame: int = 0, count: int = 0,
@@ -289,17 +323,33 @@ def icon(state: str, frame: int = 0, count: int = 0,
     if appearance == "robot":
         return _robot_icon(state, frame, count)
     if appearance == "akita":
-        # Akita status changes use hand-painted state illustrations instead of pixel frames.
+        state = state if state in AKITA_STATES else "idle"
+        frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
         bounded_count = max(0, min(int(count), 10))
-        return _akita_icon(state, bounded_count if state == "running" else 0)
+        return _akita_icon(state, frame, bounded_count if state == "running" else 0)
     # Bad or future config values must never prevent the overlay from rendering.
-    return _akita_icon(state, 0)
+    state = state if state in AKITA_STATES else "idle"
+    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
+    return _akita_icon(state, frame, 0)
+
+
+def rgba_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
+    """Return a cached 256-square RGBA Akita frame for Termux:GUI's shared buffer."""
+    state = state if state in AKITA_STATES else "idle"
+    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
+    bounded_count = max(0, min(int(count), 10)) if state == "running" else 0
+    return _akita_rgba(state, frame, bounded_count)
 
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:
     """Return the next frame delay; None means the current pose can rest."""
     if appearance == "akita":
-        return None
+        state = state if state in AKITA_FRAME_COUNTS else "idle"
+        frame = max(0, int(frame))
+        intervals = AKITA_FRAME_INTERVALS[state]
+        if state not in AKITA_LOOP_STATES and frame >= len(intervals):
+            return None
+        return intervals[frame % len(intervals)]
     if state == "running":
         return 2.0
     if state == "needs_input":
@@ -309,7 +359,12 @@ def animation_interval(appearance: str, state: str, frame: int) -> float | None:
 
 def advance_animation(appearance: str, state: str, frame: int) -> int:
     if appearance == "akita":
-        return 0
+        state = state if state in AKITA_FRAME_COUNTS else "idle"
+        frame = max(0, int(frame))
+        frame_count = AKITA_FRAME_COUNTS[state]
+        if state in AKITA_LOOP_STATES:
+            return (frame + 1) % frame_count
+        return min(frame + 1, frame_count)
     if state in ("running", "needs_input"):
         return 1 - frame
     return frame
