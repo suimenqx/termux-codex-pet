@@ -8,6 +8,7 @@ from pathlib import Path
 import struct
 import zlib
 
+from .animation import AKITA_FRAME_COUNTS, AKITA_READY_SEQUENCE, AKITA_STATES
 from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE
 
 SIZE = 64
@@ -152,34 +153,6 @@ def _robot_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
 
 
 
-AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
-AKITA_READY_SEQUENCE = (
-    ("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
-    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
-    ("idle", 7), ("idle", 0),
-)
-AKITA_READY_LOOP_START = 5
-AKITA_FRAME_COUNTS = {
-    "idle": 8,
-    # Eight registered poses carry one asymmetric gallop through its full cycle.
-    "running": 8,
-    "needs_input": 4,
-    "ready": len(AKITA_READY_SEQUENCE),
-    "blocked": 4,
-}
-AKITA_FRAME_INTERVALS = {
-    # Slow breath, one quick blink, then a quiet pause before the next loop.
-    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    # Slightly relaxed cadence: eight poses complete one cycle in 0.64 seconds.
-    "running": (0.08,) * 8,
-    # A small wave with a longer hold at the raised paw.
-    "needs_input": (0.2, 0.18, 0.18, 0.85),
-    # Let the entry hop breathe; the loop uses only subtle breathing and a slow blink.
-    "ready": (0.32, 0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8),
-    # Blocked is a brief reaction that settles and holds its final pose.
-    "blocked": (0.12, 0.18, 0.18, 0.12),
-}
-AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input", "ready"))
 AKITA_SIZE = 256
 AKITA_ASSET_DIR = Path(__file__).resolve().parent / "assets" / "akita"
 
@@ -373,34 +346,3 @@ def rgba_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
     bounded_count = max(0, min(int(count), 10)) if state == "running" else 0
     return _akita_rgba(state, frame, bounded_count)
-
-
-def animation_interval(appearance: str, state: str, frame: int) -> float | None:
-    """Return the next frame delay; None means the current pose can rest."""
-    if appearance == "akita":
-        state = state if state in AKITA_FRAME_COUNTS else "idle"
-        frame = max(0, int(frame))
-        intervals = AKITA_FRAME_INTERVALS[state]
-        if state not in AKITA_LOOP_STATES and frame >= len(intervals):
-            return None
-        return intervals[frame % len(intervals)]
-    if state == "running":
-        return 2.0
-    if state == "needs_input":
-        return 1.4
-    return None
-
-
-def advance_animation(appearance: str, state: str, frame: int) -> int:
-    if appearance == "akita":
-        state = state if state in AKITA_FRAME_COUNTS else "idle"
-        frame = max(0, int(frame))
-        frame_count = AKITA_FRAME_COUNTS[state]
-        if state == "ready" and frame >= frame_count - 1:
-            return AKITA_READY_LOOP_START
-        if state in AKITA_LOOP_STATES:
-            return (frame + 1) % frame_count
-        return min(frame + 1, frame_count)
-    if state in ("running", "needs_input"):
-        return 1 - frame
-    return frame

@@ -15,22 +15,20 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.art import (  # noqa: E402
+from codex_pet.animation import (  # noqa: E402
     AKITA_FRAME_COUNTS,
-    AKITA_LOOP_STATES,
-    AKITA_READY_LOOP_START,
     AKITA_READY_SEQUENCE,
-    AKITA_SIZE,
     AKITA_STATES,
+    playback_frames,
+)
+from codex_pet.art import (  # noqa: E402
+    AKITA_SIZE,
     _png,
-    advance_animation,
-    animation_interval,
     rgba_icon,
 )
 
 PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3.0
-FINAL_HOLD_SECONDS = 0.8
 TAIL_SOURCE_BOX = (180, 65, 256, 140)
 CHEST_SOURCE_BOX = (45, 120, 165, 220)
 MIN_TAIL_CHANGED_PIXELS = 500
@@ -86,15 +84,6 @@ class RenderAudit:
     report: dict[str, object]
     frames: tuple[RenderedFrame, ...]
     contact_sheet: bytes
-
-
-def _timeline_length(state: str, cycles: int) -> int:
-    frame_count = AKITA_FRAME_COUNTS[state]
-    if state == "ready":
-        return frame_count + (cycles - 1) * (frame_count - AKITA_READY_LOOP_START)
-    if state in AKITA_LOOP_STATES:
-        return frame_count * cycles
-    return frame_count + 1
 
 
 def _resize_rgba(source: bytes, size: int) -> bytes:
@@ -475,23 +464,15 @@ def render_audit(state: str, cycles: int = 1,
     if display_size < 1:
         raise ValueError("density is too small to render a pixel")
 
-    count = _timeline_length(state, cycles)
     scale_cache: dict[int, bytes] = {}
     rendered: list[RenderedFrame] = []
-    frame = 0
-    for step in range(count):
-        delay = animation_interval("akita", state, frame)
-        if delay is None:
-            delay = FINAL_HOLD_SECONDS
+    for step, scheduled in enumerate(playback_frames("akita", state, cycles)):
+        frame = scheduled.frame
         pixels = scale_cache.get(frame)
         if pixels is None:
             pixels = _resize_rgba(rgba_icon(state, frame), display_size)
             scale_cache[frame] = pixels
-        rendered.append(RenderedFrame(step, frame, delay, pixels))
-        next_frame = advance_animation("akita", state, frame)
-        if next_frame == frame and delay == FINAL_HOLD_SECONDS:
-            break
-        frame = next_frame
+        rendered.append(RenderedFrame(step, frame, scheduled.duration_seconds, pixels))
 
     transitions = []
     for before, after in zip(rendered, rendered[1:]):

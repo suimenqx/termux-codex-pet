@@ -13,46 +13,22 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.art import (  # noqa: E402
-    AKITA_FRAME_COUNTS,
-    AKITA_LOOP_STATES,
-    AKITA_READY_LOOP_START,
-    AKITA_STATES,
-    advance_animation,
-    animation_interval,
-    icon,
-)
+from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
+from codex_pet.art import icon  # noqa: E402
 
 PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3
-FINAL_HOLD_SECONDS = 0.8
 
 
 def _timeline(state: str, cycles: int) -> list[dict[str, object]]:
-    frame_count = AKITA_FRAME_COUNTS[state]
-    if state == "ready":
-        step_count = frame_count + (cycles - 1) * (frame_count - AKITA_READY_LOOP_START)
-    elif state in AKITA_LOOP_STATES:
-        step_count = frame_count * cycles
-    else:
-        step_count = frame_count + 1
-
     result = []
-    frame = 0
-    for _ in range(step_count):
-        interval = animation_interval("akita", state, frame)
-        if interval is None:
-            interval = FINAL_HOLD_SECONDS
-        png = icon(state, frame, appearance="akita")
+    for scheduled in playback_frames("akita", state, cycles):
+        png = icon(state, scheduled.frame, appearance="akita")
         result.append({
-            "frame": frame,
-            "seconds": interval,
+            "frame": scheduled.frame,
+            "seconds": scheduled.duration_seconds,
             "src": "data:image/png;base64," + base64.b64encode(png).decode("ascii"),
         })
-        next_frame = advance_animation("akita", state, frame)
-        if next_frame == frame and interval == FINAL_HOLD_SECONDS:
-            break
-        frame = next_frame
     return result
 
 

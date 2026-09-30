@@ -1,6 +1,10 @@
 import unittest
 
-from codex_pet.art import AKITA_FRAME_COUNTS, AKITA_READY_LOOP_START, animation_interval
+from codex_pet.animation import (
+    AKITA_FRAME_COUNTS,
+    AKITA_READY_LOOP_START,
+    animation_interval,
+)
 from tools.preview_animation import _timeline
 
 

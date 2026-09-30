@@ -12,7 +12,8 @@ from typing import Any, Callable
 
 import termuxgui as tg
 
-from .art import SIZE, AKITA_SIZE, advance_animation, animation_interval, icon
+from .animation import AnimationTimeline
+from .art import SIZE, AKITA_SIZE, icon
 from .pets import DEFAULT_APPEARANCE
 from .preferences import read_config, save_position
 
@@ -56,45 +57,6 @@ def _visual_key(snapshot: dict[str, Any]) -> tuple[Any, Any, int]:
     state = snapshot["state"]
     running_count = int(snapshot.get("running_count", 0)) if state == "running" else 0
     return snapshot.get("appearance", DEFAULT_APPEARANCE), state, running_count
-
-
-class AnimationClock:
-    """Keep frame changes on a monotonic schedule instead of render completion."""
-
-    def __init__(self, appearance: str, state: str, frame: int, now: float) -> None:
-        self.deadline: float | None = None
-        self.reset(appearance, state, frame, now)
-
-    def reset(self, appearance: str, state: str, frame: int, now: float) -> None:
-        interval = animation_interval(appearance, state, frame)
-        self.deadline = now + interval if interval is not None else None
-
-    def timeout(self, now: float) -> float | None:
-        if self.deadline is None:
-            return None
-        return max(0.0, self.deadline - now)
-
-    def due(self, now: float) -> bool:
-        return self.deadline is not None and now >= self.deadline
-
-    def advance(self, appearance: str, state: str, frame: int, now: float) -> int:
-        """Advance to the frame due now, skipping missed frames without a burst."""
-        if not self.due(now):
-            return frame
-
-        assert self.deadline is not None
-        next_deadline = self.deadline
-        while True:
-            frame = advance_animation(appearance, state, frame)
-            interval = animation_interval(appearance, state, frame)
-            if interval is None:
-                self.deadline = None
-                return frame
-
-            next_deadline += interval
-            if next_deadline > now:
-                self.deadline = next_deadline
-                return frame
 
 
 class OverlayUI:
@@ -287,15 +249,14 @@ class GuiWorker:
 
     def _loop(self, connection: tg.Connection) -> None:
         assert self.ui is not None
-        frame = 0
         current = self.snapshot()
         appearance = current.get("appearance", DEFAULT_APPEARANCE)
         state = current["state"]
         visual = _visual_key(current)
-        self.ui.render(current, frame)
-        clock = AnimationClock(appearance, state, frame, time.monotonic())
+        timeline = AnimationTimeline(appearance, state, time.monotonic())
+        self.ui.render(current, timeline.frame)
         while not self.stopping:
-            timeout = clock.timeout(time.monotonic())
+            timeout = timeline.timeout(time.monotonic())
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
                 self.read_wake.recv(4096)
@@ -306,27 +267,25 @@ class GuiWorker:
                 state = current["state"]
                 next_visual = _visual_key(current)
                 if next_visual != visual:
-                    frame = 0
                     visual = next_visual
-                    clock.reset(appearance, state, frame, time.monotonic())
-                self.ui.render(current, frame)
+                    timeline.reset(appearance, state, time.monotonic())
+                self.ui.render(current, timeline.frame)
             if connection._event in readable:
                 if not connection._event.recv(1, socket.MSG_PEEK):
                     raise ConnectionError("Termux:GUI disconnected")
                 event = connection.checkevent()
                 if event is not None:
                     if self.ui.handle(event):
-                        self.ui.render(self.snapshot(), frame)
+                        self.ui.render(self.snapshot(), timeline.frame)
             now = time.monotonic()
-            if clock.due(now):
+            if timeline.due(now):
                 current = self.snapshot()
                 next_visual = _visual_key(current)
                 if next_visual != visual:
                     appearance = current.get("appearance", DEFAULT_APPEARANCE)
                     state = current["state"]
                     visual = next_visual
-                    frame = 0
-                    clock.reset(appearance, state, frame, now)
+                    timeline.reset(appearance, state, now)
                 else:
-                    frame = clock.advance(appearance, state, frame, now)
-                self.ui.render(current, frame)
+                    timeline.advance(now)
+                self.ui.render(current, timeline.frame)

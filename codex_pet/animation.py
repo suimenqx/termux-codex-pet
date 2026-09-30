@@ -1,0 +1,186 @@
+"""Pet animation policy and the shared playback timeline."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE
+
+AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
+AKITA_READY_SEQUENCE = (
+    ("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
+    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
+    ("idle", 7), ("idle", 0),
+)
+AKITA_READY_LOOP_START = 5
+AKITA_FRAME_COUNTS = {
+    "idle": 8,
+    # Eight registered poses carry one asymmetric gallop through its full cycle.
+    "running": 8,
+    "needs_input": 4,
+    "ready": len(AKITA_READY_SEQUENCE),
+    "blocked": 4,
+}
+AKITA_FRAME_INTERVALS = {
+    # Slow breath, one quick blink, then a quiet pause before the next loop.
+    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
+    # Eight poses complete one gallop cycle in 0.64 seconds.
+    "running": (0.08,) * 8,
+    # A small wave with a longer hold at the raised paw.
+    "needs_input": (0.2, 0.18, 0.18, 0.85),
+    # The entry hop settles into subtle breathing and a slow blink.
+    "ready": (0.32, 0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8),
+    # Blocked is a brief reaction that settles and holds its final pose.
+    "blocked": (0.12, 0.18, 0.18, 0.12),
+}
+AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input", "ready"))
+PREVIEW_FINAL_HOLD_SECONDS = 0.8
+
+
+@dataclass(frozen=True)
+class PlaybackFrame:
+    """One logical frame and its finite duration in an offline playback."""
+
+    frame: int
+    duration_seconds: float
+
+
+def _appearance_id(appearance: str) -> str:
+    return appearance if appearance in APPEARANCE_BY_ID else DEFAULT_APPEARANCE
+
+
+def _akita_state(state: str) -> str:
+    return state if state in AKITA_FRAME_COUNTS else "idle"
+
+
+def _state_id(appearance: str, state: str) -> str:
+    return _akita_state(state) if appearance == "akita" else state
+
+
+def animation_interval(appearance: str, state: str, frame: int) -> float | None:
+    """Return the frame's duration, or None when its final pose holds."""
+    appearance = _appearance_id(appearance)
+    if appearance == "akita":
+        state = _akita_state(state)
+        frame = max(0, int(frame))
+        intervals = AKITA_FRAME_INTERVALS[state]
+        if state not in AKITA_LOOP_STATES and frame >= len(intervals):
+            return None
+        return intervals[frame % len(intervals)]
+    if state == "running":
+        return 2.0
+    if state == "needs_input":
+        return 1.4
+    return None
+
+
+def advance_animation(appearance: str, state: str, frame: int) -> int:
+    """Return the next logical frame, preserving each appearance's cycle."""
+    appearance = _appearance_id(appearance)
+    if appearance == "akita":
+        state = _akita_state(state)
+        frame = max(0, int(frame))
+        frame_count = AKITA_FRAME_COUNTS[state]
+        if state == "ready" and frame >= frame_count - 1:
+            return AKITA_READY_LOOP_START
+        if state in AKITA_LOOP_STATES:
+            return (frame + 1) % frame_count
+        return min(frame + 1, frame_count)
+    if state in ("running", "needs_input"):
+        return 1 - frame
+    return frame
+
+
+def _cycle_bounds(appearance: str, state: str) -> tuple[int, int] | None:
+    if appearance == "akita":
+        state = _akita_state(state)
+        if state == "ready":
+            return AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS[state] - 1
+        if state in AKITA_LOOP_STATES:
+            return 0, AKITA_FRAME_COUNTS[state] - 1
+    elif appearance == "robot" and state in ("running", "needs_input"):
+        return 0, 1
+    return None
+
+
+class AnimationTimeline:
+    """Advance one pet state's frames against an anchored monotonic schedule."""
+
+    def __init__(self, appearance: str, state: str, now: float) -> None:
+        self.appearance = _appearance_id(appearance)
+        self.state = _state_id(self.appearance, state)
+        self.frame = 0
+        self.deadline: float | None = None
+        self._set_deadline(now)
+
+    def reset(self, appearance: str, state: str, now: float) -> None:
+        """Start a changed visual at frame zero and anchor its next deadline."""
+        self.appearance = _appearance_id(appearance)
+        self.state = _state_id(self.appearance, state)
+        self.frame = 0
+        self._set_deadline(now)
+
+    def _set_deadline(self, now: float) -> None:
+        interval = animation_interval(self.appearance, self.state, self.frame)
+        self.deadline = now + interval if interval is not None else None
+
+    def timeout(self, now: float) -> float | None:
+        if self.deadline is None:
+            return None
+        return max(0.0, self.deadline - now)
+
+    def due(self, now: float) -> bool:
+        return self.deadline is not None and now >= self.deadline
+
+    def advance(self, now: float) -> int:
+        """Advance to the frame due now, skipping missed frames without a burst."""
+        if not self.due(now):
+            return self.frame
+
+        assert self.deadline is not None
+        next_deadline = self.deadline
+        while True:
+            self.frame = advance_animation(self.appearance, self.state, self.frame)
+            interval = animation_interval(self.appearance, self.state, self.frame)
+            if interval is None:
+                self.deadline = None
+                return self.frame
+
+            next_deadline += interval
+            if next_deadline > now:
+                self.deadline = next_deadline
+                return self.frame
+
+
+def playback_frames(appearance: str, state: str, cycles: int = 1) -> tuple[PlaybackFrame, ...]:
+    """Build the same finite frame schedule used by the GUI for offline tools."""
+    if cycles < 1:
+        raise ValueError("cycles must be at least 1")
+
+    appearance = _appearance_id(appearance)
+    state = _state_id(appearance, state)
+    timeline = AnimationTimeline(appearance, state, now=0.0)
+    cycle_bounds = _cycle_bounds(appearance, state)
+    completed_cycles = 0
+    scheduled: list[PlaybackFrame] = []
+
+    while True:
+        frame = timeline.frame
+        interval = animation_interval(appearance, state, frame)
+        scheduled.append(PlaybackFrame(
+            frame=frame,
+            duration_seconds=(interval if interval is not None
+                              else PREVIEW_FINAL_HOLD_SECONDS),
+        ))
+        if interval is None:
+            break
+
+        assert timeline.deadline is not None
+        timeline.advance(timeline.deadline)
+        if (cycle_bounds is not None and frame == cycle_bounds[1]
+                and timeline.frame == cycle_bounds[0]):
+            completed_cycles += 1
+            if completed_cycles >= cycles:
+                break
+
+    return tuple(scheduled)
