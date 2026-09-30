@@ -1,12 +1,29 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 LOCAL_BIN="$HOME/.local/bin"
 PATH_BIN="$PREFIX/bin"
+APP_DIR="$HOME/.local/share/codex-pet"
 
-"$PROJECT_DIR/bin/codex-pet" stop
-PYTHONPATH="$PROJECT_DIR" python -m codex_pet.hooks_config uninstall
+is_managed_entrypoint() {
+  local name="$1"
+  local target="$LOCAL_BIN/$name"
+  if [ -f "$target" ] && grep -Fqx "# CODEX_PET_MANAGED_ENTRYPOINT=$name" "$target"; then
+    return 0
+  fi
+  [ -L "$target" ] && [ "$(readlink -f "$target" 2>/dev/null || true)" = "$PROJECT_DIR/bin/$name" ]
+}
+
+if is_managed_entrypoint codex-pet; then
+  "$LOCAL_BIN/codex-pet" stop
+fi
+if [ -f "$APP_DIR/current/codex_pet/hooks_config.py" ]; then
+  PYTHONPATH="$(readlink -f "$APP_DIR/current")" python -m codex_pet.hooks_config uninstall
+else
+  PYTHONPATH="$PROJECT_DIR" python -m codex_pet.hooks_config uninstall
+fi
+
 for name in codex-pet codex-pet-event; do
   path_target="$PATH_BIN/$name"
   if [ -L "$path_target" ] && [ "$(readlink "$path_target")" = "$LOCAL_BIN/$name" ]; then
@@ -16,16 +33,8 @@ for name in codex-pet codex-pet-event; do
       mv "$path_backup" "$path_target"
     fi
   fi
-  target="$LOCAL_BIN/$name"
-  if [ -L "$target" ] && [ "$(readlink -f "$target")" = "$PROJECT_DIR/bin/$name" ]; then
-    unlink "$target"
-    backup="$HOME/.config/codex-pet/cli-backups/$name"
-    if [ -e "$backup" ] || [ -L "$backup" ]; then
-      mv "$backup" "$target"
-    fi
-  fi
 done
-rmdir "$HOME/.config/codex-pet/cli-backups" 2>/dev/null || true
+PYTHONPATH="$PROJECT_DIR" python -m codex_pet.deployment remove --source "$PROJECT_DIR" --home "$HOME"
 python - <<'PY'
 from pathlib import Path
 base = Path.home() / '.cache' / 'codex-pet'

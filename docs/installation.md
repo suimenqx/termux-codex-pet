@@ -25,7 +25,7 @@ pkg update
 pkg install -y git
 git clone https://github.com/suimenqx/termux-codex-pet.git ~/codex-pet
 cd ~/codex-pet
-./install.sh
+bash ./install.sh
 codex-pet status
 codex-pet test
 ```
@@ -42,9 +42,9 @@ Keep the checkout on `main`; only run the following when local changes are absen
 git -C ~/codex-pet pull --ff-only origin main
 ```
 
-The installed commands are symlinks into this checkout, so do not move or delete it while Pet is installed.
+The installer copies the runtime files into a versioned release under `~/.local/share/codex-pet/releases/` and creates stable command wrappers under `~/.local/bin/`. The running Pet no longer depends on the checkout location, so the checkout can be moved after installation. Keep a checkout available when you want to update or uninstall. If the checkout is on Android shared storage, use `bash ./install.sh`; shared storage does not allow direct execution of scripts.
 
-`install.sh` installs missing Python and `libpng` packages through `pkg`, then installs the `termuxgui` Python binding through `python -m pip`. It creates command links, merges Pet hooks into the existing Codex configuration, starts the daemon, and sends an IPC smoke event. It backs up Codex configuration files before changing them. It does not install the Termux:GUI Android app, enable Android permissions, install Codex CLI, or silently trust a hook prompt.
+`install.sh` installs missing Python and `libpng` packages through `pkg`, then installs the `termuxgui` Python binding through `python -m pip`. It deploys a private runtime release, atomically activates it, creates stable command wrappers, merges Pet hooks into the existing Codex configuration, restarts the daemon, and sends an IPC smoke event. It backs up Codex configuration files before changing them. The active and previous runtime releases are kept separately; if the new daemon fails to restart, the installer restores the previous release. It does not install the Termux:GUI Android app, enable Android permissions, install Codex CLI, or silently trust a hook prompt.
 
 The installer updates `~/.codex/config.toml` when it contains inline hook event groups; otherwise it merges Pet commands into `~/.codex/hooks.json`. A `hooks.state` metadata block alone does not select inline mode. Existing user hooks are preserved, modified files are backed up, and the selected mode is recorded in `~/.config/codex-pet/install.json`. The Python `import termuxgui` check verifies only the binding; `GUI=ready` from `codex-pet status` is the device-side check for the Android app and its permission.
 
@@ -85,4 +85,4 @@ When a command fails, stop at the first failure, capture the exact command and f
 
 The Pet can be installed and its states demoed without Codex CLI. For live states, install and start Codex, then restart it after installing the hooks. In a new Codex session, use `/hooks` to inspect the registered commands. If Codex asks to trust them, show that prompt to the user and let them decide. The installer records whether it used inline hooks in `~/.codex/config.toml` or `~/.codex/hooks.json` in `~/.config/codex-pet/install.json`.
 
-To remove the integration, run `./uninstall.sh` from the same checkout. It removes Pet command links and Pet-owned hooks, while preserving Python packages, Codex backups, and saved appearance/position.
+To remove the integration, run `bash ./uninstall.sh` from a checkout. It stops the daemon, removes managed command wrappers, Pet-owned hooks, and marked runtime releases, while preserving Python packages, Codex backups, and saved appearance/position.

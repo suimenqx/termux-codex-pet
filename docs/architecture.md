@@ -15,6 +15,7 @@ Codex lifecycle hook JSON on stdin
 | Seam | Owner | What it owns |
 | --- | --- | --- |
 | Hook configuration | `codex_pet/hooks_config.py`, `install.sh`, `uninstall.sh` | Merge/remove only Pet hooks; back up changed Codex files |
+| Runtime deployment | `codex_pet/deployment.py`, `install.sh`, `uninstall.sh` | Copy immutable private releases, switch active version, manage stable command wrappers and rollback |
 | Hook entrypoint | `bin/codex-pet-event`, `codex_pet/hook.py` | Bounded JSON parsing, fail-open handling, and hook-side notification fallback |
 | Appearance catalog | `codex_pet/pets.py` | Supported IDs, default choice, source image dimensions, and renderer/animation profiles |
 | Human CLI | `bin/codex-pet`, `codex_pet/cli.py`, `codex_pet/preferences.py` | Daemon controls and appearance selection; daemon code is imported only by the `daemon` command |
@@ -24,7 +25,7 @@ Codex lifecycle hook JSON on stdin
 | Artwork rendering | `codex_pet/art.py`, `codex_pet/assets/` | Draw robot pixels, load Akita frames, compose badges and blink frames into PNG/RGBA images |
 | Android UI | `codex_pet/gui.py`, `codex_pet/pets.py`, `codex_pet/preferences.py` | Overlay and GUI connection, touch, saved position and appearance, rendering the current playback frame |
 
-The two `bin` scripts add the checkout to `sys.path`; the installed CLI entries are symlinks into this repository. The hook entrypoint and ordinary CLI commands do not import the daemon or Termux:GUI binding. A running daemon retains imported code until restarted. Moving the checkout requires reinstalling the links.
+The two `bin` scripts add their containing runtime release to `sys.path`. Installation copies `bin/` and `codex_pet/` into an immutable release under `~/.local/share/codex-pet/releases/`, then atomically switches `current`. Stable wrappers in `~/.local/bin/` invoke that private runtime; Codex hooks keep calling the stable `codex-pet-event` path. The checkout can move or be unavailable while the installed Pet continues to run. Each daemon resolves its own release path, including artwork assets, and the previous release is retained for rollback. The hook entrypoint and ordinary CLI commands do not import the daemon or Termux:GUI binding. A running daemon retains imported code until restarted.
 
 `pets.py` is the source of truth for each appearance's ID, default status, source image dimensions, art profile, and animation profile. `art.py` and `animation.py` implement those profiles; `gui.py` reads the registered image dimensions for touch-coordinate scaling as well as rendering.
 

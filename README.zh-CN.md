@@ -15,12 +15,12 @@ Codex Pet 是一个悬浮在 Android 应用上方的小伙伴形象，默认是�
    pkg install -y git
    git clone https://github.com/suimenqx/termux-codex-pet.git ~/codex-pet
    cd ~/codex-pet
-   ./install.sh
+   bash ./install.sh
    codex-pet status
    codex-pet test
    ```
 
-安装脚本会按需安装 Python、libpng 和 `termuxgui` Python binding，创建命令入口，安全合并 Codex hooks，启动 daemon 并完成一次 IPC 冒烟测试。它会备份修改过的 Codex 配置，不覆盖无关设置；不会安装 Termux:GUI Android 应用，也无法替你开启悬浮窗权限。`codex-pet test` 会演示 Idle 和官方四种活动状态；Ready 会以图标形式保持显示，直到后续事件改变该会话状态或会话结束。预检、依赖缺失时的处理、预期输出和需要用户在 Android 上操作的情况，见[详细安装与依赖排查指南](docs/installation.zh-CN.md)。
+安装脚本会按需安装 Python、libpng 和 `termuxgui` Python binding，将运行代码复制到 `~/.local/share/codex-pet/` 的独立版本目录，创建固定命令入口，安全合并 Codex hooks，重启 daemon 并完成一次 IPC 冒烟测试。源码仓库之后可以移动，不会改变已安装 Pet 的运行路径。脚本会备份修改过的 Codex 配置，不覆盖无关设置；不会安装 Termux:GUI Android 应用，也无法替你开启悬浮窗权限。`codex-pet test` 会演示 Idle 和官方四种活动状态；Ready 会以图标形式保持显示，直到后续事件改变该会话状态或会话结束。预检、依赖缺失时的处理、预期输出和需要用户在 Android 上操作的情况，见[详细安装与依赖排查指南](docs/installation.zh-CN.md)。
 
 **让真实 Codex 会话驱动 Pet：**安装后重启 Codex。在新会话中打开 `/hooks` 检查 Pet 命令；若 Codex 提示信任，请先查看再决定。若现有 `~/.codex/config.toml` 已使用内联 hooks，安装器会继续写入该文件；否则使用 `~/.codex/hooks.json`。安装输出会说明采用的方式，也可以查看 `~/.config/codex-pet/install.json` 中的 `hooks_mode`。这些 hooks 只观察事件，不会替你批准或拒绝 Codex 操作。
 
@@ -55,13 +55,12 @@ Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 25
 
 ## 更新
 
-命令入口指向克隆目录。拉取新代码后，需要重启已经运行的 daemon：
+运行副本与源码仓库相互独立。拉取新代码后，重新运行安装器即可部署新版本并重启 daemon：
 
 ```sh
 cd ~/codex-pet
 git pull --ff-only origin main
-./install.sh
-codex-pet restart
+bash ./install.sh
 codex-pet status
 ```
 
@@ -82,7 +81,7 @@ codex-pet status
 
 ```sh
 cd ~/codex-pet
-./uninstall.sh
+bash ./uninstall.sh
 ```
 
 卸载脚本会停止 daemon、移除 Pet 命令入口和运行时文件，并且只移除它自己添加的 hooks。Python 依赖、Codex 配置备份以及保存的位置和形象选择会保留，方便以后重新安装。

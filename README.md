@@ -15,12 +15,12 @@ A small mascot that floats over Android apps and shows what Codex CLI is doing. 
    pkg install -y git
    git clone https://github.com/suimenqx/termux-codex-pet.git ~/codex-pet
    cd ~/codex-pet
-   ./install.sh
+   bash ./install.sh
    codex-pet status
    codex-pet test
    ```
 
-The installer installs Python, libpng, and the `termuxgui` Python binding if missing, creates the CLI links, merges the Pet hooks into the existing Codex configuration, starts the daemon, and runs an IPC smoke check. It backs up any Codex configuration file it changes. It does not install the Termux:GUI Android app or grant overlay permission. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends. See the [detailed installation and dependency guide](docs/installation.md) for preflight checks, manual recovery commands, expected output, and cases that require the user to act on Android.
+The installer installs Python, libpng, and the `termuxgui` Python binding if missing. It copies the app into a versioned runtime under `~/.local/share/codex-pet/`, installs stable command wrappers, merges the Pet hooks into the existing Codex configuration, restarts the daemon, and runs an IPC smoke check. The editable checkout can then move without changing the installed runtime. It backs up any Codex configuration file it changes. It does not install the Termux:GUI Android app or grant overlay permission. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends. See the [detailed installation and dependency guide](docs/installation.md) for preflight checks, manual recovery commands, expected output, and cases that require the user to act on Android.
 
 **For live Codex events:** restart Codex after installation. In a new session, open `/hooks` to review the Pet commands and trust them if Codex prompts. The installer uses inline hooks in `~/.codex/config.toml` when that config has inline event groups; otherwise it uses `~/.codex/hooks.json`. The install output reports which mode was used. You can inspect `~/.config/codex-pet/install.json` later. Pet hooks only observe events; they never approve or deny Codex actions.
 
@@ -55,13 +55,12 @@ With multiple Codex sessions, status priority follows the public Pet order: Need
 
 ## Update
 
-The CLI links point into the cloned repository. After pulling new code, restart the daemon to load it:
+The installed runtime is independent of the checkout. After pulling new code, run the installer to deploy a fresh private copy and restart the daemon:
 
 ```sh
 cd ~/codex-pet
 git pull --ff-only origin main
-./install.sh
-codex-pet restart
+bash ./install.sh
 codex-pet status
 ```
 
@@ -82,10 +81,10 @@ The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`,
 
 ```sh
 cd ~/codex-pet
-./uninstall.sh
+bash ./uninstall.sh
 ```
 
-This stops the daemon, removes its CLI links and runtime files, and removes only the Pet hook commands. It preserves Python dependencies, Codex configuration backups, and the saved position and appearance for a later reinstall.
+This stops the daemon, removes its command wrappers, installed runtime releases, and Pet hook commands. It preserves Python dependencies, Codex configuration backups, and the saved position and appearance for a later reinstall.
 
 ## License
 
