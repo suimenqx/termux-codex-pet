@@ -187,10 +187,10 @@ def _akita_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
         "blocked": (255, 108, 117, 255),
     }
     accent = colors.get(state, colors["idle"])
-    outline = (83, 47, 34, 255)
-    coat = (190, 104, 54, 255)
-    coat_light = (215, 132, 72, 255)
-    coat_shadow = (154, 76, 42, 255)
+    outline = (76, 44, 35, 255)
+    coat = (226, 106, 38, 255)
+    coat_light = (247, 149, 54, 255)
+    coat_shadow = (186, 68, 31, 255)
     cream = (246, 231, 199, 255)
     cream_shadow = (223, 202, 164, 255)
     dark = (49, 39, 34, 255)
