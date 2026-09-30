@@ -118,12 +118,12 @@ class AkitaArtTests(unittest.TestCase):
     def test_akita_looping_states_use_slow_idle_and_fluid_action_timing(self) -> None:
         self.assertEqual(animation_interval("akita", "idle", 0), 0.6)
         self.assertEqual(animation_interval("akita", "idle", 6), 0.6)
-        self.assertEqual(animation_interval("akita", "running", 0), 0.1)
+        self.assertEqual(animation_interval("akita", "running", 0), 0.06)
         self.assertEqual(animation_interval("akita", "needs_input", 3), 0.85)
         self.assertEqual(advance_animation("akita", "idle", 5), 6)
         self.assertEqual(advance_animation("akita", "idle", 7), 0)
-        self.assertEqual(AKITA_FRAME_COUNTS["running"], 5)
-        self.assertEqual(advance_animation("akita", "running", 4), 0)
+        self.assertEqual(AKITA_FRAME_COUNTS["running"], 8)
+        self.assertEqual(advance_animation("akita", "running", 7), 0)
         self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
 
     def test_idle_tail_wag_is_more_visible_without_moving_the_chest(self) -> None:
