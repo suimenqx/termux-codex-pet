@@ -117,11 +117,33 @@ class AkitaArtTests(unittest.TestCase):
 
     def test_akita_looping_states_use_slow_idle_and_fluid_action_timing(self) -> None:
         self.assertEqual(animation_interval("akita", "idle", 0), 0.6)
+        self.assertEqual(animation_interval("akita", "idle", 6), 0.6)
         self.assertEqual(animation_interval("akita", "running", 0), 0.1)
         self.assertEqual(animation_interval("akita", "needs_input", 3), 0.85)
-        self.assertEqual(advance_animation("akita", "idle", 5), 0)
+        self.assertEqual(advance_animation("akita", "idle", 5), 6)
+        self.assertEqual(advance_animation("akita", "idle", 7), 0)
         self.assertEqual(advance_animation("akita", "running", 5), 0)
         self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
+
+    def test_idle_tail_wag_is_more_visible_without_moving_the_chest(self) -> None:
+        resting = rgba_icon("idle", 0)
+        tail_high = rgba_icon("idle", 6)
+        tail_low = rgba_icon("idle", 7)
+
+        chest = (45, 120, 165, 220)
+        tail = (180, 65, 256, 160)
+        self.assertEqual(rgba_region(resting, chest), rgba_region(tail_high, chest))
+        self.assertEqual(rgba_region(resting, chest), rgba_region(tail_low, chest))
+        resting_tail = rgba_region(resting, tail)
+        high_tail = rgba_region(tail_high, tail)
+        low_tail = rgba_region(tail_low, tail)
+        self.assertGreater(sum(resting_tail[i:i + 4] != high_tail[i:i + 4]
+                               for i in range(0, len(resting_tail), 4)), 1000)
+        self.assertGreater(sum(high_tail[i:i + 4] != low_tail[i:i + 4]
+                               for i in range(0, len(high_tail), 4)), 1000)
+
+    def test_ready_loop_uses_the_wider_tail_wag_poses(self) -> None:
+        self.assertEqual(AKITA_READY_SEQUENCE[10:12], (("idle", 6), ("idle", 7)))
 
     def test_akita_ready_hops_once_then_loops_breath_and_blink(self) -> None:
         frame = 0

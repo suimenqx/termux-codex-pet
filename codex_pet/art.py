@@ -155,12 +155,12 @@ def _robot_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
 AKITA_READY_SEQUENCE = (
     ("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
-    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 4),
-    ("idle", 5), ("idle", 0),
+    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
+    ("idle", 7), ("idle", 0),
 )
 AKITA_READY_LOOP_START = 5
 AKITA_FRAME_COUNTS = {
-    "idle": 6,
+    "idle": 8,
     "running": 6,
     "needs_input": 4,
     "ready": len(AKITA_READY_SEQUENCE),
@@ -168,7 +168,7 @@ AKITA_FRAME_COUNTS = {
 }
 AKITA_FRAME_INTERVALS = {
     # Slow breath, one quick blink, then a quiet pause before the next loop.
-    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6),
+    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
     "running": (0.1,) * 6,
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
