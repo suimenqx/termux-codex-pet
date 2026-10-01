@@ -3,9 +3,9 @@ import unittest
 from codex_pet.animation import (
     AKITA_FRAME_COUNTS,
     AKITA_FRAME_INTERVALS,
-    AKITA_READY_SEQUENCE,
     AKITA_READY_LOOP_START,
     AnimationTimeline,
+    akita_artwork_frame,
     animation_interval,
     advance_animation,
     playback_frames,
@@ -39,6 +39,35 @@ class AnimationTimelineTests(unittest.TestCase):
 
         self.assertEqual(timeline.frame, 0)
         self.assertAlmostEqual(timeline.deadline or 0, 12.32)
+
+    def test_sync_resets_for_visible_changes_only(self) -> None:
+        timeline = AnimationTimeline("akita", "idle", now=1.0, running_count=1)
+        timeline.advance(now=1.61)
+        self.assertFalse(timeline.sync("akita", "idle", 4, now=2.0))
+        self.assertEqual(timeline.frame, 1)
+
+        self.assertTrue(timeline.sync("akita", "running", 1, now=2.0))
+        self.assertEqual(timeline.frame, 0)
+        self.assertAlmostEqual(timeline.deadline or 0, 2.08)
+        timeline.advance(now=2.09)
+        self.assertTrue(timeline.sync("akita", "running", 2, now=3.0))
+        self.assertEqual(timeline.frame, 0)
+        self.assertAlmostEqual(timeline.deadline or 0, 3.08)
+
+        self.assertTrue(timeline.sync("robot", "running", 2, now=4.0))
+        self.assertAlmostEqual(timeline.deadline or 0, 6.0)
+
+    def test_ready_artwork_mapping_clamps_and_preserves_entry_then_loop(self) -> None:
+        frames = playback_frames("akita", "ready", cycles=2)
+        artwork = [akita_artwork_frame("ready", step.frame) for step in frames]
+
+        self.assertEqual(artwork[:5],
+                         [("ready", 0), ("ready", 4), ("ready", 1),
+                          ("ready", 2), ("ready", 3)])
+        self.assertEqual(artwork[7], ("blink", 0))
+        self.assertEqual(artwork[-1], ("idle", 0))
+        self.assertEqual(akita_artwork_frame("ready", -1), artwork[0])
+        self.assertEqual(akita_artwork_frame("blocked", 99), ("blocked", 3))
 
     def test_one_shot_animation_holds_its_final_frame_indefinitely(self) -> None:
         timeline = AnimationTimeline("akita", "blocked", now=30.0)
@@ -79,14 +108,15 @@ class PlaybackScheduleTests(unittest.TestCase):
             [item.duration_seconds for item in frames],
             [AKITA_FRAME_INTERVALS["ready"][frame] for frame in expected],
         )
-        self.assertEqual(AKITA_READY_SEQUENCE[10:12], (("idle", 6), ("idle", 7)))
+        ready_artwork = [akita_artwork_frame("ready", step.frame) for step in frames]
+        self.assertEqual(ready_artwork[10:12], [("idle", 6), ("idle", 7)])
         self.assertTrue(all(
             asset_state in ("idle", "blink")
-            for asset_state, _ in AKITA_READY_SEQUENCE[AKITA_READY_LOOP_START:]
+            for asset_state, _ in ready_artwork[AKITA_READY_LOOP_START:AKITA_FRAME_COUNTS["ready"]]
         ))
         self.assertEqual(
-            AKITA_READY_SEQUENCE[:5],
-            (("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3)),
+            ready_artwork[:5],
+            [("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3)],
         )
         self.assertEqual(AKITA_READY_LOOP_START, 5)
 

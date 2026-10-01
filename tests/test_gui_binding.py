@@ -1,11 +1,13 @@
 """Check the single icon-only Termux:GUI overlay boundary."""
 
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from codex_pet import gui
+from codex_pet.animation import AnimationTimeline
 from codex_pet.art import icon
 from codex_pet.pets import APPEARANCES
 
@@ -76,13 +78,26 @@ class FakeView:
 
 class GuiBindingTests(unittest.TestCase):
     def test_running_count_changes_do_not_restart_other_state_animations(self) -> None:
-        first = {"appearance": "akita", "state": "idle", "running_count": 1}
-        later = {"appearance": "akita", "state": "idle", "running_count": 4}
-        self.assertEqual(gui._visual_key(first), gui._visual_key(later))
-        self.assertNotEqual(
-            gui._visual_key({**first, "state": "running"}),
-            gui._visual_key({**later, "state": "running"}),
-        )
+        snapshots = iter((
+            {"appearance": "akita", "state": "idle", "running_count": 4},
+            {"appearance": "akita", "state": "running", "running_count": 4},
+            {"appearance": "akita", "state": "running", "running_count": 5},
+        ))
+        rendered: list[tuple[str, int]] = []
+        worker = gui.GuiWorker(None, lambda: next(snapshots), lambda *_: None)
+        worker.ui = SimpleNamespace(render=lambda state, frame:
+                                    rendered.append((state["state"], frame)))
+        timeline = AnimationTimeline("akita", "idle", now=0.0, running_count=1)
+        timeline.advance(now=0.61)
+        try:
+            worker._refresh(timeline, now=0.7)
+            worker._refresh(timeline, now=1.0)
+            timeline.advance(now=1.09)
+            worker._refresh(timeline, now=1.1)
+        finally:
+            worker.stop()
+
+        self.assertEqual(rendered, [("idle", 1), ("running", 0), ("running", 0)])
 
     def test_only_one_overlay_and_no_text_views_are_created(self) -> None:
         FakeView.next_id = 1

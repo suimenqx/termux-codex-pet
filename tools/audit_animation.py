@@ -17,8 +17,8 @@ if str(ROOT) not in sys.path:
 
 from codex_pet.animation import (  # noqa: E402
     AKITA_FRAME_COUNTS,
-    AKITA_READY_SEQUENCE,
     AKITA_STATES,
+    akita_artwork_frame,
     playback_frames,
 )
 from codex_pet.art import (  # noqa: E402
@@ -157,7 +157,8 @@ def _tail_pose_frames(state: str) -> tuple[int, int] | None:
     if state != "ready":
         return None
     pose_steps: dict[int, int] = {}
-    for step, (asset_state, asset_frame) in enumerate(AKITA_READY_SEQUENCE):
+    for step in range(AKITA_FRAME_COUNTS["ready"]):
+        asset_state, asset_frame = akita_artwork_frame("ready", step)
         if asset_state == "idle" and asset_frame in (6, 7):
             pose_steps.setdefault(asset_frame, step)
     if set(pose_steps) == {6, 7}:

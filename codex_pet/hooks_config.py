@@ -21,11 +21,20 @@ BEGIN = "# BEGIN CODEX PET HOOKS (installed by ~/codex-pet/install.sh)"
 END = "# END CODEX PET HOOKS"
 
 
+def _locations(home: Path | None) -> tuple[Path, Path, Path, Path, str]:
+    if home is None:
+        return CODEX, TOML, HOOKS, MANIFEST, COMMAND
+    codex = home / ".codex"
+    return (codex, codex / "config.toml", codex / "hooks.json",
+            home / ".config" / "codex-pet" / "install.json",
+            str(home / ".local" / "bin" / "codex-pet-event"))
+
+
 def _backup(path: Path) -> None:
     if path.exists():
         name = path.with_name(path.name + ".codex-pet-backup-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
         shutil.copy2(path, name)
-        print(f"Backup: {name}")
+        print(f"Backup: {name}", flush=True)
 
 
 def _write(path: Path, data: str) -> None:
@@ -39,19 +48,20 @@ def _has_inline_hooks(config: dict) -> bool:
     return isinstance(hooks, dict) and any(isinstance(groups, list) for groups in hooks.values())
 
 
-def install() -> None:
-    CODEX.mkdir(mode=0o700, parents=True, exist_ok=True)
-    MANIFEST.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    config = tomllib.loads(TOML.read_text()) if TOML.exists() else {}
-    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+def install(home: Path | None = None) -> None:
+    codex, toml, hooks, manifest_path, command = _locations(home)
+    codex.mkdir(mode=0o700, parents=True, exist_ok=True)
+    manifest_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    config = tomllib.loads(toml.read_text()) if toml.exists() else {}
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     if _has_inline_hooks(config):
-        content = TOML.read_text()
+        content = toml.read_text()
         block = BEGIN + "\n"
         for name in HOOK_STATES:
             block += (f"[[hooks.{name}]]\n"
                       f"[[hooks.{name}.hooks]]\n"
                       "type = \"command\"\n"
-                      f"command = {json.dumps(COMMAND)}\n"
+                      f"command = {json.dumps(command)}\n"
                       "timeout = 3\n\n")
         block += END
         if BEGIN in content and END in content:
@@ -62,12 +72,12 @@ def install() -> None:
             new_content = content.rstrip() + "\n\n" + block + "\n"
         if new_content != content:
             tomllib.loads(new_content)
-            _backup(TOML)
-            _write(TOML, new_content)
+            _backup(toml)
+            _write(toml, new_content)
         manifest["hooks_mode"] = "inline"
     else:
-        existed = HOOKS.exists()
-        data = json.loads(HOOKS.read_text()) if existed else {"hooks": {}}
+        existed = hooks.exists()
+        data = json.loads(hooks.read_text()) if existed else {"hooks": {}}
         if not isinstance(data, dict) or not isinstance(data.get("hooks"), dict):
             raise ValueError("~/.codex/hooks.json has an unexpected shape")
         changed = False
@@ -80,34 +90,35 @@ def install() -> None:
                 raise ValueError(f"~/.codex/hooks.json: {name} is not a list")
             if not any(
                 isinstance(group, dict) and isinstance(group.get("hooks"), list)
-                and any(isinstance(h, dict) and h.get("command") == COMMAND for h in group["hooks"])
+                and any(isinstance(h, dict) and h.get("command") == command for h in group["hooks"])
                 for group in groups
             ):
-                groups.append({"hooks": [{"type": "command", "command": COMMAND, "timeout": 3}]})
+                groups.append({"hooks": [{"type": "command", "command": command, "timeout": 3}]})
                 changed = True
                 installed_events.add(name)
         if changed:
-            _backup(HOOKS)
-            _write(HOOKS, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+            _backup(hooks)
+            _write(hooks, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
         manifest["hooks_mode"] = "json"
         manifest["installed_events"] = sorted(installed_events)
         manifest["created_hooks_file"] = manifest.get("created_hooks_file", not existed)
-    _write(MANIFEST, json.dumps(manifest, indent=2) + "\n")
-    print(f"Codex hooks installed ({manifest['hooks_mode']})")
+    _write(manifest_path, json.dumps(manifest, indent=2) + "\n")
+    print(f"Codex hooks installed ({manifest['hooks_mode']})", flush=True)
 
 
-def uninstall() -> None:
-    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+def uninstall(home: Path | None = None) -> None:
+    _, toml, hooks, manifest_path, command = _locations(home)
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     mode = manifest.get("hooks_mode")
-    if mode == "inline" and TOML.exists():
-        content = TOML.read_text()
+    if mode == "inline" and toml.exists():
+        content = toml.read_text()
         if BEGIN in content and END in content:
             before, remainder = content.split(BEGIN, 1)
             _, after = remainder.split(END, 1)
-            _backup(TOML)
-            _write(TOML, before.rstrip() + "\n" + after.lstrip("\n"))
-    elif mode == "json" and HOOKS.exists():
-        data = json.loads(HOOKS.read_text())
+            _backup(toml)
+            _write(toml, before.rstrip() + "\n" + after.lstrip("\n"))
+    elif mode == "json" and hooks.exists():
+        data = json.loads(hooks.read_text())
         groups_by_event = data.get("hooks", {})
         changed = False
         installed_events = set(manifest.get("installed_events", HOOK_STATES))
@@ -121,7 +132,7 @@ def uninstall() -> None:
                 for group in groups:
                     if isinstance(group, dict) and isinstance(group.get("hooks"), list):
                         kept = [h for h in group["hooks"] if not (
-                            isinstance(h, dict) and h.get("command") == COMMAND)]
+                            isinstance(h, dict) and h.get("command") == command)]
                         if len(kept) != len(group["hooks"]):
                             changed = True
                         if kept:
@@ -133,14 +144,14 @@ def uninstall() -> None:
                 else:
                     groups_by_event.pop(name, None)
             if changed:
-                _backup(HOOKS)
+                _backup(hooks)
                 if manifest.get("created_hooks_file") and not groups_by_event and set(data) == {"hooks"}:
-                    HOOKS.unlink()
+                    hooks.unlink()
                 else:
-                    _write(HOOKS, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
-    if MANIFEST.exists():
-        MANIFEST.unlink()
-    print("Codex Pet hooks removed")
+                    _write(hooks, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    if manifest_path.exists():
+        manifest_path.unlink()
+    print("Codex Pet hooks removed", flush=True)
 
 
 if __name__ == "__main__":

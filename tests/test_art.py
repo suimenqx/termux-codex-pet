@@ -104,6 +104,12 @@ class AkitaArtTests(unittest.TestCase):
         self.assertNotEqual(icon("running", count=2), icon("running", count=9))
         self.assertNotEqual(icon("running", count=9), icon("running", count=10))
 
+    def test_ready_loop_renders_the_artwork_selected_by_playback(self) -> None:
+        self.assertEqual(icon("ready", 5), icon("idle", 1))
+        self.assertEqual(icon("ready", 6), icon("idle", 0))
+        self.assertEqual(icon("ready", 10), icon("idle", 6))
+        self.assertEqual(icon("ready", 11), icon("idle", 7))
+
     def test_akita_rgba_frames_remain_available_for_offline_audits(self) -> None:
         self.assertEqual(len(rgba_icon("idle", 0)), 256 * 256 * 4)
         self.assertNotEqual(rgba_icon("running", 0, 1), rgba_icon("running", 0, 2))

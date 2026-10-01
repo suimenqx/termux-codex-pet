@@ -8,7 +8,7 @@ from pathlib import Path
 import struct
 import zlib
 
-from .animation import AKITA_FRAME_COUNTS, AKITA_READY_SEQUENCE, AKITA_STATES
+from .animation import akita_artwork_frame
 from .pets import ART_PROFILE_AKITA, ART_PROFILE_ROBOT, DEFAULT_APPEARANCE, appearance_for
 
 SIZE = 64
@@ -299,11 +299,7 @@ def _ready_blink_icon() -> bytes:
 
 @lru_cache(maxsize=80)
 def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
-    if state not in AKITA_STATES:
-        state = "idle"
-    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-    asset_state, asset_frame = (AKITA_READY_SEQUENCE[frame]
-                                if state == "ready" else (state, frame))
+    asset_state, asset_frame = akita_artwork_frame(state, frame)
     image = _ready_blink_icon() if asset_state == "blink" else _akita_asset(asset_state, asset_frame)
     if state == "running" and count > 1:
         try:
@@ -323,8 +319,6 @@ def _akita_rgba(state: str, frame: int, count: int) -> bytes:
 
 
 def _render_akita(state: str, frame: int, count: int) -> bytes:
-    state = state if state in AKITA_STATES else "idle"
-    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
     bounded_count = max(0, min(int(count), 10))
     return _akita_icon(state, frame, bounded_count if state == "running" else 0)
 
@@ -348,7 +342,5 @@ def icon(state: str, frame: int = 0, count: int = 0,
 
 def rgba_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
     """Return a cached 256-square RGBA Akita frame for Termux:GUI's shared buffer."""
-    state = state if state in AKITA_STATES else "idle"
-    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
     bounded_count = max(0, min(int(count), 10)) if state == "running" else 0
     return _akita_rgba(state, frame, bounded_count)

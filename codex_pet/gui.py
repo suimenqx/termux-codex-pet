@@ -53,13 +53,6 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
     return _point(first)
 
 
-def _visual_key(snapshot: dict[str, Any]) -> tuple[Any, Any, int]:
-    state = snapshot["state"]
-    running_count = int(snapshot.get("running_count", 0)) if state == "running" else 0
-    appearance = appearance_for(snapshot.get("appearance", DEFAULT_APPEARANCE)).id
-    return appearance, state, running_count
-
-
 class OverlayUI:
     def __init__(self, connection: tg.Connection, config_path: Path) -> None:
         self.c = connection
@@ -253,8 +246,9 @@ class GuiWorker:
         current = self.snapshot()
         appearance = current.get("appearance", DEFAULT_APPEARANCE)
         state = current["state"]
-        visual = _visual_key(current)
-        timeline = AnimationTimeline(appearance, state, time.monotonic())
+        timeline = AnimationTimeline(
+            appearance, state, time.monotonic(), current.get("running_count", 0),
+        )
         self.ui.render(current, timeline.frame)
         while not self.stopping:
             timeout = timeline.timeout(time.monotonic())
@@ -263,30 +257,26 @@ class GuiWorker:
                 self.read_wake.recv(4096)
                 if self.stopping:
                     break
-                current = self.snapshot()
-                appearance = current.get("appearance", DEFAULT_APPEARANCE)
-                state = current["state"]
-                next_visual = _visual_key(current)
-                if next_visual != visual:
-                    visual = next_visual
-                    timeline.reset(appearance, state, time.monotonic())
-                self.ui.render(current, timeline.frame)
+                self._refresh(timeline, time.monotonic())
             if connection._event in readable:
                 if not connection._event.recv(1, socket.MSG_PEEK):
                     raise ConnectionError("Termux:GUI disconnected")
                 event = connection.checkevent()
                 if event is not None:
                     if self.ui.handle(event):
-                        self.ui.render(self.snapshot(), timeline.frame)
+                        self._refresh(timeline, time.monotonic())
             now = time.monotonic()
             if timeline.due(now):
-                current = self.snapshot()
-                next_visual = _visual_key(current)
-                if next_visual != visual:
-                    appearance = current.get("appearance", DEFAULT_APPEARANCE)
-                    state = current["state"]
-                    visual = next_visual
-                    timeline.reset(appearance, state, now)
-                else:
-                    timeline.advance(now)
-                self.ui.render(current, timeline.frame)
+                self._refresh(timeline, now, advance=True)
+
+    def _refresh(self, timeline: AnimationTimeline, now: float,
+                 advance: bool = False) -> None:
+        assert self.ui is not None
+        current = self.snapshot()
+        changed = timeline.sync(
+            current.get("appearance", DEFAULT_APPEARANCE),
+            current["state"], current.get("running_count", 0), now,
+        )
+        if advance and not changed:
+            timeline.advance(now)
+        self.ui.render(current, timeline.frame)

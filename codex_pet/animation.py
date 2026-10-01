@@ -9,7 +9,7 @@ from .pets import (
 )
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
-AKITA_READY_SEQUENCE = (
+_AKITA_READY_SEQUENCE = (
     ("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
     ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
     ("idle", 7), ("idle", 0),
@@ -20,7 +20,7 @@ AKITA_FRAME_COUNTS = {
     # Eight registered poses carry one asymmetric gallop through its full cycle.
     "running": 8,
     "needs_input": 4,
-    "ready": len(AKITA_READY_SEQUENCE),
+    "ready": len(_AKITA_READY_SEQUENCE),
     "blocked": 4,
 }
 AKITA_FRAME_INTERVALS = {
@@ -58,6 +58,13 @@ def _akita_state(state: str) -> str:
 def _state_id(appearance: str, state: str) -> str:
     profile = appearance_for(appearance).animation_profile
     return _akita_state(state) if profile == ANIMATION_PROFILE_AKITA else state
+
+
+def akita_artwork_frame(state: str, frame: int) -> tuple[str, int]:
+    """Resolve one logical Akita frame to the artwork used for that pose."""
+    state = _akita_state(state)
+    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
+    return _AKITA_READY_SEQUENCE[frame] if state == "ready" else (state, frame)
 
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:
@@ -117,19 +124,32 @@ def _cycle_bounds(appearance: str, state: str) -> tuple[int, int] | None:
 class AnimationTimeline:
     """Advance one pet state's frames against an anchored monotonic schedule."""
 
-    def __init__(self, appearance: str, state: str, now: float) -> None:
-        self.appearance = _appearance_id(appearance)
-        self.state = _state_id(self.appearance, state)
+    def __init__(self, appearance: str, state: str, now: float,
+                 running_count: int = 0) -> None:
         self.frame = 0
         self.deadline: float | None = None
-        self._set_deadline(now)
+        self.reset(appearance, state, now, running_count)
 
-    def reset(self, appearance: str, state: str, now: float) -> None:
+    def reset(self, appearance: str, state: str, now: float,
+              running_count: int = 0) -> None:
         """Start a changed visual at frame zero and anchor its next deadline."""
         self.appearance = _appearance_id(appearance)
         self.state = _state_id(self.appearance, state)
+        self.visual = (self.appearance, self.state,
+                       int(running_count) if self.state == "running" else 0)
         self.frame = 0
         self._set_deadline(now)
+
+    def sync(self, appearance: str, state: str, running_count: int,
+             now: float) -> bool:
+        """Reset only when the visible appearance, state, or badge changes."""
+        appearance = _appearance_id(appearance)
+        state = _state_id(appearance, state)
+        visual = (appearance, state, int(running_count) if state == "running" else 0)
+        if visual == self.visual:
+            return False
+        self.reset(appearance, state, now, running_count)
+        return True
 
     def _set_deadline(self, now: float) -> None:
         interval = animation_interval(self.appearance, self.state, self.frame)

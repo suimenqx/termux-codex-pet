@@ -44,7 +44,7 @@ git -C ~/codex-pet pull --ff-only origin main
 
 安装器会把运行文件复制到 `~/.local/share/codex-pet/releases/` 下的版本目录，并在 `~/.local/bin/` 创建固定命令入口。运行中的 Pet 不再依赖源码仓库的位置，因此安装后可以移动仓库。更新或卸载时仍需要一个源码仓库。如果仓库位于 Android 共享存储，请通过 `bash ./install.sh` 启动安装器；共享存储不支持直接执行脚本。
 
-`install.sh` 会通过 `pkg` 安装缺少的 Python 和 `libpng`，再通过 `python -m pip` 安装 `termuxgui` Python binding。脚本会部署独立的私有运行版本、原子切换当前版本、创建固定命令入口、安全合并 Codex hooks、重启 daemon 并发送 IPC 冒烟事件。它会保留上一个运行版本；如果新 daemon 无法重启，安装器会自动恢复上一个版本。修改 Codex 配置前会备份原文件。它不会安装 Termux:GUI Android 应用、开启 Android 权限、安装 Codex CLI，也不会替用户信任 hook。
+`install.sh` 会通过 `pkg` 安装缺少的 Python 和 `libpng`，再通过 `python -m pip` 安装 `termuxgui` Python binding。部署模块会创建独立的私有运行版本、原子切换当前版本、创建固定命令入口、安全合并 Codex hooks、重启 daemon 并发送 IPC 冒烟事件。它会保留上一个运行版本；若已检查的安装步骤失败，会恢复原先的版本链接、命令路径及 hooks 文件，此前 daemon 正在运行时还会重新启动它。修改 Codex 配置前会备份原文件。它不会安装 Termux:GUI Android 应用、开启 Android 权限、安装 Codex CLI，也不会替用户信任 hook。
 
 如果 `~/.codex/config.toml` 已有内联 hook 事件组，安装器会更新该文件；否则会把 Pet 命令合并到 `~/.codex/hooks.json`。只有 `hooks.state` 元数据并不会触发 inline 模式。已有用户 hooks 会保留，修改过的配置会备份，使用的模式会记录在 `~/.config/codex-pet/install.json`。`import termuxgui` 只验证 Python binding；还需通过 `codex-pet status` 确认设备侧 Android 应用和权限正常，即显示 `GUI=ready`。
 
