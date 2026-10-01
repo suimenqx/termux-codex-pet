@@ -15,6 +15,8 @@ if str(ROOT) not in sys.path:
 from codex_pet.art import AKITA_SIZE, _decode_rgba_png, _png  # noqa: E402
 
 SECOND_ROW_Y_OFFSET_PX = 10
+# Match the visible footprint of the other Akita states in the fixed 64dp view.
+RUNNING_ART_SCALE = 1.18
 
 
 def split_sheet(sheet: bytes) -> tuple[bytes, ...]:
@@ -32,16 +34,24 @@ def split_sheet(sheet: bytes) -> tuple[bytes, ...]:
         y1 = round((row + 1) * height / 2)
         cell_width, cell_height = x1 - x0, y1 - y0
         output = bytearray(AKITA_SIZE * AKITA_SIZE * 4)
+        canvas_center = AKITA_SIZE / 2
 
         for y in range(AKITA_SIZE):
+            # Register the source sheet's lower row, then enlarge every pose
+            # around the same canvas center without changing the GUI layout.
+            registered_y = (canvas_center
+                            + (y + 0.5 - canvas_center) / RUNNING_ART_SCALE
+                            - (SECOND_ROW_Y_OFFSET_PX if row else 0))
             source_y = max(0.0, min(cell_height - 1.0,
-                (y + 0.5) * cell_height / AKITA_SIZE - 0.5))
+                registered_y * cell_height / AKITA_SIZE - 0.5))
             top = math.floor(source_y)
             bottom = min(top + 1, cell_height - 1)
             fy = source_y - top
             for x in range(AKITA_SIZE):
+                registered_x = (canvas_center
+                                + (x + 0.5 - canvas_center) / RUNNING_ART_SCALE)
                 source_x = max(0.0, min(cell_width - 1.0,
-                    (x + 0.5) * cell_width / AKITA_SIZE - 0.5))
+                    registered_x * cell_width / AKITA_SIZE - 0.5))
                 left = math.floor(source_x)
                 right = min(left + 1, cell_width - 1)
                 fx = source_x - left
@@ -66,15 +76,6 @@ def split_sheet(sheet: bytes) -> tuple[bytes, ...]:
                     )
                 output[destination + 3] = round(alpha * 255)
 
-        if row:
-            # The source sheet registered its lower row above the upper row.
-            # Align the head and foot baselines before the loop reaches frame 4.
-            row_bytes = AKITA_SIZE * 4
-            shifted = bytearray(len(output))
-            shifted[SECOND_ROW_Y_OFFSET_PX * row_bytes:] = output[
-                :-(SECOND_ROW_Y_OFFSET_PX * row_bytes)
-            ]
-            output = shifted
         frames.append(_png(AKITA_SIZE, AKITA_SIZE, output))
     return tuple(frames)
 

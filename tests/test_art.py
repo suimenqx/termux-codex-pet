@@ -72,6 +72,17 @@ class RobotArtTests(unittest.TestCase):
 
 
 class AkitaArtTests(unittest.TestCase):
+    def test_running_pet_keeps_a_similar_visible_scale_to_other_states(self) -> None:
+        def opaque_area(pixels: bytes) -> int:
+            return sum(pixels[offset] > 128
+                       for offset in range(3, len(pixels), 4))
+
+        idle_area = opaque_area(rgba_icon("idle", 0))
+        for frame in range(AKITA_FRAME_COUNTS["running"]):
+            running_area = opaque_area(rgba_icon("running", frame))
+            self.assertGreaterEqual(running_area / idle_area, 0.78, frame)
+            self.assertLessEqual(running_area / idle_area, 0.95, frame)
+
     def test_akita_is_the_default_and_robot_remains_selectable(self) -> None:
         self.assertEqual(DEFAULT_APPEARANCE, "akita")
         self.assertEqual(icon("idle"), icon("idle", appearance="akita"))
