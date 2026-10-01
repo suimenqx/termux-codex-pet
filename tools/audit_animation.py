@@ -38,22 +38,40 @@ RUNNING_GAIT_PHASES = (
     "compression", "rear_support", "hind_drive", "suspension",
     "fore_contact", "fore_support", "recovery_tuck", "loop_transfer",
 )
-RUNNING_HIND_PAW_POINTS = {
-    # Pixel centers of the visible cream paw pads in each 256 × 256 source pose.
-    # They are checked against the real rendered pixels and shown on the audit sheet.
-    "hind_near": ((92, 211), (51, 209), (10, 177), (33, 161),
-                  (27, 172), (29, 179), (88, 190), (89, 191)),
-    "hind_far": ((122, 207), (94, 199), (97, 198), (87, 179),
-                 (99, 184), (93, 199), (118, 190), (101, 190)),
+RUNNING_PAW_POINTS = {
+    # Paw centers in each 256 × 256 source pose, verified on the audit sheet.
+    # Far paws may be shaded or briefly occluded by a near leg.
+    "hind_near": ((88, 201), (44, 168), (42, 170), (42, 160),
+                  (48, 165), (87, 192), (76, 197), (91, 199)),
+    "hind_far": ((113, 196), (103, 202), (115, 199), (81, 180),
+                 (91, 178), (106, 196), (118, 194), (105, 198)),
+    "fore_near": ((154, 201), (184, 191), (165, 185), (190, 186),
+                  (164, 196), (171, 196), (165, 193), (160, 179)),
+    "fore_far": ((189, 183), None, (210, 182), (204, 167),
+                 (213, 167), (202, 177), (198, 171), (194, 181)),
 }
 HIP_ORANGE_SOURCE_BOX = (60, 125, 135, 170)
 MIN_HIND_FOOT_X_RANGE_DP = 8.0
 MIN_HIND_FOOT_Y_RANGE_DP = 4.0
 MIN_HIND_FOOT_PATH_DP = 24.0
-MIN_HIND_FOOT_ALPHA_COVERAGE = 0.8
-MIN_HIND_FOOT_MEAN_BLUE = 120.0
 MIN_HIND_PAIR_SEPARATION_DP = 6.0
 MIN_OPPOSED_HIND_TRANSITIONS = 2
+MIN_FORE_FOOT_X_RANGE_DP = 6.0
+MIN_FORE_FOOT_Y_RANGE_DP = 4.0
+MIN_FORE_FOOT_PATH_DP = 20.0
+MIN_FAR_FORE_FOOT_X_RANGE_DP = 4.0
+MIN_FAR_FORE_FOOT_Y_RANGE_DP = 3.0
+MIN_FAR_FORE_FOOT_PATH_DP = 16.0
+MIN_FORE_PAIR_SEPARATION_DP = 8.0
+MIN_OPPOSED_FORE_TRANSITIONS = 3
+MIN_FORE_SEPARATED_POSES = 5
+MIN_PAW_ALPHA_COVERAGE = 0.8
+MIN_PAW_MEAN_BLUE = {"hind_near": 120.0, "hind_far": 75.0,
+                     "fore_near": 120.0, "fore_far": 120.0}
+PAW_COLORS = {"hind_near": (255, 72, 194, 255),
+              "hind_far": (48, 218, 245, 255),
+              "fore_near": (157, 255, 78, 255),
+              "fore_far": (255, 187, 67, 255)}
 CHANGE_THRESHOLD = 12
 
 _FONT = {
@@ -274,9 +292,9 @@ def _paw_sample(rgba: bytes, point: tuple[int, int]) -> tuple[float, float]:
     return coverage, mean_blue
 
 
-def _hind_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
-                      size: int) -> dict[str, object] | None:
-    """Track each annotated hind paw against the orange hip in the source art."""
+def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
+                         kind: str) -> dict[str, object] | None:
+    """Track the near and far paws of one pair against the orange hip."""
     if state != "running" or len(frames) < AKITA_FRAME_COUNTS["running"]:
         return None
 
@@ -284,22 +302,42 @@ def _hind_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
     source_frames = [rgba_icon("running", frame.frame) for frame in cycle]
     anchors = [_orange_hip_anchor(pixels) for pixels in source_frames]
     if any(anchor is None for anchor in anchors):
-        return {"measurement": "hind-paw paths relative to orange hip", "passed": False,
+        return {"measurement": f"{kind}-paw paths relative to orange hip", "passed": False,
                 "reason": "could not locate the orange hip anchor in every frame"}
 
     source_pixels_per_dp = AKITA_SIZE / PET_SIZE_DP
     legs: dict[str, object] = {}
     all_landmarks_visible = True
-    relative_tracks: dict[str, list[tuple[float, float]]] = {}
-    for name, points in RUNNING_HIND_PAW_POINTS.items():
+    relative_tracks: dict[str, list[tuple[float, float] | None]] = {}
+    minimum_x = (MIN_HIND_FOOT_X_RANGE_DP if kind == "hind"
+                 else MIN_FORE_FOOT_X_RANGE_DP)
+    minimum_y = (MIN_HIND_FOOT_Y_RANGE_DP if kind == "hind"
+                 else MIN_FORE_FOOT_Y_RANGE_DP)
+    minimum_path = (MIN_HIND_FOOT_PATH_DP if kind == "hind"
+                    else MIN_FORE_FOOT_PATH_DP)
+    for side in ("near", "far"):
+        name = f"{kind}_{side}"
+        points = RUNNING_PAW_POINTS[name]
+        leg_minimum_x = (MIN_FAR_FORE_FOOT_X_RANGE_DP
+                         if name == "fore_far" else minimum_x)
+        leg_minimum_y = (MIN_FAR_FORE_FOOT_Y_RANGE_DP
+                         if name == "fore_far" else minimum_y)
+        leg_minimum_path = (MIN_FAR_FORE_FOOT_PATH_DP
+                            if name == "fore_far" else minimum_path)
         positions = []
-        relative = []
+        relative: list[tuple[float, float] | None] = []
         for frame_index, point in enumerate(points):
+            if point is None:
+                positions.append({"frame": frame_index,
+                                  "phase": RUNNING_GAIT_PHASES[frame_index],
+                                  "visible": False})
+                relative.append(None)
+                continue
             pixels = source_frames[frame_index]
             coverage, mean_blue = _paw_sample(pixels, point)
             all_landmarks_visible &= (
-                coverage >= MIN_HIND_FOOT_ALPHA_COVERAGE
-                and mean_blue >= MIN_HIND_FOOT_MEAN_BLUE
+                coverage >= MIN_PAW_ALPHA_COVERAGE
+                and mean_blue >= MIN_PAW_MEAN_BLUE[name]
             )
             anchor = anchors[frame_index]
             assert anchor is not None
@@ -309,6 +347,7 @@ def _hind_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
             positions.append({
                 "frame": frame_index,
                 "phase": RUNNING_GAIT_PHASES[frame_index],
+                "visible": True,
                 "paw_source_px": list(point),
                 "hip_source_px": [round(anchor[0], 2), round(anchor[1], 2)],
                 "relative_to_hip_dp": [
@@ -319,39 +358,50 @@ def _hind_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
                 "mean_blue_channel": round(mean_blue, 1),
             })
 
-        x_values, y_values = zip(*relative)
+        observed = [point for point in relative if point is not None]
+        x_values, y_values = zip(*observed)
         x_range_dp = (max(x_values) - min(x_values)) / source_pixels_per_dp
         y_range_dp = (max(y_values) - min(y_values)) / source_pixels_per_dp
         path_dp = sum(
             math.dist(before, after)
-            for before, after in zip(relative, (*relative[1:], relative[0]))
+            for before, after in zip(observed, (*observed[1:], observed[0]))
         ) / source_pixels_per_dp
-        range_passed = (x_range_dp >= MIN_HIND_FOOT_X_RANGE_DP
-                        and y_range_dp >= MIN_HIND_FOOT_Y_RANGE_DP
-                        and path_dp >= MIN_HIND_FOOT_PATH_DP)
+        range_passed = (x_range_dp >= leg_minimum_x
+                        and y_range_dp >= leg_minimum_y
+                        and path_dp >= leg_minimum_path)
         legs[name] = {
-            "color": "#ff48c2" if name == "hind_near" else "#30daf5",
+            "color": "#%02x%02x%02x" % PAW_COLORS[name][:3],
             "horizontal_range_dp": round(x_range_dp, 2),
             "vertical_range_dp": round(y_range_dp, 2),
             "cycle_path_length_dp": round(path_dp, 2),
-            "minimum_horizontal_range_dp": MIN_HIND_FOOT_X_RANGE_DP,
-            "minimum_vertical_range_dp": MIN_HIND_FOOT_Y_RANGE_DP,
-            "minimum_cycle_path_length_dp": MIN_HIND_FOOT_PATH_DP,
+            "minimum_horizontal_range_dp": leg_minimum_x,
+            "minimum_vertical_range_dp": leg_minimum_y,
+            "minimum_cycle_path_length_dp": leg_minimum_path,
+            "visible_poses": len(observed),
             "positions": positions,
             "passed": range_passed,
         }
         relative_tracks[name] = relative
 
-    near_track = relative_tracks["hind_near"]
-    far_track = relative_tracks["hind_far"]
+    near_track = relative_tracks[f"{kind}_near"]
+    far_track = relative_tracks[f"{kind}_far"]
     pair_separations_dp = [
         math.dist(near, far) / source_pixels_per_dp
         for near, far in zip(near_track, far_track)
+        if near is not None and far is not None
     ]
     mean_pair_separation_dp = sum(pair_separations_dp) / len(pair_separations_dp)
+    separated_poses = sum(gap >= 6.0 for gap in pair_separations_dp)
     opposed_transitions = 0
     for index in range(len(near_track)):
         next_index = (index + 1) % len(near_track)
+        if any(point is None for point in (
+            near_track[index], near_track[next_index],
+            far_track[index], far_track[next_index],
+        )):
+            continue
+        assert near_track[index] is not None and near_track[next_index] is not None
+        assert far_track[index] is not None and far_track[next_index] is not None
         near_delta = (near_track[next_index][0] - near_track[index][0],
                       near_track[next_index][1] - near_track[index][1])
         far_delta = (far_track[next_index][0] - far_track[index][0],
@@ -359,18 +409,25 @@ def _hind_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
         magnitude = math.dist((0, 0), near_delta) * math.dist((0, 0), far_delta)
         if magnitude and (near_delta[0] * far_delta[0] + near_delta[1] * far_delta[1]) / magnitude < -0.15:
             opposed_transitions += 1
-    pair_passed = (mean_pair_separation_dp >= MIN_HIND_PAIR_SEPARATION_DP
-                   and opposed_transitions >= MIN_OPPOSED_HIND_TRANSITIONS)
+    minimum_separation = (MIN_HIND_PAIR_SEPARATION_DP if kind == "hind"
+                          else MIN_FORE_PAIR_SEPARATION_DP)
+    minimum_opposed = (MIN_OPPOSED_HIND_TRANSITIONS if kind == "hind"
+                       else MIN_OPPOSED_FORE_TRANSITIONS)
+    pair_passed = (mean_pair_separation_dp >= minimum_separation
+                   and opposed_transitions >= minimum_opposed
+                   and (kind == "hind" or separated_poses >= MIN_FORE_SEPARATED_POSES))
     return {
         "measurement": "annotated paw centers relative to the orange hip centroid",
         "landmark_colors": {name: item["color"] for name, item in legs.items()},
         "phases": list(RUNNING_GAIT_PHASES),
         "mean_pair_separation_dp": round(mean_pair_separation_dp, 2),
-        "minimum_pair_separation_dp": MIN_HIND_PAIR_SEPARATION_DP,
+        "minimum_pair_separation_dp": minimum_separation,
+        "separated_poses": separated_poses,
+        "minimum_separated_poses": MIN_FORE_SEPARATED_POSES if kind == "fore" else 0,
         "opposed_transitions": opposed_transitions,
-        "minimum_opposed_transitions": MIN_OPPOSED_HIND_TRANSITIONS,
+        "minimum_opposed_transitions": minimum_opposed,
         "pair_coordination_passed": pair_passed,
-        "all_paw_markers_on_opaque_cream_art": all_landmarks_visible,
+        "all_paw_markers_on_visible_art": all_landmarks_visible,
         "passed": (all(leg["passed"] for leg in legs.values())
                    and all_landmarks_visible and pair_passed),
         "legs": legs,
@@ -438,14 +495,14 @@ def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
                 ))
         if state == "running":
             marker_radius = max(2, round(size / AKITA_SIZE * 6))
-            for name, points in RUNNING_HIND_PAW_POINTS.items():
+            for name, points in RUNNING_PAW_POINTS.items():
                 point = points[frame.frame]
-                color = ((255, 72, 194, 255) if name == "hind_near"
-                         else (48, 218, 245, 255))
+                if point is None:
+                    continue
                 marker_x = cell_x + round(point[0] * size / AKITA_SIZE)
                 marker_y = cell_y + round(point[1] * size / AKITA_SIZE)
                 _draw_paw_marker(canvas, width, marker_x, marker_y,
-                                 color, marker_radius)
+                                 PAW_COLORS[name], marker_radius)
         _draw_text(canvas, width, cell_x + 2, cell_y + size + 4,
                    f"{frame.step:02d}/{frame.frame:02d}")
     return _png(width, height, canvas)
@@ -489,7 +546,8 @@ def render_audit(state: str, cycles: int = 1,
 
     frames = tuple(rendered)
     tail_metrics = _tail_metrics(state, frames, display_size, density)
-    hind_leg_metrics = _hind_leg_metrics(state, frames, display_size)
+    hind_leg_metrics = _running_leg_metrics(state, frames, "hind")
+    fore_leg_metrics = _running_leg_metrics(state, frames, "fore")
     report: dict[str, object] = {
         "renderer": "rgba_icon with premultiplied bilinear downsampling",
         "state": state,
@@ -510,6 +568,7 @@ def render_audit(state: str, cycles: int = 1,
         "transitions": transitions,
         "tail_motion": tail_metrics,
         "hind_leg_motion": hind_leg_metrics,
+        "fore_leg_motion": fore_leg_metrics,
         "contact_sheet": "contact-sheet.png",
     }
     return RenderAudit(report, frames, _contact_sheet(frames, display_size, state))
@@ -556,6 +615,7 @@ def main() -> int:
     manifest = write_audit(result, args.output)
     tail = result.report["tail_motion"]
     hind_legs = result.report["hind_leg_motion"]
+    fore_legs = result.report["fore_leg_motion"]
     if isinstance(tail, dict):
         print(
             f"Tail motion at {result.report['display_size_px']}px: "
@@ -579,10 +639,19 @@ def main() -> int:
             f"opposed transitions {hind_legs['opposed_transitions']}; "
             f"{'PASS' if hind_legs['passed'] else 'FAIL'}"
         )
+    if isinstance(fore_legs, dict):
+        print(
+            f"Fore-paw tracks at {result.report['display_size_px']}px: "
+            f"pair gap {fore_legs['mean_pair_separation_dp']:.1f} dp, "
+            f"separated poses {fore_legs['separated_poses']}, "
+            f"opposed transitions {fore_legs['opposed_transitions']}; "
+            f"{'PASS' if fore_legs['passed'] else 'FAIL'}"
+        )
     print(f"Rendered {result.report['frame_count']} frames over "
           f"{result.report['duration_seconds']}s to {manifest.parent}")
     if ((isinstance(tail, dict) and not tail["passed"])
-            or (isinstance(hind_legs, dict) and not hind_legs["passed"])):
+            or (isinstance(hind_legs, dict) and not hind_legs["passed"])
+            or (isinstance(fore_legs, dict) and not fore_legs["passed"])):
         return 1
     return 0
 
