@@ -1,9 +1,10 @@
+from pathlib import Path
 import struct
 import unittest
 import zlib
 
 from codex_pet.animation import AKITA_FRAME_COUNTS
-from codex_pet.art import icon, rgba_icon
+from codex_pet.art import AKITA_SIZE, icon, rgba_icon
 from codex_pet.pets import DEFAULT_APPEARANCE
 
 
@@ -72,6 +73,48 @@ class RobotArtTests(unittest.TestCase):
 
 
 class AkitaArtTests(unittest.TestCase):
+    def test_all_animation_frames_follow_the_shared_canvas_and_footprint_bounds(self) -> None:
+        minimum_area, maximum_area = 0.32, 0.48
+        minimum_margin_px = 4
+
+        for state, frame_count in AKITA_FRAME_COUNTS.items():
+            for frame in range(frame_count):
+                with self.subTest(state=state, frame=frame):
+                    pixels = rgba_icon(state, frame)
+                    self.assertEqual(len(pixels), AKITA_SIZE * AKITA_SIZE * 4)
+                    opaque = [
+                        (x, y)
+                        for y in range(AKITA_SIZE)
+                        for x in range(AKITA_SIZE)
+                        if pixels[(y * AKITA_SIZE + x) * 4 + 3] > 128
+                    ]
+                    xs = [point[0] for point in opaque]
+                    ys = [point[1] for point in opaque]
+                    area = len(opaque) / (AKITA_SIZE * AKITA_SIZE)
+                    margins = (min(xs), min(ys), AKITA_SIZE - 1 - max(xs),
+                               AKITA_SIZE - 1 - max(ys))
+
+                    self.assertGreaterEqual(area, minimum_area)
+                    self.assertLessEqual(area, maximum_area)
+                    self.assertGreaterEqual(min(margins), minimum_margin_px)
+
+    def test_state_fallback_images_match_the_first_animation_frame(self) -> None:
+        root = Path(__file__).resolve().parents[1] / "codex_pet/assets/akita"
+        for state in AKITA_FRAME_COUNTS:
+            with self.subTest(state=state):
+                fallback = (root / f"{state}.png").read_bytes()
+                first_frame = (root / "frames" / state / "00.png").read_bytes()
+                self.assertEqual(fallback, first_frame)
+
+    def test_animation_frame_files_are_contiguous_and_complete(self) -> None:
+        root = Path(__file__).resolve().parents[1] / "codex_pet/assets/akita/frames"
+        source_frame_counts = dict(AKITA_FRAME_COUNTS, ready=5)
+        for state, frame_count in source_frame_counts.items():
+            with self.subTest(state=state):
+                frame_names = sorted(path.name for path in (root / state).glob("*.png"))
+                expected_names = [f"{frame:02}.png" for frame in range(frame_count)]
+                self.assertEqual(frame_names, expected_names)
+
     def test_running_pet_keeps_a_similar_visible_scale_to_other_states(self) -> None:
         def opaque_area(pixels: bytes) -> int:
             return sum(pixels[offset] > 128
