@@ -55,6 +55,8 @@ python tools/prepare_sprite_frames.py source-sheet.png "$artwork_stage/frames" \
 
 源图网格不成立时先修布局或拆成单帧，不靠为每个姿势增加独立 zoom/offset 参数来制造一致性。通用导出器不修复断肢、格线或角色尺度错误。
 
+导出的候选可以用 `preview_animation.py --candidate` 按显式文件/曝光清单播放；清单格式和命令见[候选验收](animation-acceptance.md#现有工具能证明什么)。不必为了预览先覆盖生产帧，候选清单也不会改变运行时播放表。
+
 **完成条件：** 候选通过文件检查；裁切和降采样后仍保持模型、细线与动作可读性；每张 PNG 都能追溯到源图、格号/姿势和导出命令。源分辨率/颜色解释发生变化时，不能直接复用旧的视觉通过记录。
 
 ## 6. 验收、接入并交付

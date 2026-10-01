@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -14,7 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
-from codex_pet.art import icon  # noqa: E402
+from codex_pet.art import AKITA_SIZE, _decode_rgba_png, icon  # noqa: E402
 
 PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3
@@ -32,9 +33,45 @@ def _timeline(state: str, cycles: int) -> list[dict[str, object]]:
     return result
 
 
-def _html(state: str, cycles: int) -> str:
-    frames = json.dumps(_timeline(state, cycles), separators=(",", ":"))
+def _candidate_timeline(manifest: Path, cycles: int = 1) -> list[dict[str, object]]:
+    """Read explicit candidate exposures without replacing production assets."""
+    if cycles < 1:
+        raise ValueError("cycles must be at least 1")
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    exposures = data.get("frames") if isinstance(data, dict) else None
+    if not isinstance(exposures, list) or not exposures:
+        raise ValueError("candidate manifest needs a nonempty frames list")
+    result = []
+    for index, exposure in enumerate(exposures):
+        if not isinstance(exposure, dict):
+            raise ValueError("each candidate exposure must be an object")
+        seconds = exposure.get("seconds")
+        if (isinstance(seconds, bool) or not isinstance(seconds, (int, float))
+                or not math.isfinite(seconds) or seconds <= 0):
+            raise ValueError("candidate seconds must be finite and positive")
+        filename = exposure.get("file")
+        if not isinstance(filename, str) or not filename:
+            raise ValueError("candidate exposure needs a file path")
+        png = (manifest.parent / filename).read_bytes()
+        width, height, _ = _decode_rgba_png(png)
+        if (width, height) != (AKITA_SIZE, AKITA_SIZE) or png[24:26] != b"\x08\x06":
+            raise ValueError("candidate must be a 256 x 256, 8-bit RGBA PNG")
+        result.append({
+            "frame": index,
+            "seconds": seconds,
+            "src": "data:image/png;base64," + base64.b64encode(png).decode("ascii"),
+        })
+    return result * cycles
+
+
+def _html(state: str, cycles: int,
+          candidate: list[dict[str, object]] | None = None) -> str:
+    timeline = _timeline(state, cycles) if candidate is None else candidate
+    if not timeline:
+        raise ValueError("preview needs at least one frame")
+    frames = json.dumps(timeline, separators=(",", ":"))
     label = state.replace("_", " ").title()
+    source = "应用中的生产帧和播放时长" if candidate is None else "候选清单中的帧和播放时长（未替换生产素材）"
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -80,7 +117,7 @@ def _html(state: str, cycles: int) -> str:
 <body>
 <main>
   <h1>{label} 动画预览</h1>
-  <p class="sub">使用应用中的秋田犬 PNG 帧、状态顺序和播放时长；宠物显示尺寸为 {PET_SIZE_DP} dp（按 {PREVIEW_DENSITY}×密度预览）。</p>
+  <p class="sub">使用{source}；{PET_SIZE_DP * PREVIEW_DENSITY} CSS px 放大预览，实际 {PET_SIZE_DP} dp 效果以设备为准。</p>
   <div class="layout">
     <section class="stage" aria-label="宠物动画画布">
       <div class="pet-frame"><img id="pet" alt="{label} 宠物帧"></div>
@@ -88,7 +125,7 @@ def _html(state: str, cycles: int) -> str:
     </section>
     <section class="panel">
       <div class="readout"><span>循环状态</span><strong id="frame-label"></strong></div>
-      <input id="seek" type="range" min="0" max="{len(_timeline(state, cycles)) - 1}" value="0" aria-label="选择动画帧">
+      <input id="seek" type="range" min="0" max="{len(timeline) - 1}" value="0" aria-label="选择动画帧">
       <div class="buttons">
         <button id="restart">重播</button>
         <button id="pause">暂停</button>
@@ -99,7 +136,7 @@ def _html(state: str, cycles: int) -> str:
           <option value="0.5">慢速 0.5×</option>
         </select>
       </div>
-      <p class="legend">拖动进度条逐帧看姿势。<span>原速</span>对应应用中的真实帧间隔。</p>
+      <p class="legend">拖动进度条逐帧看姿势。<span>原速</span>对应本次帧清单的曝光时长。</p>
     </section>
   </div>
 </main>
@@ -149,13 +186,17 @@ def main() -> int:
     parser.add_argument("--state", choices=AKITA_STATES, default="ready")
     parser.add_argument("--cycles", type=int, default=2)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--candidate", type=Path,
+                        help="JSON frames list: file (relative to manifest), seconds")
     args = parser.parse_args()
     if args.cycles < 1:
         parser.error("--cycles must be at least 1")
 
     output = args.output or Path.home() / ".cache" / "codex-pet" / f"preview-{args.state}.html"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(_html(args.state, args.cycles), encoding="utf-8")
+    candidate = (_candidate_timeline(args.candidate, args.cycles)
+                 if args.candidate is not None else None)
+    output.write_text(_html(args.state, args.cycles, candidate), encoding="utf-8")
     print(output)
     return 0
 
