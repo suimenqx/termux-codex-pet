@@ -16,20 +16,20 @@ class AnimationTimelineTests(unittest.TestCase):
     def test_frame_deadlines_stay_anchored_to_the_original_schedule(self) -> None:
         timeline = AnimationTimeline("akita", "running", now=10.0)
 
-        self.assertEqual(timeline.advance(now=10.05), 0)
-        self.assertEqual(timeline.advance(now=10.081), 1)
-        self.assertAlmostEqual(timeline.deadline or 0, 10.16)
-        self.assertAlmostEqual(timeline.timeout(now=10.15) or 0, 0.01)
-        self.assertEqual(timeline.advance(now=10.161), 2)
-        self.assertAlmostEqual(timeline.deadline or 0, 10.24)
+        self.assertEqual(timeline.advance(now=10.015), 0)
+        self.assertEqual(timeline.advance(now=10.021), 1)
+        self.assertAlmostEqual(timeline.deadline or 0, 10.04)
+        self.assertAlmostEqual(timeline.timeout(now=10.035) or 0, 0.005)
+        self.assertEqual(timeline.advance(now=10.041), 2)
+        self.assertAlmostEqual(timeline.deadline or 0, 10.06)
 
     def test_late_wakeup_skips_stale_frames_instead_of_catching_up_in_a_burst(self) -> None:
         timeline = AnimationTimeline("akita", "running", now=20.0)
 
         frame = timeline.advance(now=20.35)
 
-        self.assertEqual(frame, 4)
-        self.assertAlmostEqual(timeline.deadline or 0, 20.4)
+        self.assertEqual(frame, 17)
+        self.assertAlmostEqual(timeline.deadline or 0, 20.36)
 
     def test_state_reset_starts_a_new_visual_at_frame_zero(self) -> None:
         timeline = AnimationTimeline("akita", "running", now=10.0)
@@ -38,21 +38,21 @@ class AnimationTimelineTests(unittest.TestCase):
         timeline.reset("akita", "ready", now=12.0)
 
         self.assertEqual(timeline.frame, 0)
-        self.assertAlmostEqual(timeline.deadline or 0, 12.32)
+        self.assertAlmostEqual(timeline.deadline or 0, 12.04)
 
     def test_sync_resets_for_visible_changes_only(self) -> None:
         timeline = AnimationTimeline("akita", "idle", now=1.0, running_count=1)
-        timeline.advance(now=1.61)
+        timeline.advance(now=1.121)
         self.assertFalse(timeline.sync("akita", "idle", 4, now=2.0))
         self.assertEqual(timeline.frame, 1)
 
         self.assertTrue(timeline.sync("akita", "running", 1, now=2.0))
         self.assertEqual(timeline.frame, 0)
-        self.assertAlmostEqual(timeline.deadline or 0, 2.08)
+        self.assertAlmostEqual(timeline.deadline or 0, 2.02)
         timeline.advance(now=2.09)
         self.assertTrue(timeline.sync("akita", "running", 2, now=3.0))
         self.assertEqual(timeline.frame, 0)
-        self.assertAlmostEqual(timeline.deadline or 0, 3.08)
+        self.assertAlmostEqual(timeline.deadline or 0, 3.02)
 
         self.assertTrue(timeline.sync("robot", "running", 2, now=4.0))
         self.assertAlmostEqual(timeline.deadline or 0, 6.0)
@@ -61,42 +61,37 @@ class AnimationTimelineTests(unittest.TestCase):
         frames = playback_frames("akita", "ready", cycles=2)
         artwork = [akita_artwork_frame("ready", step.frame) for step in frames]
 
-        self.assertEqual(artwork[:5],
-                         [("ready", 0), ("ready", 4), ("ready", 1),
-                          ("ready", 2), ("ready", 3)])
-        self.assertEqual(artwork[7], ("blink", 0))
-        self.assertEqual(artwork[-1], ("idle", 0))
+        self.assertEqual(artwork[:32], [("ready", i) for i in range(32)])
+        self.assertEqual(artwork[32:], [("ready", i) for i in range(32, 64)] * 2)
         self.assertEqual(akita_artwork_frame("ready", -1), artwork[0])
-        self.assertEqual(akita_artwork_frame("blocked", 99), ("blocked", 3))
+        self.assertEqual(akita_artwork_frame("blocked", 99), ("blocked", 15))
 
     def test_one_shot_animation_holds_its_final_frame_indefinitely(self) -> None:
         timeline = AnimationTimeline("akita", "blocked", now=30.0)
         for now in (30.12, 30.30, 30.48):
             timeline.advance(now=now)
-        frame = timeline.advance(now=30.60)
+        frame = timeline.advance(now=30.801)
 
-        self.assertEqual(frame, 4)
+        self.assertEqual(frame, 16)
         self.assertIsNone(timeline.deadline)
         self.assertIsNone(timeline.timeout(now=31.0))
 
 
 class PlaybackScheduleTests(unittest.TestCase):
     def test_akita_looping_states_keep_their_frame_order_and_cadence(self) -> None:
-        self.assertEqual(animation_interval("akita", "idle", 0), 0.6)
-        self.assertEqual(animation_interval("akita", "idle", 6), 0.6)
-        self.assertEqual(animation_interval("akita", "running", 0), 0.08)
-        self.assertEqual(animation_interval("akita", "needs_input", 3), 0.85)
-        self.assertEqual(advance_animation("akita", "idle", 5), 6)
-        self.assertEqual(advance_animation("akita", "idle", 7), 0)
-        self.assertEqual(AKITA_FRAME_COUNTS["running"], 8)
-        self.assertEqual(advance_animation("akita", "running", 7), 0)
-        self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
+        self.assertEqual(animation_interval("akita", "idle", 0), 0.12)
+        self.assertEqual(animation_interval("akita", "idle", 21), 0.04)
+        self.assertEqual(animation_interval("akita", "running", 0), 0.02)
+        self.assertEqual(animation_interval("akita", "needs_input", 13), 0.65)
+        for state in ("idle", "running", "needs_input"):
+            self.assertEqual(advance_animation("akita", state, AKITA_FRAME_COUNTS[state] - 1), 0)
+        self.assertEqual(AKITA_FRAME_COUNTS["running"], 32)
 
-    def test_running_schedule_uses_two_complete_eight_pose_cycles(self) -> None:
+    def test_running_schedule_uses_two_complete_rig_cycles(self) -> None:
         frames = playback_frames("akita", "running", cycles=2)
-
-        self.assertEqual([item.frame for item in frames], list(range(8)) * 2)
-        self.assertEqual([item.duration_seconds for item in frames], [0.08] * 16)
+        self.assertEqual([item.frame for item in frames], list(range(32)) * 2)
+        self.assertEqual([item.duration_seconds for item in frames], [0.02] * 64)
+        self.assertAlmostEqual(sum(item.duration_seconds for item in frames), 1.28)
 
     def test_ready_schedule_hops_once_then_repeats_only_the_rest_loop(self) -> None:
         frames = playback_frames("akita", "ready", cycles=2)
@@ -108,31 +103,13 @@ class PlaybackScheduleTests(unittest.TestCase):
             [item.duration_seconds for item in frames],
             [AKITA_FRAME_INTERVALS["ready"][frame] for frame in expected],
         )
-        ready_artwork = [akita_artwork_frame("ready", step.frame) for step in frames]
-        self.assertEqual(ready_artwork[10:12], [("idle", 6), ("idle", 7)])
-        self.assertTrue(all(
-            asset_state in ("idle", "blink")
-            for asset_state, _ in ready_artwork[AKITA_READY_LOOP_START:AKITA_FRAME_COUNTS["ready"]]
-        ))
-        self.assertEqual(
-            ready_artwork[:5],
-            [("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3)],
-        )
-        self.assertEqual(AKITA_READY_LOOP_START, 5)
+        self.assertEqual(AKITA_READY_LOOP_START, 32)
 
-    def test_ready_entry_and_loop_keep_their_established_durations(self) -> None:
-        self.assertEqual(animation_interval("akita", "ready", 7), 0.20)
-        cycle = sum(AKITA_FRAME_INTERVALS["ready"][frame]
-                    for frame in range(AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS["ready"]))
-        self.assertGreaterEqual(cycle, 3.5)
-        hop = [AKITA_FRAME_INTERVALS["ready"][frame]
-               for frame in range(AKITA_READY_LOOP_START)]
-        self.assertGreaterEqual(hop[0], 0.3)
-        self.assertGreaterEqual(hop[1], 0.14)
-        self.assertGreaterEqual(hop[2], 0.18)
-        self.assertGreaterEqual(hop[3], 0.2)
-        self.assertGreaterEqual(hop[4], 0.32)
-        self.assertGreaterEqual(sum(hop), 1.2)
+    def test_ready_entry_and_loop_have_explicit_durations(self) -> None:
+        intervals = AKITA_FRAME_INTERVALS["ready"]
+        self.assertAlmostEqual(sum(intervals[:AKITA_READY_LOOP_START]), 1.28)
+        self.assertEqual(intervals[AKITA_READY_LOOP_START:], AKITA_FRAME_INTERVALS["idle"])
+        self.assertAlmostEqual(sum(intervals[AKITA_READY_LOOP_START:]), 3.52)
 
     def test_akita_blocked_reaction_plays_once_then_holds(self) -> None:
         frame_count = AKITA_FRAME_COUNTS["blocked"]
@@ -148,9 +125,9 @@ class PlaybackScheduleTests(unittest.TestCase):
     def test_one_shot_schedule_includes_a_finite_offline_final_hold(self) -> None:
         frames = playback_frames("akita", "blocked", cycles=3)
 
-        self.assertEqual([item.frame for item in frames], [0, 1, 2, 3, 4])
+        self.assertEqual([item.frame for item in frames], list(range(17)))
         self.assertEqual([item.duration_seconds for item in frames],
-                         [0.12, 0.18, 0.18, 0.12, 0.8])
+                         [0.05] * 16 + [0.8])
 
     def test_robot_loops_keep_their_existing_two_frame_cadence(self) -> None:
         frames = playback_frames("robot", "running", cycles=2)

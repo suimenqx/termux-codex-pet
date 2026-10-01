@@ -13,7 +13,7 @@ from typing import Any, Callable
 import termuxgui as tg
 
 from .animation import AnimationTimeline
-from .art import icon
+from .frame_display import FrameDisplay
 from .pets import DEFAULT_APPEARANCE, appearance_for
 from .preferences import read_config, save_position
 
@@ -66,6 +66,7 @@ class OverlayUI:
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.face.sendtouchevent(True)
+        self.display = FrameDisplay(connection, self.face)
         self.image_size_px = appearance_for(DEFAULT_APPEARANCE).image_size_px
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
@@ -106,12 +107,7 @@ class OverlayUI:
         state = snapshot["state"]
         appearance = appearance_for(snapshot.get("appearance", DEFAULT_APPEARANCE))
         self.image_size_px = appearance.image_size_px
-        count = snapshot["running_count"]
-        image = icon(state, frame, count, appearance.id)
-        # PNG decoding premultiplies alpha before Android draws it. Termux:GUI's
-        # raw shared-buffer copy does not, so straight-alpha PNG pixels sent as
-        # RGBA there produce bright colored specks around transparent edges.
-        self.face.setimage(image)
+        self.display.show(appearance, state, frame, snapshot["running_count"])
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):
@@ -177,7 +173,10 @@ class OverlayUI:
         return False
 
     def close(self) -> None:
-        self.pet.finish()
+        try:
+            self.pet.finish()
+        finally:
+            self.display.close()
 
 
 class GuiWorker:

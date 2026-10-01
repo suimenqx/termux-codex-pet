@@ -1,0 +1,9 @@
+{
+  "files_compared": 175,
+  "physical_frames": 168,
+  "png_files": 173,
+  "model_and_layers_identical": true,
+  "all_png_manifest_and_native_archive_bytes_identical": true,
+  "model_sha256": "e4649caf59e7fe472e3aabbed72baa130366713964a0de62de0e741939d79f5f",
+  "scope": "All 168 poses, 5 fallbacks, complete rig manifest and native archive; Python 3.14.6, Pillow 12.3.0; two full exports"
+}

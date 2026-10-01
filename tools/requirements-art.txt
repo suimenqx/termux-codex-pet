@@ -1,0 +1,2 @@
+# Offline artwork tooling only; the application does not import Pillow.
+Pillow==12.3.0

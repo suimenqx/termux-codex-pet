@@ -16,58 +16,22 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from codex_pet.animation import (  # noqa: E402
-    AKITA_FRAME_COUNTS,
     AKITA_STATES,
-    akita_artwork_frame,
+    AKITA_READY_LOOP_START,
     playback_frames,
 )
 from codex_pet.art import (  # noqa: E402
     AKITA_SIZE,
+    AKITA_ASSET_DIR,
     _png,
     rgba_icon,
+    premultiplied_icon,
 )
+
+from tools.akita_rig import MODEL_PATH, clip_poses, load_model, skin_point  # noqa: E402
 
 PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3.0
-TAIL_SOURCE_BOX = (180, 65, 256, 140)
-CHEST_SOURCE_BOX = (45, 120, 165, 220)
-MIN_TAIL_CHANGED_PIXELS = 500
-MIN_TAIL_CENTROID_DELTA_DP = 1.0
-MIN_TAIL_EDGE_SWEEP_DP = 1.5
-RUNNING_GAIT_PHASES = (
-    "compression", "rear_support", "hind_drive", "suspension",
-    "fore_contact", "fore_support", "recovery_tuck", "loop_transfer",
-)
-RUNNING_PAW_POINTS = {
-    # Paw centers in each 256 × 256 source pose, verified on the audit sheet.
-    # Far paws may be shaded or briefly occluded by a near leg.
-    "hind_near": ((81, 214), (29, 175), (27, 178), (27, 166),
-                  (34, 172), (80, 204), (67, 209), (84, 212)),
-    "hind_far": ((110, 208), (98, 215), (113, 212), (73, 189),
-                 (84, 187), (102, 208), (116, 206), (101, 211)),
-    "fore_near": ((159, 214), (194, 202), (172, 195), (201, 196),
-                  (170, 208), (179, 208), (172, 205), (166, 188)),
-    "fore_far": ((200, 193), None, (225, 192), (218, 174),
-                 (228, 174), (215, 186), (211, 179), (206, 191)),
-}
-HIP_ORANGE_SOURCE_BOX = (60, 125, 135, 170)
-MIN_HIND_FOOT_X_RANGE_DP = 8.0
-MIN_HIND_FOOT_Y_RANGE_DP = 4.0
-MIN_HIND_FOOT_PATH_DP = 24.0
-MIN_HIND_PAIR_SEPARATION_DP = 6.0
-MIN_OPPOSED_HIND_TRANSITIONS = 2
-MIN_FORE_FOOT_X_RANGE_DP = 6.0
-MIN_FORE_FOOT_Y_RANGE_DP = 4.0
-MIN_FORE_FOOT_PATH_DP = 20.0
-MIN_FAR_FORE_FOOT_X_RANGE_DP = 4.0
-MIN_FAR_FORE_FOOT_Y_RANGE_DP = 3.0
-MIN_FAR_FORE_FOOT_PATH_DP = 16.0
-MIN_FORE_PAIR_SEPARATION_DP = 8.0
-MIN_OPPOSED_FORE_TRANSITIONS = 3
-MIN_FORE_SEPARATED_POSES = 5
-MIN_PAW_ALPHA_COVERAGE = 0.8
-MIN_PAW_MEAN_BLUE = {"hind_near": 120.0, "hind_far": 75.0,
-                     "fore_near": 120.0, "fore_far": 120.0}
 PAW_COLORS = {"hind_near": (255, 72, 194, 255),
               "hind_far": (48, 218, 245, 255),
               "fore_near": (157, 255, 78, 255),
@@ -104,8 +68,111 @@ class RenderAudit:
     contact_sheet: bytes
 
 
+def _same_pose(actual: object, expected: object) -> bool:
+    if isinstance(expected, dict):
+        return isinstance(actual, dict) and all(
+            key in actual and _same_pose(actual[key], value) for key, value in expected.items())
+    if isinstance(expected, (list, tuple)):
+        return (isinstance(actual, (list, tuple)) and len(actual) == len(expected)
+                and all(_same_pose(a, b) for a, b in zip(actual, expected)))
+    if isinstance(expected, float):
+        return isinstance(actual, (int, float)) and math.isclose(actual, expected, abs_tol=1e-8)
+    return actual == expected
+
+
+def validated_clip(state: str, asset_dir: Path = AKITA_ASSET_DIR,
+                   model_path: Path = MODEL_PATH) -> tuple[dict, list[dict]]:
+    """Refuse stale annotations: validate source, PNG bytes, pixels, and timing."""
+    manifest = json.loads((asset_dir / "rig-manifest.json").read_text())
+    model = load_model(model_path)
+    if hashlib.sha256(model_path.read_bytes()).hexdigest() != manifest["model_sha256"]:
+        raise ValueError("stale rig model hash; export the clips again")
+    for name in ("prepare_akita_model.py", "akita_rig.py", "render_akita.py"):
+        if hashlib.sha256((ROOT / "tools" / name).read_bytes()).hexdigest() != manifest["authoring_sha256"].get(name):
+            raise ValueError(f"stale authoring hash: {name}")
+    for name, layer in model["layers"].items():
+        if hashlib.sha256((model_path.parent / layer["file"]).read_bytes()).hexdigest() != layer["sha256"]:
+            raise ValueError(f"stale layer hash: {name}")
+    clip = manifest["clips"][state]
+    if (clip["loop_start"] != (AKITA_READY_LOOP_START if state == "ready" else 0)
+            or clip["final_hold"] != ("until_state_change" if state == "blocked" else None)):
+        raise ValueError(f"stale playback lifecycle: {state}")
+    frames = clip["frames"]
+    expected = clip_poses(model, state)
+    if len(frames) != len(expected):
+        raise ValueError(f"frame count mismatch: {state}")
+    for index, (frame, pose) in enumerate(zip(frames, expected)):
+        filename = f"frames/{state}/{index:02}.png"
+        if frame["file"] != filename or not _same_pose(frame, pose):
+            raise ValueError(f"stale pose or timing: {filename}")
+        if hashlib.sha256((asset_dir / filename).read_bytes()).hexdigest() != frame["sha256"]:
+            raise ValueError(f"stale PNG hash: {filename}")
+        # The live renderer must resolve the exact exported pixels, including
+        # the Ready loop. This detects obsolete composition or frame aliases.
+        if hashlib.sha256(rgba_icon(state, index)).hexdigest() != frame["rgba_sha256"]:
+            raise ValueError(f"runtime pixels differ: {filename}")
+        if hashlib.sha256(premultiplied_icon(state, index)).hexdigest() != frame['native_rgba_sha256']:
+            raise ValueError(f"native runtime pixels differ: {filename}")
+        for leg in frame["legs"].values():
+            fraction = leg["visible_fraction"]
+            if not isinstance(fraction, (int, float)) or not 0 <= fraction <= 1:
+                raise ValueError(f"invalid visibility: {filename}")
+    native = manifest['native_archive']
+    if (native['file'] != 'native-frames.zip' or native['format'] != 'premultiplied RGBA8'
+            or native['size'] != [AKITA_SIZE, AKITA_SIZE]
+            or hashlib.sha256((asset_dir / native['file']).read_bytes()).hexdigest() != native['sha256']):
+        raise ValueError('stale native archive hash or format')
+    return model, frames
+
+
+def rig_metrics(model: dict, poses: list[dict]) -> dict:
+    bone_error = contact_error = 0.0
+    scales = []
+    borders = []
+    for pose in poses:
+        scales.extend(pose[part]["scale"] for part in ("head", "body", "tail"))
+        for name, leg in pose["legs"].items():
+            for a, b, length in zip(("root", "knee"), ("knee", "ankle"), leg["bone_lengths"]):
+                bone_error = max(bone_error, abs(math.dist(leg[a], leg[b]) - length))
+            if leg["contact"]:
+                bind = model["limb_bind"][model["legs"][name]["kind"]]
+                sole = skin_point((bind["paw"][0], bind["sole"]), bind, leg)
+                contact_error = max(contact_error, abs(sole[1] - leg["ground_y"]))
+        pixels = rgba_icon(pose["state"], pose["frame"])
+        borders.append(max(pixels[(y * 256 + x) * 4 + 3]
+                           for y, x in ([(0, x) for x in range(256)]
+                                        + [(255, x) for x in range(256)]
+                                        + [(y, 0) for y in range(256)]
+                                        + [(y, 255) for y in range(256)])))
+    paws = {}
+    for name in model["legs"]:
+        tracks = [pose["legs"][name] for pose in poses]
+        paws[name] = {
+            "positions": [{"frame": pose["frame"], "xy": leg["paw"],
+                           "contact": leg["contact"], "visible_fraction": leg["visible_fraction"],
+                           "marker_visible": leg["visible_fraction"] >= .5}
+                          for pose, leg in zip(poses, tracks)],
+            "horizontal_range_dp": (max(p["paw"][0] for p in tracks) - min(p["paw"][0] for p in tracks)) / 4,
+            "vertical_range_dp": (max(p["paw"][1] for p in tracks) - min(p["paw"][1] for p in tracks)) / 4,
+            "contact_frames": [p["frame"] for p in poses if p["legs"][name]["contact"]],
+        }
+    tail_angles = [math.degrees(pose["tail"]["angle"]) for pose in poses]
+    return {
+        "measurement": "hash-verified exported rig and production RGBA; design coordinates / 4 = dp",
+        "scale_range": [min(scales), max(scales)],
+        "max_bone_length_error_px": bone_error,
+        "max_contact_height_error_px": contact_error,
+        "border_alpha_max": max(borders),
+        "tail_angle_range_degrees": [min(tail_angles), max(tail_angles)],
+        "paws": paws,
+        "passed": min(scales) == max(scales) == 1 and bone_error < 1e-7
+                  and contact_error < 1e-7 and max(borders) == 0,
+        "limitation": "Numeric registration/contact checks do not certify perceived motion or device frame delivery.",
+    }
+
+
 def _resize_rgba(source: bytes, size: int) -> bytes:
-    """Scale the shared-buffer RGBA frame with premultiplied bilinear sampling."""
+    """Scale the offline RGBA frame with premultiplied bilinear sampling."""
     expected = AKITA_SIZE * AKITA_SIZE * 4
     if len(source) != expected:
         raise ValueError(f"expected {expected} RGBA bytes, received {len(source)}")
@@ -146,13 +213,6 @@ def _resize_rgba(source: bytes, size: int) -> bytes:
     return bytes(result)
 
 
-def _scaled_box(box: tuple[int, int, int, int], size: int) -> tuple[int, int, int, int]:
-    x0, y0, x1, y1 = box
-    scale = size / AKITA_SIZE
-    return (math.floor(x0 * scale), math.floor(y0 * scale),
-            math.ceil(x1 * scale), math.ceil(y1 * scale))
-
-
 def _changed_pixels(first: bytes, second: bytes, size: int,
                     box: tuple[int, int, int, int] | None = None) -> tuple[int, float]:
     x0, y0, x1, y1 = box or (0, 0, size, size)
@@ -167,271 +227,6 @@ def _changed_pixels(first: bytes, second: bytes, size: int,
             difference += sum(deltas)
             channels += 4
     return changed, difference / channels if channels else 0.0
-
-
-def _tail_pose_frames(state: str) -> tuple[int, int] | None:
-    if state == "idle":
-        return 6, 7
-    if state != "ready":
-        return None
-    pose_steps: dict[int, int] = {}
-    for step in range(AKITA_FRAME_COUNTS["ready"]):
-        asset_state, asset_frame = akita_artwork_frame("ready", step)
-        if asset_state == "idle" and asset_frame in (6, 7):
-            pose_steps.setdefault(asset_frame, step)
-    if set(pose_steps) == {6, 7}:
-        return pose_steps[6], pose_steps[7]
-    return None
-
-
-def _alpha_centroid(rgba: bytes, size: int,
-                    box: tuple[int, int, int, int]) -> tuple[float, float] | None:
-    x0, y0, x1, y1 = box
-    alpha_sum = x_sum = y_sum = 0.0
-    for y in range(y0, y1):
-        for x in range(x0, x1):
-            alpha = rgba[(y * size + x) * 4 + 3]
-            if alpha <= 16:
-                continue
-            alpha_sum += alpha
-            x_sum += (x + 0.5) * alpha
-            y_sum += (y + 0.5) * alpha
-    if not alpha_sum:
-        return None
-    return x_sum / alpha_sum, y_sum / alpha_sum
-
-
-def _alpha_bounds(rgba: bytes, size: int,
-                  box: tuple[int, int, int, int]) -> tuple[int, int, int, int] | None:
-    x0, y0, x1, y1 = box
-    points = [
-        (x, y)
-        for y in range(y0, y1)
-        for x in range(x0, x1)
-        if rgba[(y * size + x) * 4 + 3] > 16
-    ]
-    if not points:
-        return None
-    xs, ys = zip(*points)
-    return min(xs), min(ys), max(xs) + 1, max(ys) + 1
-
-
-def _tail_metrics(state: str, frames: tuple[RenderedFrame, ...], size: int,
-                  density: float) -> dict[str, object] | None:
-    steps = _tail_pose_frames(state)
-    if steps is None or max(steps) >= len(frames):
-        return None
-    high, low = (frames[step] for step in steps)
-    tail_box = _scaled_box(TAIL_SOURCE_BOX, size)
-    chest_box = _scaled_box(CHEST_SOURCE_BOX, size)
-    changed, mean_delta = _changed_pixels(high.rgba, low.rgba, size, tail_box)
-    chest_changed, _ = _changed_pixels(high.rgba, low.rgba, size, chest_box)
-    high_center = _alpha_centroid(high.rgba, size, tail_box)
-    low_center = _alpha_centroid(low.rgba, size, tail_box)
-    high_bounds = _alpha_bounds(high.rgba, size, tail_box)
-    low_bounds = _alpha_bounds(low.rgba, size, tail_box)
-    centroid_delta_dp = None
-    if high_center is not None and low_center is not None:
-        centroid_delta_dp = round(math.dist(high_center, low_center) / density, 3)
-    edge_sweep_dp = None
-    if high_bounds is not None and low_bounds is not None:
-        edge_sweep_dp = round(abs(high_bounds[2] - low_bounds[2]) / density, 3)
-    minimum_changed = max(1, round(
-        MIN_TAIL_CHANGED_PIXELS * (size / (PET_SIZE_DP * PREVIEW_DENSITY)) ** 2
-    ))
-    centroid_passed = (centroid_delta_dp is not None
-                       and centroid_delta_dp >= MIN_TAIL_CENTROID_DELTA_DP)
-    edge_passed = (edge_sweep_dp is not None
-                   and edge_sweep_dp >= MIN_TAIL_EDGE_SWEEP_DP)
-    return {
-        "high_step": high.step,
-        "low_step": low.step,
-        "changed_pixels_at_display_size": changed,
-        "mean_absolute_channel_delta": round(mean_delta, 3),
-        "alpha_centroid_delta_dp": centroid_delta_dp,
-        "outer_tail_edge_sweep_dp": edge_sweep_dp,
-        "chest_changed_pixels_at_display_size": chest_changed,
-        "minimum_changed_pixels": minimum_changed,
-        "minimum_centroid_delta_dp": MIN_TAIL_CENTROID_DELTA_DP,
-        "minimum_edge_sweep_dp": MIN_TAIL_EDGE_SWEEP_DP,
-        "passed": (changed >= minimum_changed and centroid_passed and edge_passed
-                   and chest_changed == 0),
-    }
-
-
-def _orange_hip_anchor(rgba: bytes) -> tuple[float, float] | None:
-    """Find the orange rump center so paw travel excludes whole-sprite drift."""
-    x0, y0, x1, y1 = HIP_ORANGE_SOURCE_BOX
-    alpha_sum = x_sum = y_sum = 0.0
-    for y in range(y0, y1):
-        for x in range(x0, x1):
-            offset = (y * AKITA_SIZE + x) * 4
-            red, green, blue, alpha = rgba[offset:offset + 4]
-            if (alpha > 128 and red > 150 and green < 175
-                    and red > green * 1.35 and blue < 125):
-                alpha_sum += alpha
-                x_sum += x * alpha
-                y_sum += y * alpha
-    if not alpha_sum:
-        return None
-    return x_sum / alpha_sum, y_sum / alpha_sum
-
-
-def _paw_sample(rgba: bytes, point: tuple[int, int]) -> tuple[float, float]:
-    """Return opaque coverage and mean blue channel around a paw center."""
-    center_x, center_y = point
-    samples = [
-        rgba[(y * AKITA_SIZE + x) * 4:(y * AKITA_SIZE + x) * 4 + 4]
-        for y in range(center_y - 2, center_y + 3)
-        for x in range(center_x - 2, center_x + 3)
-    ]
-    opaque = [sample for sample in samples if sample[3] > 128]
-    coverage = len(opaque) / len(samples)
-    mean_blue = (sum(sample[2] for sample in opaque) / len(opaque)
-                 if opaque else 0.0)
-    return coverage, mean_blue
-
-
-def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
-                         kind: str) -> dict[str, object] | None:
-    """Track the near and far paws of one pair against the orange hip."""
-    if state != "running" or len(frames) < AKITA_FRAME_COUNTS["running"]:
-        return None
-
-    cycle = frames[:AKITA_FRAME_COUNTS["running"]]
-    source_frames = [rgba_icon("running", frame.frame) for frame in cycle]
-    anchors = [_orange_hip_anchor(pixels) for pixels in source_frames]
-    if any(anchor is None for anchor in anchors):
-        return {"measurement": f"{kind}-paw paths relative to orange hip", "passed": False,
-                "reason": "could not locate the orange hip anchor in every frame"}
-
-    source_pixels_per_dp = AKITA_SIZE / PET_SIZE_DP
-    legs: dict[str, object] = {}
-    all_landmarks_visible = True
-    relative_tracks: dict[str, list[tuple[float, float] | None]] = {}
-    minimum_x = (MIN_HIND_FOOT_X_RANGE_DP if kind == "hind"
-                 else MIN_FORE_FOOT_X_RANGE_DP)
-    minimum_y = (MIN_HIND_FOOT_Y_RANGE_DP if kind == "hind"
-                 else MIN_FORE_FOOT_Y_RANGE_DP)
-    minimum_path = (MIN_HIND_FOOT_PATH_DP if kind == "hind"
-                    else MIN_FORE_FOOT_PATH_DP)
-    for side in ("near", "far"):
-        name = f"{kind}_{side}"
-        points = RUNNING_PAW_POINTS[name]
-        leg_minimum_x = (MIN_FAR_FORE_FOOT_X_RANGE_DP
-                         if name == "fore_far" else minimum_x)
-        leg_minimum_y = (MIN_FAR_FORE_FOOT_Y_RANGE_DP
-                         if name == "fore_far" else minimum_y)
-        leg_minimum_path = (MIN_FAR_FORE_FOOT_PATH_DP
-                            if name == "fore_far" else minimum_path)
-        positions = []
-        relative: list[tuple[float, float] | None] = []
-        for frame_index, point in enumerate(points):
-            if point is None:
-                positions.append({"frame": frame_index,
-                                  "phase": RUNNING_GAIT_PHASES[frame_index],
-                                  "visible": False})
-                relative.append(None)
-                continue
-            pixels = source_frames[frame_index]
-            coverage, mean_blue = _paw_sample(pixels, point)
-            all_landmarks_visible &= (
-                coverage >= MIN_PAW_ALPHA_COVERAGE
-                and mean_blue >= MIN_PAW_MEAN_BLUE[name]
-            )
-            anchor = anchors[frame_index]
-            assert anchor is not None
-            offset_x = point[0] - anchor[0]
-            offset_y = point[1] - anchor[1]
-            relative.append((offset_x, offset_y))
-            positions.append({
-                "frame": frame_index,
-                "phase": RUNNING_GAIT_PHASES[frame_index],
-                "visible": True,
-                "paw_source_px": list(point),
-                "hip_source_px": [round(anchor[0], 2), round(anchor[1], 2)],
-                "relative_to_hip_dp": [
-                    round(offset_x / source_pixels_per_dp, 2),
-                    round(offset_y / source_pixels_per_dp, 2),
-                ],
-                "opaque_coverage": round(coverage, 3),
-                "mean_blue_channel": round(mean_blue, 1),
-            })
-
-        observed = [point for point in relative if point is not None]
-        x_values, y_values = zip(*observed)
-        x_range_dp = (max(x_values) - min(x_values)) / source_pixels_per_dp
-        y_range_dp = (max(y_values) - min(y_values)) / source_pixels_per_dp
-        path_dp = sum(
-            math.dist(before, after)
-            for before, after in zip(observed, (*observed[1:], observed[0]))
-        ) / source_pixels_per_dp
-        range_passed = (x_range_dp >= leg_minimum_x
-                        and y_range_dp >= leg_minimum_y
-                        and path_dp >= leg_minimum_path)
-        legs[name] = {
-            "color": "#%02x%02x%02x" % PAW_COLORS[name][:3],
-            "horizontal_range_dp": round(x_range_dp, 2),
-            "vertical_range_dp": round(y_range_dp, 2),
-            "cycle_path_length_dp": round(path_dp, 2),
-            "minimum_horizontal_range_dp": leg_minimum_x,
-            "minimum_vertical_range_dp": leg_minimum_y,
-            "minimum_cycle_path_length_dp": leg_minimum_path,
-            "visible_poses": len(observed),
-            "positions": positions,
-            "passed": range_passed,
-        }
-        relative_tracks[name] = relative
-
-    near_track = relative_tracks[f"{kind}_near"]
-    far_track = relative_tracks[f"{kind}_far"]
-    pair_separations_dp = [
-        math.dist(near, far) / source_pixels_per_dp
-        for near, far in zip(near_track, far_track)
-        if near is not None and far is not None
-    ]
-    mean_pair_separation_dp = sum(pair_separations_dp) / len(pair_separations_dp)
-    separated_poses = sum(gap >= 6.0 for gap in pair_separations_dp)
-    opposed_transitions = 0
-    for index in range(len(near_track)):
-        next_index = (index + 1) % len(near_track)
-        if any(point is None for point in (
-            near_track[index], near_track[next_index],
-            far_track[index], far_track[next_index],
-        )):
-            continue
-        assert near_track[index] is not None and near_track[next_index] is not None
-        assert far_track[index] is not None and far_track[next_index] is not None
-        near_delta = (near_track[next_index][0] - near_track[index][0],
-                      near_track[next_index][1] - near_track[index][1])
-        far_delta = (far_track[next_index][0] - far_track[index][0],
-                     far_track[next_index][1] - far_track[index][1])
-        magnitude = math.dist((0, 0), near_delta) * math.dist((0, 0), far_delta)
-        if magnitude and (near_delta[0] * far_delta[0] + near_delta[1] * far_delta[1]) / magnitude < -0.15:
-            opposed_transitions += 1
-    minimum_separation = (MIN_HIND_PAIR_SEPARATION_DP if kind == "hind"
-                          else MIN_FORE_PAIR_SEPARATION_DP)
-    minimum_opposed = (MIN_OPPOSED_HIND_TRANSITIONS if kind == "hind"
-                       else MIN_OPPOSED_FORE_TRANSITIONS)
-    pair_passed = (mean_pair_separation_dp >= minimum_separation
-                   and opposed_transitions >= minimum_opposed
-                   and (kind == "hind" or separated_poses >= MIN_FORE_SEPARATED_POSES))
-    return {
-        "measurement": "annotated paw centers relative to the orange hip centroid",
-        "landmark_colors": {name: item["color"] for name, item in legs.items()},
-        "phases": list(RUNNING_GAIT_PHASES),
-        "mean_pair_separation_dp": round(mean_pair_separation_dp, 2),
-        "minimum_pair_separation_dp": minimum_separation,
-        "separated_poses": separated_poses,
-        "minimum_separated_poses": MIN_FORE_SEPARATED_POSES if kind == "fore" else 0,
-        "opposed_transitions": opposed_transitions,
-        "minimum_opposed_transitions": minimum_opposed,
-        "pair_coordination_passed": pair_passed,
-        "all_paw_markers_on_visible_art": all_landmarks_visible,
-        "passed": (all(leg["passed"] for leg in legs.values())
-                   and all_landmarks_visible and pair_passed),
-        "legs": legs,
-    }
 
 
 def _draw_text(canvas: bytearray, width: int, x: int, y: int, label: str) -> None:
@@ -466,7 +261,7 @@ def _draw_paw_marker(canvas: bytearray, width: int, center_x: int, center_y: int
 
 
 def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
-                   state: str) -> bytes:
+                   poses: list[dict]) -> bytes:
     columns = min(4, len(frames))
     rows = math.ceil(len(frames) / columns)
     gutter, padding, label_height = 12, 12, 18
@@ -493,12 +288,14 @@ def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
                     (frame.rgba[source + 2] * alpha + color[2] * inverse + 127) // 255,
                     255,
                 ))
-        if state == "running":
+        if poses[0]["state"] == "running":
             marker_radius = max(2, round(size / AKITA_SIZE * 6))
-            for name, points in RUNNING_PAW_POINTS.items():
-                point = points[frame.frame]
-                if point is None:
+            for name, leg in poses[min(frame.frame, len(poses) - 1)]["legs"].items():
+                # A ring marks a majority-visible paw sample, not an inferred
+                # position painted on top of an occluding leg.
+                if leg["visible_fraction"] < .5:
                     continue
+                point = leg["paw"]
                 marker_x = cell_x + round(point[0] * size / AKITA_SIZE)
                 marker_y = cell_y + round(point[1] * size / AKITA_SIZE)
                 _draw_paw_marker(canvas, width, marker_x, marker_y,
@@ -522,6 +319,8 @@ def render_audit(state: str, cycles: int = 1,
     if display_size < 1:
         raise ValueError("density is too small to render a pixel")
 
+    model, poses = validated_clip(state)
+    rig = rig_metrics(model, poses)
     scale_cache: dict[int, bytes] = {}
     rendered: list[RenderedFrame] = []
     for step, scheduled in enumerate(playback_frames("akita", state, cycles)):
@@ -545,9 +344,6 @@ def render_audit(state: str, cycles: int = 1,
         })
 
     frames = tuple(rendered)
-    tail_metrics = _tail_metrics(state, frames, display_size, density)
-    hind_leg_metrics = _running_leg_metrics(state, frames, "hind")
-    fore_leg_metrics = _running_leg_metrics(state, frames, "fore")
     report: dict[str, object] = {
         "renderer": "rgba_icon with premultiplied bilinear downsampling",
         "state": state,
@@ -566,12 +362,11 @@ def render_audit(state: str, cycles: int = 1,
             for item in frames
         ],
         "transitions": transitions,
-        "tail_motion": tail_metrics,
-        "hind_leg_motion": hind_leg_metrics,
-        "fore_leg_motion": fore_leg_metrics,
+        "rig": rig,
+        "passed": rig["passed"],
         "contact_sheet": "contact-sheet.png",
     }
-    return RenderAudit(report, frames, _contact_sheet(frames, display_size, state))
+    return RenderAudit(report, frames, _contact_sheet(frames, display_size, poses))
 
 
 def write_audit(result: RenderAudit, output: Path) -> Path:
@@ -613,47 +408,10 @@ def main() -> int:
 
     result = render_audit(args.state, args.cycles, args.density)
     manifest = write_audit(result, args.output)
-    tail = result.report["tail_motion"]
-    hind_legs = result.report["hind_leg_motion"]
-    fore_legs = result.report["fore_leg_motion"]
-    if isinstance(tail, dict):
-        print(
-            f"Tail motion at {result.report['display_size_px']}px: "
-            f"{tail['changed_pixels_at_display_size']} changed pixels, "
-            f"centroid shift {tail['alpha_centroid_delta_dp']} dp, "
-            f"outer edge sweep {tail['outer_tail_edge_sweep_dp']} dp; "
-            f"chest changes {tail['chest_changed_pixels_at_display_size']} pixels; "
-            f"{'PASS' if tail['passed'] else 'FAIL'}"
-        )
-    if isinstance(hind_legs, dict):
-        legs = hind_legs["legs"]
-        summary = ", ".join(
-            f"{name} path {leg['cycle_path_length_dp']:.1f} dp, "
-            f"range {leg['horizontal_range_dp']:.1f} × "
-            f"{leg['vertical_range_dp']:.1f} dp"
-            for name, leg in legs.items()
-        )
-        print(
-            f"Hind-paw tracks at {result.report['display_size_px']}px: "
-            f"{summary}; pair gap {hind_legs['mean_pair_separation_dp']:.1f} dp, "
-            f"opposed transitions {hind_legs['opposed_transitions']}; "
-            f"{'PASS' if hind_legs['passed'] else 'FAIL'}"
-        )
-    if isinstance(fore_legs, dict):
-        print(
-            f"Fore-paw tracks at {result.report['display_size_px']}px: "
-            f"pair gap {fore_legs['mean_pair_separation_dp']:.1f} dp, "
-            f"separated poses {fore_legs['separated_poses']}, "
-            f"opposed transitions {fore_legs['opposed_transitions']}; "
-            f"{'PASS' if fore_legs['passed'] else 'FAIL'}"
-        )
-    print(f"Rendered {result.report['frame_count']} frames over "
-          f"{result.report['duration_seconds']}s to {manifest.parent}")
-    if ((isinstance(tail, dict) and not tail["passed"])
-            or (isinstance(hind_legs, dict) and not hind_legs["passed"])
-            or (isinstance(fore_legs, dict) and not fore_legs["passed"])):
-        return 1
-    return 0
+    print(f"{args.state}: {result.report['frame_count']} exposures, "
+          f"{result.report['duration_seconds']}s; fixed scale/bones/contact "
+          f"{'PASS' if result.report['passed'] else 'FAIL'}; {manifest}")
+    return 0 if result.report["passed"] else 1
 
 
 if __name__ == "__main__":

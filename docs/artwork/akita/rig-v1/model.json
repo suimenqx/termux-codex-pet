@@ -1,0 +1,246 @@
+{
+  "revision": "akita-rig-v1",
+  "canvas": 256,
+  "texture_scale": 4,
+  "origin": [
+    128,
+    236
+  ],
+  "body_pivot": [
+    119,
+    165
+  ],
+  "ground_speed": 240.0,
+  "running_period": 0.64,
+  "head_pivot": [
+    167,
+    144
+  ],
+  "tail_pivot": [
+    66,
+    134
+  ],
+  "eyes": [
+    {
+      "center": [
+        165,
+        90
+      ],
+      "radius": [
+        12,
+        12
+      ]
+    },
+    {
+      "center": [
+        204,
+        96
+      ],
+      "radius": [
+        10,
+        11
+      ]
+    }
+  ],
+  "palette": {
+    "idle": [
+      45,
+      121,
+      191
+    ],
+    "running": [
+      45,
+      121,
+      191
+    ],
+    "needs_input": [
+      215,
+      147,
+      44
+    ],
+    "ready": [
+      47,
+      150,
+      103
+    ],
+    "blocked": [
+      195,
+      92,
+      110
+    ]
+  },
+  "limb_bind": {
+    "fore": {
+      "root": [
+        21,
+        20
+      ],
+      "knee": [
+        21,
+        50
+      ],
+      "ankle": [
+        21,
+        84
+      ],
+      "paw": [
+        27,
+        100
+      ],
+      "sole": 110,
+      "bend": 1
+    },
+    "hind": {
+      "root": [
+        25,
+        18
+      ],
+      "knee": [
+        25,
+        52
+      ],
+      "ankle": [
+        21,
+        86
+      ],
+      "paw": [
+        28,
+        100
+      ],
+      "sole": 110,
+      "bend": -1
+    }
+  },
+  "legs": {
+    "hind_far": {
+      "kind": "hind",
+      "root": [
+        99,
+        160
+      ],
+      "paw": [
+        101,
+        215
+      ],
+      "projection": 0.9,
+      "shade": 0.86,
+      "contact_phase": 0.0,
+      "stance": 0.28,
+      "stride": 38.7072,
+      "lift": 24
+    },
+    "fore_far": {
+      "kind": "fore",
+      "root": [
+        180,
+        160
+      ],
+      "paw": [
+        188,
+        215
+      ],
+      "projection": 0.9,
+      "shade": 0.89,
+      "contact_phase": 0.44,
+      "stance": 0.32,
+      "stride": 44.2368,
+      "lift": 27
+    },
+    "hind_near": {
+      "kind": "hind",
+      "root": [
+        72,
+        158
+      ],
+      "paw": [
+        64,
+        224
+      ],
+      "projection": 1.0,
+      "shade": 1.0,
+      "contact_phase": 0.1,
+      "stance": 0.28,
+      "stride": 43.008,
+      "lift": 28
+    },
+    "fore_near": {
+      "kind": "fore",
+      "root": [
+        143,
+        162
+      ],
+      "paw": [
+        148,
+        224
+      ],
+      "projection": 1.0,
+      "shade": 1.0,
+      "contact_phase": 0.56,
+      "stance": 0.32,
+      "stride": 49.152,
+      "lift": 30
+    }
+  },
+  "source": {
+    "neutral": "docs/artwork/akita/2026-10-inbetweens/neutral-source.png",
+    "neutral_sha256": "e7b93fcc65f3b1b2bc58676cfafafc8508de547e62f3edca9a99778ba482f4a7",
+    "parts": "parts-source.png",
+    "parts_size": [
+      2172,
+      724
+    ],
+    "parts_sha256": "bc7b3bcd9e70b4a7dfa6ed45886680934ed32b9779cbb133190f3f03089a5bdb",
+    "part_crops": {
+      "body": [
+        103,
+        113,
+        849,
+        616
+      ],
+      "fore": [
+        1040,
+        73,
+        1369,
+        643
+      ],
+      "hind": [
+        1659,
+        68,
+        1995,
+        638
+      ]
+    },
+    "body_bind_box": [
+      38,
+      121,
+      199,
+      187
+    ]
+  },
+  "layers": {
+    "body": {
+      "file": "layers/body.png",
+      "sha256": "dd9459c14f2914ae13faf3113641976e1bbff163dc45a6e5c0a1b7654e2efb58"
+    },
+    "collar": {
+      "file": "layers/collar.png",
+      "sha256": "de9475a43bf7627120b16e39782f6493de7684384f8aa91715768946817902ae"
+    },
+    "fore": {
+      "file": "layers/fore.png",
+      "sha256": "c05550663aa1c1bf96b0593869014a0095d2f45d3a7c52e8286eb3e1715e2e22"
+    },
+    "head": {
+      "file": "layers/head.png",
+      "sha256": "05d1e98ff00bf7dfae15ea40998f2f50febf53570f3ff194883ff860a809821c"
+    },
+    "hind": {
+      "file": "layers/hind.png",
+      "sha256": "defa02ae2a0cc11765c8dcae08d6d2fd6f516c462a97e70c63d489fe0679cf42"
+    },
+    "tail": {
+      "file": "layers/tail.png",
+      "sha256": "9dff0aeb580c8d709adcdfedbacd3b4cf64c23af775143cc62b071ec811fb067"
+    }
+  }
+}

@@ -9,32 +9,20 @@ from .pets import (
 )
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
-_AKITA_READY_SEQUENCE = (
-    ("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
-    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
-    ("idle", 7), ("idle", 0),
-)
-AKITA_READY_LOOP_START = 5
-AKITA_FRAME_COUNTS = {
-    "idle": 8,
-    # Eight registered poses carry one asymmetric gallop through its full cycle.
-    "running": 8,
-    "needs_input": 4,
-    "ready": len(_AKITA_READY_SEQUENCE),
-    "blocked": 4,
-}
+AKITA_READY_LOOP_START = 32
+_AKITA_REST_INTERVALS = (0.12,) * 20 + (0.04,) * 4 + (0.12,) * 8
 AKITA_FRAME_INTERVALS = {
-    # Slow breath, one quick blink, then a quiet pause before the next loop.
-    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    # Eight poses complete one gallop cycle in 0.64 seconds.
-    "running": (0.08,) * 8,
-    # A small wave with a longer hold at the raised paw.
-    "needs_input": (0.2, 0.18, 0.18, 0.85),
-    # The entry hop settles into subtle breathing and a slow blink.
-    "ready": (0.32, 0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8),
-    # Blocked is a brief reaction that settles and holds its final pose.
-    "blocked": (0.12, 0.18, 0.18, 0.12),
+    # Slow body/tail motion; finer exposures only around the 160 ms blink.
+    "idle": _AKITA_REST_INTERVALS,
+    # The shared rig supplies 32 poses without changing the 640 ms stride.
+    "running": (0.02,) * 32,
+    "needs_input": ((0.05,) * 7 + (0.08,) * 6 + (0.65,)
+                    + (0.05,) * 7 + (0.19,) * 3),
+    # One 1.28 s hop, then the same rest motion with the Ready collar color.
+    "ready": (0.04,) * AKITA_READY_LOOP_START + _AKITA_REST_INTERVALS,
+    "blocked": (0.05,) * 16,
 }
+AKITA_FRAME_COUNTS = {state: len(delays) for state, delays in AKITA_FRAME_INTERVALS.items()}
 AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input", "ready"))
 PREVIEW_FINAL_HOLD_SECONDS = 0.8
 
@@ -64,7 +52,7 @@ def akita_artwork_frame(state: str, frame: int) -> tuple[str, int]:
     """Resolve one logical Akita frame to the artwork used for that pose."""
     state = _akita_state(state)
     frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-    return _AKITA_READY_SEQUENCE[frame] if state == "ready" else (state, frame)
+    return state, frame
 
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:
