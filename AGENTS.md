@@ -12,5 +12,6 @@ This repository is a Termux Python application with a native Termux:GUI overlay.
 
 ## Source of truth
 
+- Artwork: before generating or replacing pet images, adding frames, changing animation timing, or editing sprite export, read [docs/animation-assets.md](docs/animation-assets.md) and its task-specific guides. Complete the production brief and model/scale references before batch generation; record file, motion, and device evidence before claiming acceptance.
 - Read code and tests for exact APIs, constants, and CLI output; keep this file focused on process.
 - Keep runtime files in `~/.cache/codex-pet/`, saved position in `~/.config/codex-pet/`, and Codex hooks in the user's existing Codex configuration. Back up and merge user configuration through the installer rather than replacing it.
