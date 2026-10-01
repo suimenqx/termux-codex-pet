@@ -113,12 +113,13 @@ class Daemon:
             if event is None:
                 return {"ok": False, "error": "invalid event"}
             with self.lock:
-                self.sessions.apply(event)
+                applied = self.sessions.apply(event)
                 snapshot = self.sessions.snapshot()
                 ready = self.gui_ready
             self.gui.wake()
             self._fallback()
-            return {"ok": True, "gui_ready": ready, "state": snapshot["state"]}
+            return {"ok": True, "applied": applied,
+                    "gui_ready": ready, "state": snapshot["state"]}
         return {"ok": False, "error": "unknown action"}
 
     def _serve_one(self, listener: socket.socket) -> None:

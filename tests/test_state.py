@@ -46,7 +46,7 @@ class StateSynchronizationTests(unittest.TestCase):
         store.apply(event("running", "thread-1", "turn-1"))
         self.assertEqual(store.snapshot()["state"], "running")
 
-    def test_ready_persists_until_a_later_hook_event_changes_the_session(self) -> None:
+    def test_ready_persists_until_an_explicit_manual_event_changes_the_session(self) -> None:
         store = SessionStore()
         store.apply(event("ready", "thread-1", "turn-1", "Finished the task"))
         snapshot = store.snapshot()

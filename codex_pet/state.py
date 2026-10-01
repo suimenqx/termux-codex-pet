@@ -56,6 +56,7 @@ def event_from_hook(raw: Any) -> dict[str, Any] | None:
         "project": project[:60],
         "message": message,
         "starts_turn": name == "UserPromptSubmit",
+        "hook_event_name": name,
         "timestamp": time.time(),
     }
 
@@ -64,6 +65,9 @@ def direct_event(raw: Any) -> dict[str, Any] | None:
     if not isinstance(raw, dict) or raw.get("state") not in STATES:
         return None
     cwd = raw.get("cwd") if isinstance(raw.get("cwd"), str) else ""
+    hook_name = clean_text(raw.get("hook_event_name"), 40)
+    if HOOK_STATES.get(hook_name) != raw["state"]:
+        hook_name = ""
     return {
         "state": raw["state"],
         "session_id": clean_text(raw.get("session_id"), 120) or "default",
@@ -73,6 +77,7 @@ def direct_event(raw: Any) -> dict[str, Any] | None:
         or ((os.path.basename(os.path.normpath(cwd)) or "Codex") if cwd else "Codex"),
         "message": clean_text(raw.get("message"), 140),
         "starts_turn": raw.get("starts_turn") is True,
+        "hook_event_name": hook_name,
         "timestamp": time.time(),
     }
 
@@ -85,6 +90,7 @@ class Session:
     turn_id: str
     changed_at: float
     started_at: float
+    turn_finished: bool = False
 
 
 class SessionStore:
@@ -92,7 +98,7 @@ class SessionStore:
         self.sessions: dict[str, Session] = {}
 
     def apply(self, event: dict[str, Any]) -> bool:
-        """Apply an event, ignoring late events from a superseded turn."""
+        """Apply observed lifecycle evidence without reopening a finished turn."""
         sid = event["session_id"]
         state = event["state"]
         if state == "end":
@@ -102,11 +108,19 @@ class SessionStore:
         now = time.monotonic()
         previous = self.sessions.get(sid)
         turn_id = event["turn_id"]
-        turn_changed = bool(previous and turn_id and previous.turn_id != turn_id)
+        # An unknown ID is not evidence of a different turn (for example after
+        # a manual state restore). Adopt the first observed ID, including Stop.
+        turn_changed = bool(previous and previous.turn_id and turn_id
+                            and previous.turn_id != turn_id)
         if turn_changed and not event.get("starts_turn"):
             return False
 
-        new_turn = turn_changed
+        hook_name = event.get("hook_event_name", "")
+        if (previous and previous.turn_finished and not event.get("starts_turn")
+                and hook_name in ("PostToolUse", "PermissionRequest")):
+            return False
+
+        new_turn = turn_changed or event.get("starts_turn") is True
         started = now if state == "running" and (
             previous is None or previous.state != "running" or new_turn
         ) else (previous.started_at if previous else now)
@@ -114,16 +128,18 @@ class SessionStore:
             state=state,
             project=event["project"],
             message=event["message"],
-            turn_id=turn_id or (previous.turn_id if previous else ""),
+            turn_id=turn_id if new_turn else turn_id or (previous.turn_id if previous else ""),
             changed_at=now,
             started_at=started,
+            turn_finished=hook_name in ("Stop", "Interrupt"),
         )
         return True
 
     def snapshot(self) -> dict[str, Any]:
         if not self.sessions:
             return {"state": "idle", "project": "Codex", "message": "", "elapsed": 0,
-                    "running_count": 0, "session_count": 0, "session_id": None}
+                    "running_count": 0, "session_count": 0, "session_id": None,
+                    "turn_id": ""}
         selected_id, selected = max(
             self.sessions.items(), key=lambda item: (PRIORITY[item[1].state], item[1].changed_at)
         )
@@ -136,4 +152,5 @@ class SessionStore:
             "running_count": sum(s.state == "running" for s in self.sessions.values()),
             "session_count": len(self.sessions),
             "session_id": selected_id,
+            "turn_id": selected.turn_id,
         }
