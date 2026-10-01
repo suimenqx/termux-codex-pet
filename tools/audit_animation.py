@@ -34,9 +34,9 @@ CHEST_SOURCE_BOX = (45, 120, 165, 220)
 MIN_TAIL_CHANGED_PIXELS = 500
 MIN_TAIL_CENTROID_DELTA_DP = 1.0
 MIN_TAIL_EDGE_SWEEP_DP = 1.5
-# These landmarks belong to the generated gallop, not the archived eight poses.
+# Landmarks are tied to the restored, fingerprinted visual baseline.
 _RUNNING_MANIFEST = json.loads((
-    ROOT / "docs/artwork/akita/2026-10-gallop/manifest.json"
+    ROOT / "docs/artwork/akita/accepted-running.json"
 ).read_text())
 RUNNING_GAIT_PHASES = tuple(item["phase"] for item in _RUNNING_MANIFEST["frames"])
 RUNNING_PAW_POINTS = {

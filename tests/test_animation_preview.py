@@ -52,11 +52,11 @@ class AnimationPreviewTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "nonempty"):
                 _candidate_timeline(manifest)
 
-    def test_running_preview_uses_the_sixteen_pose_gallop_schedule(self) -> None:
+    def test_running_preview_uses_the_accepted_eight_pose_schedule(self) -> None:
         frames = _timeline("running", cycles=2)
 
-        self.assertEqual([frame["frame"] for frame in frames], list(range(16)) * 2)
-        self.assertEqual([frame["seconds"] for frame in frames], [0.04] * 32)
+        self.assertEqual([frame["frame"] for frame in frames], list(range(8)) * 2)
+        self.assertEqual([frame["seconds"] for frame in frames], [0.08] * 16)
         self.assertTrue(all(str(frame["src"]).startswith("data:image/png;base64,")
                             for frame in frames))
 

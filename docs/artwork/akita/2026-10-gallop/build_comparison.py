@@ -1,6 +1,7 @@
 """Build a self-contained, synchronized artwork review (not the runtime UI)."""
 import base64
 import json
+import runpy
 from pathlib import Path
 import sys
 
@@ -13,7 +14,8 @@ def uri(data):
     return 'data:image/png;base64,'+base64.b64encode(data).decode('ascii')
 
 old = [uri(p) for p in split_sheet((ROOT/'docs/artwork/running-gait-sheet.png').read_bytes())]
-new = [uri((ROOT/f'codex_pet/assets/akita/frames/running/{i:02}.png').read_bytes()) for i in range(16)]
+exporter = runpy.run_path(str(HERE / 'export_candidate.py'))
+new = [uri(exporter['export_frame'](i)) for i in range(16)]
 ready = uri((ROOT/'codex_pet/assets/akita/frames/ready/00.png').read_bytes())
 html = '''<!doctype html><html lang="zh-CN"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

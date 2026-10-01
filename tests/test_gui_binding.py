@@ -77,6 +77,23 @@ class FakeView:
 
 
 class GuiBindingTests(unittest.TestCase):
+    def test_hook_wakes_do_not_resend_unchanged_png_frames(self) -> None:
+        connection = FakeConnection()
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(gui.tg, "LinearLayout", FakeView), \
+             patch.object(gui.tg, "ImageView", FakeView):
+            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+            snapshot = {"state": "running", "running_count": 1, "appearance": "akita"}
+            for _ in range(50):
+                pet.render(snapshot, frame=0)
+            self.assertEqual(len(pet.face.image_updates), 1)
+            pet.render(snapshot, frame=1)
+            self.assertEqual(len(pet.face.image_updates), 2)
+            pet.render({**snapshot, "running_count": 2}, frame=1)
+            self.assertEqual(len(pet.face.image_updates), 3)
+            pet.render({**snapshot, "state": "ready"}, frame=0)
+            self.assertEqual(len(pet.face.image_updates), 4)
+
     def test_running_count_changes_do_not_restart_other_state_animations(self) -> None:
         snapshots = iter((
             {"appearance": "akita", "state": "idle", "running_count": 4},

@@ -17,8 +17,8 @@ _AKITA_READY_SEQUENCE = (
 AKITA_READY_LOOP_START = 5
 AKITA_FRAME_COUNTS = {
     "idle": 8,
-    # Rear support, fore support and gathered recovery share one full cycle.
-    "running": 16,
+    # Restore the approved artwork together with its original timing.
+    "running": 8,
     "needs_input": 4,
     "ready": len(_AKITA_READY_SEQUENCE),
     "blocked": 4,
@@ -26,8 +26,8 @@ AKITA_FRAME_COUNTS = {
 AKITA_FRAME_INTERVALS = {
     # Slow breath, one quick blink, then a quiet pause before the next loop.
     "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    # Sixteen distinct drawings preserve the established 0.64-second cycle.
-    "running": (0.04,) * 16,
+    # Approved eight-pose cycle; frame count is not a gait quality metric.
+    "running": (0.08,) * 8,
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
     # The entry hop settles into subtle breathing and a slow blink.

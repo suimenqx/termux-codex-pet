@@ -66,6 +66,7 @@ class OverlayUI:
         self.face = tg.ImageView(self.pet, self.root)
         self.face.setdimensions(PET_SIZE_DP, PET_SIZE_DP)
         self.face.sendtouchevent(True)
+        self.last_image: bytes | None = None
         self.image_size_px = appearance_for(DEFAULT_APPEARANCE).image_size_px
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
@@ -108,10 +109,13 @@ class OverlayUI:
         self.image_size_px = appearance.image_size_px
         count = snapshot["running_count"]
         image = icon(state, frame, count, appearance.id)
+        if image == self.last_image:
+            return
         # PNG decoding premultiplies alpha before Android draws it. Termux:GUI's
         # raw shared-buffer copy does not, so straight-alpha PNG pixels sent as
         # RGBA there produce bright colored specks around transparent edges.
         self.face.setimage(image)
+        self.last_image = image
 
     def handle(self, event: tg.Event) -> bool:
         if not isinstance(event.value, dict):

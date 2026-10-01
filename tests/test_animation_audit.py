@@ -69,7 +69,7 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertTrue(hind_legs["all_paw_markers_on_visible_art"])
         for leg in hind_legs["legs"].values():
             points = [p["relative_to_hip_dp"] for p in leg["positions"] if p["visible"]]
-            self.assertEqual(len(leg["positions"]), 16)
+            self.assertEqual(len(leg["positions"]), 8)
             self.assertAlmostEqual(leg["horizontal_range_dp"],
                                    max(p[0] for p in points) - min(p[0] for p in points),
                                    delta=.02)
@@ -81,7 +81,7 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertTrue(fore_legs["all_paw_markers_on_visible_art"])
         self.assertIn("manual review required", fore_legs["gait_validation"])
         for name, leg in fore_legs["legs"].items():
-            self.assertEqual(len(leg["positions"]), 16)
+            self.assertEqual(len(leg["positions"]), 8)
             self.assertGreaterEqual(leg["visible_poses"], 7)
             self.assertTrue(all(
                 point["opaque_coverage"] >= 0.8
@@ -89,35 +89,24 @@ class AnimationAuditTests(unittest.TestCase):
                 for point in leg["positions"] if point["visible"]
             ), name)
         self.assertIn("not gait", fore_legs["pass_scope"])
-        self.assertEqual(result.report["frame_count"], 32)
+        self.assertEqual(result.report["frame_count"], 16)
         self.assertEqual(result.report["duration_seconds"], 1.28)
         self.assertEqual(
             [frame.frame for frame in result.frames],
             [frame["frame"] for frame in preview],
         )
-        self.assertEqual(len(hind_legs["phases"]), 16)
-        self.assertEqual(hind_legs["phases"][0], "hind_contact")
-        self.assertEqual(hind_legs["phases"][-1], "loop_approach")
+        self.assertEqual(len(hind_legs["phases"]), 8)
+        self.assertEqual(hind_legs["phases"][0], "compression")
+        self.assertEqual(hind_legs["phases"][-1], "loop_transfer")
 
-    def test_running_sheet_reproduces_registered_frames_with_clear_edges(self) -> None:
+    def test_rejected_sheet_remains_reproducible_from_its_archived_manifest(self) -> None:
         root = Path(__file__).resolve().parents[1]
-        exporter = runpy.run_path(str(root / "docs/artwork/akita/2026-10-gallop/export_candidate.py"))
-        frames = [exporter["export_frame"](index) for index in range(16)]
-
-        self.assertEqual(len(frames), 16)
-        for index, frame in enumerate(frames):
-            path = root / f"codex_pet/assets/akita/frames/running/{index:02}.png"
-            self.assertEqual(frame, path.read_bytes())
-            pixels = rgba_icon("running", index)
-            border_alpha = (
-                [pixels[(x * 4) + 3] for x in range(256)]
-                + [pixels[((255 * 256 + x) * 4) + 3] for x in range(256)]
-                + [pixels[((y * 256) * 4) + 3] for y in range(256)]
-                + [pixels[((y * 256 + 255) * 4) + 3] for y in range(256)]
-            )
-            self.assertLessEqual(max(border_alpha), 16, index)
-        self.assertEqual(frames[0],
-                         (root / "codex_pet/assets/akita/running.png").read_bytes())
+        directory = root / "docs/artwork/akita/2026-10-gallop"
+        exporter = runpy.run_path(str(directory / "export_candidate.py"))
+        manifest = json.loads((directory / "manifest.json").read_text())
+        for index, item in enumerate(manifest["frames"]):
+            frame = exporter["export_frame"](index)
+            self.assertEqual(hashlib.sha256(frame).hexdigest(), item["sha256"])
 
     def test_archived_running_sheet_still_reproduces_the_user_baseline(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -129,7 +118,7 @@ class AnimationAuditTests(unittest.TestCase):
 
     def test_running_head_has_no_jump_at_phase_or_cycle_boundary(self) -> None:
         head_tops = []
-        for frame in range(16):
+        for frame in range(8):
             pixels = rgba_icon("running", frame)
             head_tops.append(min(
                 y for y in range(35, 110) for x in range(120, 230)

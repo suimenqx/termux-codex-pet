@@ -1,0 +1,196 @@
+{
+  "source_commit": "d1b63b7d798910958fcf5d8ebd0561e7bae65ed6",
+  "landmark_source_commit": "4faf813",
+  "note": "Accepted visual baseline. Historical pose labels and hand-marked paw centers do not certify biomechanics.",
+  "frames": [
+    {
+      "file": "00.png",
+      "seconds": 0.08,
+      "phase": "compression",
+      "paw_centers": {
+        "hind_near": [
+          81,
+          214
+        ],
+        "hind_far": [
+          110,
+          208
+        ],
+        "fore_near": [
+          159,
+          214
+        ],
+        "fore_far": [
+          200,
+          193
+        ]
+      },
+      "sha256": "11a1e1228b1815ebffae9dca74b09981a09d4bfe54b3d6fed0fe3d41e6fdb135"
+    },
+    {
+      "file": "01.png",
+      "seconds": 0.08,
+      "phase": "rear_support",
+      "paw_centers": {
+        "hind_near": [
+          29,
+          175
+        ],
+        "hind_far": [
+          98,
+          215
+        ],
+        "fore_near": [
+          194,
+          202
+        ],
+        "fore_far": null
+      },
+      "sha256": "44a43ec4e94f271bd7c9e169adba76a8f6a706280821f57f62935dabe9cbf5df"
+    },
+    {
+      "file": "02.png",
+      "seconds": 0.08,
+      "phase": "hind_drive",
+      "paw_centers": {
+        "hind_near": [
+          27,
+          178
+        ],
+        "hind_far": [
+          113,
+          212
+        ],
+        "fore_near": [
+          172,
+          195
+        ],
+        "fore_far": [
+          225,
+          192
+        ]
+      },
+      "sha256": "12d5dc78287eaa9f908d6d3fae05ffdae46a755fcf2684132f518f6df4b8b20a"
+    },
+    {
+      "file": "03.png",
+      "seconds": 0.08,
+      "phase": "suspension",
+      "paw_centers": {
+        "hind_near": [
+          27,
+          166
+        ],
+        "hind_far": [
+          73,
+          189
+        ],
+        "fore_near": [
+          201,
+          196
+        ],
+        "fore_far": [
+          218,
+          174
+        ]
+      },
+      "sha256": "7157be1f2923fee0f2ca048dc10e22de168d28e341fe7b6ab997b9c912322419"
+    },
+    {
+      "file": "04.png",
+      "seconds": 0.08,
+      "phase": "fore_contact",
+      "paw_centers": {
+        "hind_near": [
+          34,
+          172
+        ],
+        "hind_far": [
+          84,
+          187
+        ],
+        "fore_near": [
+          170,
+          208
+        ],
+        "fore_far": [
+          228,
+          174
+        ]
+      },
+      "sha256": "0bfe008612aa41313b839f08dc1b82933aee4615cecabbdbd7a3f166055c7c67"
+    },
+    {
+      "file": "05.png",
+      "seconds": 0.08,
+      "phase": "fore_support",
+      "paw_centers": {
+        "hind_near": [
+          80,
+          204
+        ],
+        "hind_far": [
+          102,
+          208
+        ],
+        "fore_near": [
+          179,
+          208
+        ],
+        "fore_far": [
+          215,
+          186
+        ]
+      },
+      "sha256": "fdc62b73f8bd2e5588de398b80c0ee955e4664cfec406efc3bb0e23d8659ffe0"
+    },
+    {
+      "file": "06.png",
+      "seconds": 0.08,
+      "phase": "recovery_tuck",
+      "paw_centers": {
+        "hind_near": [
+          67,
+          209
+        ],
+        "hind_far": [
+          116,
+          206
+        ],
+        "fore_near": [
+          172,
+          205
+        ],
+        "fore_far": [
+          211,
+          179
+        ]
+      },
+      "sha256": "adf9d3a40d42f6128bb54bcd350e231630dde0043c5705da167552ff2aec5468"
+    },
+    {
+      "file": "07.png",
+      "seconds": 0.08,
+      "phase": "loop_transfer",
+      "paw_centers": {
+        "hind_near": [
+          84,
+          212
+        ],
+        "hind_far": [
+          101,
+          211
+        ],
+        "fore_near": [
+          166,
+          188
+        ],
+        "fore_far": [
+          206,
+          191
+        ]
+      },
+      "sha256": "5357fcd3d0d476002ebe830348c28af4f74409bfca171909015b28cef5bb6009"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # 秋田犬十六帧跑姿制作记录
 
-日期：2026-10-01。基线：用户认可的 `d1b63b7`，本轮开始提交 `4faf813`。本轮仅替换 Running；Idle、Ready、Needs input、Blocked 的文件指纹保持原样。**后续用户评价：fail，动画生硬、奇怪。以下为原制作记录，不再代表视觉验收通过；复盘见 [diagnosis.md](diagnosis.md)。
+日期：2026-10-01。基线：用户认可的 `d1b63b7`，本轮开始提交 `4faf813`。本轮仅替换 Running；Idle、Ready、Needs input、Blocked 的文件指纹保持原样。**后续处理：已从生产移除，恢复原版八帧，见[修复记录](../2026-10-repair.md)。后续用户评价：fail，动画生硬、奇怪。以下为原制作记录，不再代表视觉验收通过；复盘见 [diagnosis.md](diagnosis.md)。
 
 ## 制作目标和方法
 
