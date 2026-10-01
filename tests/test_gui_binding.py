@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from codex_pet import gui
 from codex_pet.animation import AnimationTimeline
-from codex_pet.art import icon, premultiplied_icon
+from codex_pet.art import icon
 from codex_pet.pets import APPEARANCES
 
 
@@ -76,19 +76,6 @@ class FakeView:
         return 192, 192
 
 
-class FakeBuffer:
-    def __init__(self, connection, width, height):
-        self.mem = bytearray(width * height * 4)
-        self.frames = []
-        self.removed = False
-
-    def blit(self):
-        self.frames.append(bytes(self.mem))
-
-    def remove(self):
-        self.removed = True
-
-
 class GuiBindingTests(unittest.TestCase):
     def test_running_count_changes_do_not_restart_other_state_animations(self) -> None:
         snapshots = iter((
@@ -101,8 +88,7 @@ class GuiBindingTests(unittest.TestCase):
         worker.ui = SimpleNamespace(render=lambda state, frame:
                                     rendered.append((state["state"], frame)))
         timeline = AnimationTimeline("akita", "idle", now=0.0, running_count=1)
-        assert timeline.deadline is not None
-        timeline.advance(now=timeline.deadline + .001)
+        timeline.advance(now=0.61)
         try:
             worker._refresh(timeline, now=0.7)
             worker._refresh(timeline, now=1.0)
@@ -134,41 +120,37 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(gui.tg, "LinearLayout", FakeView), \
              patch.object(gui.tg, "ImageView", FakeView), \
              patch.object(gui.tg, "TextView", side_effect=AssertionError("text UI is not allowed")), \
-             patch.object(gui.tg, "Buffer", FakeBuffer):
+             patch.object(gui.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
             for appearance in APPEARANCES:
                 for state in ("idle", "running", "needs_input", "ready", "blocked"):
                     pet.render({"state": state, "running_count": 2,
                                 "appearance": appearance.id, "project": "repo",
                                 "elapsed": 10, "message": "hidden detail"})
-                    if appearance.id == "akita":
-                        self.assertEqual(pet.face.buffer.mem, premultiplied_icon(state, 0, 2))
-                    else:
-                        self.assertEqual(pet.face.image, icon(state, 0, 2, appearance.id))
+                    self.assertEqual(pet.face.image,
+                                     icon(state, 0, 2, appearance.id))
                     self.assertEqual(pet.image_size_px, appearance.image_size_px)
-            self.assertEqual(len(pet.face.image_updates), 5)
+            self.assertEqual(len(pet.face.image_updates), len(APPEARANCES) * 5)
             pet.render({"state": "running", "running_count": 2, "appearance": "akita"})
-            self.assertEqual(pet.face.buffer.mem, premultiplied_icon("running", 0, 2))
+            self.assertEqual(pet.face.image, icon("running", 0, 2))
             pet.close()
 
         self.assertEqual(connection.next_aid, 2)
 
-    def test_akita_animation_frames_use_explicit_premultiplication_and_reuse_one_buffer(self) -> None:
+    def test_akita_animation_frames_use_png_decoding_for_alpha_compositing(self) -> None:
         FakeView.next_id = 1
         connection = FakeConnection()
         with tempfile.TemporaryDirectory() as directory, \
              patch.object(gui.tg, "LinearLayout", FakeView), \
              patch.object(gui.tg, "ImageView", FakeView), \
-             patch.object(gui.tg, "Buffer", FakeBuffer):
+             patch.object(gui.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
             pet = gui.OverlayUI(connection, Path(directory) / "config.json")
             pet.render({"state": "running", "running_count": 1, "appearance": "akita"}, frame=3)
             pet.render({"state": "running", "running_count": 1, "appearance": "akita"}, frame=4)
 
-        self.assertEqual(pet.face.image_updates, [])
-        self.assertEqual(pet.face.refresh_count, 2)
         self.assertEqual(
-            pet.face.buffer.frames,
-            [premultiplied_icon("running", 3, 1), premultiplied_icon("running", 4, 1)],
+            pet.face.image_updates,
+            [icon("running", 3, 1), icon("running", 4, 1)],
         )
 
 

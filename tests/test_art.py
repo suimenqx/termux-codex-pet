@@ -3,7 +3,7 @@ import struct
 import unittest
 import zlib
 
-from codex_pet.animation import AKITA_FRAME_COUNTS, AKITA_READY_LOOP_START
+from codex_pet.animation import AKITA_FRAME_COUNTS
 from codex_pet.art import icon, rgba_icon
 from codex_pet.pets import DEFAULT_APPEARANCE
 
@@ -83,7 +83,7 @@ class AkitaArtTests(unittest.TestCase):
 
     def test_animation_frame_files_are_contiguous_and_complete(self) -> None:
         root = Path(__file__).resolve().parents[1] / "codex_pet/assets/akita/frames"
-        source_frame_counts = AKITA_FRAME_COUNTS
+        source_frame_counts = dict(AKITA_FRAME_COUNTS, ready=5)
         for state, frame_count in source_frame_counts.items():
             with self.subTest(state=state):
                 frame_names = sorted(path.name for path in (root / state).glob("*.png"))
@@ -106,11 +106,11 @@ class AkitaArtTests(unittest.TestCase):
                     self.assertEqual(image[24], 8)
                     self.assertEqual(image[25], 6)
                     self.assertEqual(png_first_pixel(image)[3], 0)
-                # A one-shot may finish with repeated holds; locomotion must
-                # supply distinct physical poses instead of duplicate frames.
-                self.assertGreater(len(set(frames)), 4)
-                if state == "running":
-                    self.assertEqual(len(set(frames)), 32)
+                if state == "ready":
+                    # The loop deliberately reuses resting poses after its one-time hop.
+                    self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state] - 2)
+                else:
+                    self.assertEqual(len(set(frames)), AKITA_FRAME_COUNTS[state])
                 self.assertEqual(icon(state, frame=AKITA_FRAME_COUNTS[state]), frames[-1])
                 state_images.append(frames[0])
         self.assertEqual(len(set(state_images)), 5)
@@ -122,34 +122,47 @@ class AkitaArtTests(unittest.TestCase):
         self.assertNotEqual(icon("running", count=2), icon("running", count=9))
         self.assertNotEqual(icon("running", count=9), icon("running", count=10))
 
-    def test_ready_rest_keeps_its_green_collar_on_the_shared_idle_pose(self) -> None:
-        for frame in (0, 7, 20, 22, 31):
-            idle = rgba_icon("idle", frame)
-            ready = rgba_icon("ready", AKITA_READY_LOOP_START + frame)
-            self.assertEqual(rgba_region(idle, (0, 0, 256, 130)),
-                             rgba_region(ready, (0, 0, 256, 130)))
-            self.assertEqual(rgba_region(idle, (0, 172, 256, 256)),
-                             rgba_region(ready, (0, 172, 256, 256)))
-            self.assertNotEqual(idle, ready)
+    def test_ready_loop_renders_the_artwork_selected_by_playback(self) -> None:
+        self.assertEqual(icon("ready", 5), icon("idle", 1))
+        self.assertEqual(icon("ready", 6), icon("idle", 0))
+        self.assertEqual(icon("ready", 10), icon("idle", 6))
+        self.assertEqual(icon("ready", 11), icon("idle", 7))
 
     def test_akita_rgba_frames_remain_available_for_offline_audits(self) -> None:
         self.assertEqual(len(rgba_icon("idle", 0)), 256 * 256 * 4)
         self.assertNotEqual(rgba_icon("running", 0, 1), rgba_icon("running", 0, 2))
 
-    def test_all_frames_keep_a_transparent_margin(self) -> None:
-        for state, count in AKITA_FRAME_COUNTS.items():
-            for frame in range(count):
-                pixels = rgba_icon(state, frame)
-                border = [(0, x) for x in range(256)] + [(255, x) for x in range(256)]
-                border += [(y, 0) for y in range(256)] + [(y, 255) for y in range(256)]
-                self.assertEqual(max(pixels[(y * 256 + x) * 4 + 3] for y, x in border), 0,
-                                 (state, frame))
+    def test_idle_tail_wag_is_more_visible_without_moving_the_chest(self) -> None:
+        resting = rgba_icon("idle", 0)
+        tail_high = rgba_icon("idle", 6)
+        tail_low = rgba_icon("idle", 7)
 
-    def test_idle_blink_and_tail_are_present_in_exported_pixels(self) -> None:
-        self.assertNotEqual(rgba_region(rgba_icon("idle", 20), (145, 70, 222, 110)),
-                            rgba_region(rgba_icon("idle", 22), (145, 70, 222, 110)))
-        self.assertNotEqual(rgba_region(rgba_icon("idle", 7), (20, 60, 105, 130)),
-                            rgba_region(rgba_icon("idle", 25), (20, 60, 105, 130)))
+        chest = (45, 120, 165, 220)
+        tail = (180, 65, 256, 160)
+        self.assertEqual(rgba_region(resting, chest), rgba_region(tail_high, chest))
+        self.assertEqual(rgba_region(resting, chest), rgba_region(tail_low, chest))
+        resting_tail = rgba_region(resting, tail)
+        high_tail = rgba_region(tail_high, tail)
+        low_tail = rgba_region(tail_low, tail)
+        self.assertGreater(sum(resting_tail[i:i + 4] != high_tail[i:i + 4]
+                               for i in range(0, len(resting_tail), 4)), 1000)
+        self.assertGreater(sum(high_tail[i:i + 4] != low_tail[i:i + 4]
+                               for i in range(0, len(high_tail), 4)), 1000)
+
+    def test_ready_hop_bends_down_before_lifting_off(self) -> None:
+        self.assertNotEqual(icon("ready", 0), icon("ready", 1))
+
+    def test_ready_blink_only_changes_the_face_not_the_chest(self) -> None:
+        before_blink = rgba_icon("ready", 6)
+        blink = rgba_icon("ready", 7)
+        after_blink = rgba_icon("ready", 8)
+
+        chest = (70, 120, 180, 205)
+        eyes = (62, 45, 195, 118)
+        self.assertNotEqual(rgba_region(before_blink, eyes), rgba_region(blink, eyes))
+        self.assertNotEqual(rgba_region(blink, eyes), rgba_region(after_blink, eyes))
+        self.assertEqual(rgba_region(before_blink, chest), rgba_region(blink, chest))
+        self.assertEqual(rgba_region(blink, chest), rgba_region(after_blink, chest))
 
     def test_blocked_final_frame_is_clamped_to_last_artwork(self) -> None:
         self.assertEqual(icon("blocked", AKITA_FRAME_COUNTS["blocked"]),

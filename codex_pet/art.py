@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import ctypes
-from array import array
 from functools import lru_cache
 from pathlib import Path
 import struct
-import sys
-from zipfile import ZipFile
 import zlib
 
-from .animation import AKITA_FRAME_COUNTS, akita_artwork_frame
+from .animation import akita_artwork_frame
 from .pets import ART_PROFILE_AKITA, ART_PROFILE_ROBOT, DEFAULT_APPEARANCE, appearance_for
 
 SIZE = 64
@@ -184,7 +181,7 @@ except (AttributeError, OSError):
     _LIBPNG = None
 
 
-@lru_cache(maxsize=sum(AKITA_FRAME_COUNTS.values()))
+@lru_cache(maxsize=24)
 def _akita_asset(state: str, frame: int) -> bytes:
     path = AKITA_ASSET_DIR / "frames" / state / f"{frame:02}.png"
     try:
@@ -219,12 +216,6 @@ def _decode_rgba_png(image: bytes) -> tuple[int, int, bytearray]:
 
 def _add_count_badge(image: bytes, count: int) -> bytes:
     width, height, pixels = _decode_rgba_png(image)
-    _draw_count_badge(pixels, width, height, count)
-    return _png(width, height, pixels)
-
-
-def _draw_count_badge(pixels: bytearray, width: int, height: int, count: int) -> None:
-    """Paint only opaque badge colors; valid for either alpha representation."""
     scale_x = width / SIZE
     scale_y = height / SIZE
     center_x = round(57 * scale_x)
@@ -280,11 +271,36 @@ def _draw_count_badge(pixels: bytearray, width: int, height: int, count: int) ->
                     square(left + column * 4 * cell + x * cell,
                            top + row * cell, cell, outline)
 
+    return _png(width, height, pixels)
+
+
+@lru_cache(maxsize=1)
+def _ready_blink_icon() -> bytes:
+    """Build a blink from one stable body pose so the chest does not jump."""
+    base = _akita_asset("idle", 0)
+    try:
+        width, height, pixels = _decode_rgba_png(base)
+        blink_width, blink_height, blink_pixels = _decode_rgba_png(_akita_asset("idle", 2))
+    except ValueError:
+        # The static PNG path still works on systems without libpng.
+        return base
+    if (width, height) != (blink_width, blink_height):
+        return base
+
+    # Replace just the eyes and their immediate fur, leaving the torso pixels
+    # byte-for-byte identical to the open-eye frame around the blink.
+    x0, y0, x1, y1 = 58, 54, 198, 116
+    for y in range(y0, y1):
+        start = (y * width + x0) * 4
+        end = (y * width + x1) * 4
+        pixels[start:end] = blink_pixels[start:end]
+    return _png(width, height, pixels)
+
 
 @lru_cache(maxsize=80)
 def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
     asset_state, asset_frame = akita_artwork_frame(state, frame)
-    image = _akita_asset(asset_state, asset_frame)
+    image = _ready_blink_icon() if asset_state == "blink" else _akita_asset(asset_state, asset_frame)
     if state == "running" and count > 1:
         try:
             return _add_count_badge(image, count)
@@ -294,68 +310,11 @@ def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
     return image
 
 
-def _akita_pixels(state: str, frame: int, count: int) -> bytearray:
+@lru_cache(maxsize=80)
+def _akita_rgba(state: str, frame: int, count: int) -> bytes:
     width, height, pixels = _decode_rgba_png(_akita_icon(state, frame, count))
     if (width, height) != (AKITA_SIZE, AKITA_SIZE):
         raise ValueError(f"unexpected Akita frame size: {width}x{height}")
-    return pixels
-
-
-@lru_cache(maxsize=80)
-def _akita_rgba(state: str, frame: int, count: int) -> bytes:
-    return bytes(_akita_pixels(state, frame, count))
-
-
-def _premultiply_rgba(pixels: bytes | bytearray) -> bytes:
-    """Associate RGB with alpha for Android's raw ARGB_8888 bitmap storage.
-
-    In little-endian words the byte order is still R,G,B,A. Red and blue
-    use separate 16-bit lanes; (n + 128 + ((n + 128) >> 8)) >> 8 is the
-    integer round-to-nearest n/255. Transparent source colors become zero.
-    """
-    if len(pixels) % 4:
-        raise ValueError("RGBA pixels must contain four bytes per pixel")
-    words = array("I", pixels)
-    if sys.byteorder != "little":
-        words.byteswap()
-    for index, pixel in enumerate(words):
-        alpha = pixel >> 24
-        if alpha == 255 or pixel == 0:
-            continue
-        if alpha == 0:
-            words[index] = 0
-            continue
-        rb = (pixel & 0x00FF00FF) * alpha + 0x00800080
-        rb = ((rb + ((rb >> 8) & 0x00FF00FF)) >> 8) & 0x00FF00FF
-        green = (((pixel >> 8) & 255) * alpha + 127) // 255
-        words[index] = (alpha << 24) | (green << 8) | rb
-    if sys.byteorder != "little":
-        words.byteswap()
-    return words.tobytes()
-
-
-@lru_cache(maxsize=1)
-def _native_archive(path: Path) -> ZipFile:
-    # Runtime releases are immutable. Retain one read-only archive/descriptor
-    # for this process so each new pose does not reparse all 168 ZIP entries.
-    return ZipFile(path)
-
-
-@lru_cache(maxsize=80)
-def _akita_premultiplied(state: str, frame: int, count: int) -> bytes:
-    asset_state, asset_frame = akita_artwork_frame(state, frame)
-    try:
-        # Each entry is independently compressed. Cold frames only inflate;
-        # PNG decoding and pixel-by-pixel alpha conversion were done offline.
-        archive = _native_archive(AKITA_ASSET_DIR / 'native-frames.zip')
-        pixels = bytearray(archive.read(f'{asset_state}/{asset_frame:02}.rgba'))
-    except (FileNotFoundError, KeyError):
-        # Partial/older asset deployments retain the same PNG fallback.
-        return _premultiply_rgba(_akita_pixels(state, frame, count))
-    if len(pixels) != AKITA_SIZE * AKITA_SIZE * 4:
-        raise ValueError('unexpected native Akita frame size')
-    if state == 'running' and count > 1:
-        _draw_count_badge(pixels, AKITA_SIZE, AKITA_SIZE, count)
     return bytes(pixels)
 
 
@@ -382,12 +341,6 @@ def icon(state: str, frame: int = 0, count: int = 0,
 
 
 def rgba_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
-    """Return straight-alpha Akita pixels for offline audits, never a raw bitmap."""
+    """Return a cached 256-square RGBA Akita frame for Termux:GUI's shared buffer."""
     bounded_count = max(0, min(int(count), 10)) if state == "running" else 0
     return _akita_rgba(state, frame, bounded_count)
-
-
-def premultiplied_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
-    """Return cached associated-alpha pixels for the native Akita frame buffer."""
-    bounded_count = max(0, min(int(count), 10)) if state == "running" else 0
-    return _akita_premultiplied(state, frame, bounded_count)

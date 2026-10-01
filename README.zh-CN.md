@@ -39,7 +39,7 @@ codex-pet pet use akita
 codex-pet pet use robot
 ```
 
-Pet 是一个约 64dp 的悬浮形象。秋田犬的五个状态共用同一套分层原画、镜头、头身尺度和固定长度骨骼，离线导出为透明的 256 × 256 PNG。奔跑采用 32 个姿势，保持 640ms 周期，四只脚分别错开触地、支撑和回收；待机时呼吸、眨眼和摆尾；需要输入时抬爪轻挥；就绪时下蹲轻跃一次，再保持绿色项圈进入休息循环；受阻时歪头并停在最终姿势。切换状态时保持同一角色比例。动画时钟会跳过过期帧以保持节奏，实际显示频率取决于设备。经典机器人仍可切换，并保留原有动画。运行 `codex-pet pet list` 查看已支持形象和当前选择，用 `codex-pet pet use <id>` 切换，例如 `codex-pet pet use robot`。选择与悬浮位置一起保存在 `~/.config/codex-pet/config.json`；daemon 正在运行时会立即切换。点击没有操作；如需移动，从 Pet 图标的任意位置拖动即可，移动约 6dp 后就会跟随手指。
+Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 256 高清 PNG 帧：奶油白圆脸、明亮橘红额顶和浅色额心、短立耳、张嘴露舌的笑脸，以及紧凑的身体。待机时缓慢呼吸、偶尔眨眼，并以更明显但舒缓的幅度摆尾；运行时以 8 个连续姿势表现不对称奔跑，两只后脚错开蹬地，近侧和远侧前爪先后前伸、着地与回收，切换状态时保持与其他状态相近的可见大小；需要输入时轻轻挥爪；就绪时先轻轻蹲身蓄力，再开心跃起一次，之后缓慢呼吸、慢慢眨眼并轻轻摆尾；受阻时短暂歪头，然后停在思考姿势。经典机器人仍可切换，并保留原有动画。运行 `codex-pet pet list` 查看已支持形象和当前选择，用 `codex-pet pet use <id>` 切换到列表中的任一形象，例如 `codex-pet pet use robot`。选择与悬浮位置一起保存在 `~/.config/codex-pet/config.json`；daemon 正在运行时会立即切换。点击没有操作；如需移动，从 Pet 图标的任意位置拖动即可，移动约 6dp 后就会跟随手指。
 
 [宠物图片与动画制作规范](docs/animation-assets.md)包含角色尺度与定位、动作时间与补帧、agent 生成提示词、制作单模板和验收方法，也说明了现有素材与审计工具的适用边界。
 
@@ -76,7 +76,7 @@ codex-pet status
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
 - **更新源码后还是旧界面：**在源码仓库中运行 `bash ./install.sh`，部署新版本并重启 daemon。单独运行 `codex-pet restart` 只会重启当前已安装版本。
-- **秋田犬边缘出现彩色噪点：**更新源码后运行 `bash ./install.sh`，部署透明通道处理修复并重启 daemon。当前秋田犬像素在写入原生位图前会显式预乘；旧安装版本保留原来的渲染代码，直到重新部署。
+- **秋田犬边缘出现彩色噪点：**更新源码后运行 `bash ./install.sh`，部署 PNG 渲染修复并重启 daemon。旧安装版本仍会使用原来的共享缓冲区渲染路径，直到重新部署。
 - **拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从 Pet 图标任意位置开始拖动，移动约 6dp 即可。
 
 ## 卸载
