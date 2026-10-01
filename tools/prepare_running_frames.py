@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Slice a four-by-two transparent running-pose sheet into 256px frames."""
+"""Rebuild the current legacy running art from its original source sheet.
+
+For newly generated animation sheets, use prepare_sprite_frames.py instead.
+This file preserves source-specific registration for the committed art.
+"""
 
 from __future__ import annotations
 
@@ -14,9 +18,9 @@ if str(ROOT) not in sys.path:
 
 from codex_pet.art import AKITA_SIZE, _decode_rgba_png, _png  # noqa: E402
 
-SECOND_ROW_Y_OFFSET_PX = 10
-# Match the visible footprint of the other Akita states in the fixed 64dp view.
-RUNNING_ART_SCALE = 1.18
+# Legacy-only registration needed to reproduce the existing running frames.
+LEGACY_SECOND_ROW_Y_OFFSET_PX = 10
+LEGACY_SOURCE_SCALE = 1.18
 
 
 def split_sheet(sheet: bytes) -> tuple[bytes, ...]:
@@ -37,11 +41,10 @@ def split_sheet(sheet: bytes) -> tuple[bytes, ...]:
         canvas_center = AKITA_SIZE / 2
 
         for y in range(AKITA_SIZE):
-            # Register the source sheet's lower row, then enlarge every pose
-            # around the same canvas center without changing the GUI layout.
+            # Preserve the original sheet's lower-row registration and source scale.
             registered_y = (canvas_center
-                            + (y + 0.5 - canvas_center) / RUNNING_ART_SCALE
-                            - (SECOND_ROW_Y_OFFSET_PX if row else 0))
+                            + (y + 0.5 - canvas_center) / LEGACY_SOURCE_SCALE
+                            - (LEGACY_SECOND_ROW_Y_OFFSET_PX if row else 0))
             source_y = max(0.0, min(cell_height - 1.0,
                 registered_y * cell_height / AKITA_SIZE - 0.5))
             top = math.floor(source_y)
@@ -49,7 +52,7 @@ def split_sheet(sheet: bytes) -> tuple[bytes, ...]:
             fy = source_y - top
             for x in range(AKITA_SIZE):
                 registered_x = (canvas_center
-                                + (x + 0.5 - canvas_center) / RUNNING_ART_SCALE)
+                                + (x + 0.5 - canvas_center) / LEGACY_SOURCE_SCALE)
                 source_x = max(0.0, min(cell_width - 1.0,
                     registered_x * cell_width / AKITA_SIZE - 0.5))
                 left = math.floor(source_x)

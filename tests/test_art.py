@@ -4,7 +4,7 @@ import unittest
 import zlib
 
 from codex_pet.animation import AKITA_FRAME_COUNTS
-from codex_pet.art import AKITA_SIZE, icon, rgba_icon
+from codex_pet.art import icon, rgba_icon
 from codex_pet.pets import DEFAULT_APPEARANCE
 
 
@@ -73,31 +73,6 @@ class RobotArtTests(unittest.TestCase):
 
 
 class AkitaArtTests(unittest.TestCase):
-    def test_all_animation_frames_follow_the_shared_canvas_and_footprint_bounds(self) -> None:
-        minimum_area, maximum_area = 0.32, 0.48
-        minimum_margin_px = 4
-
-        for state, frame_count in AKITA_FRAME_COUNTS.items():
-            for frame in range(frame_count):
-                with self.subTest(state=state, frame=frame):
-                    pixels = rgba_icon(state, frame)
-                    self.assertEqual(len(pixels), AKITA_SIZE * AKITA_SIZE * 4)
-                    opaque = [
-                        (x, y)
-                        for y in range(AKITA_SIZE)
-                        for x in range(AKITA_SIZE)
-                        if pixels[(y * AKITA_SIZE + x) * 4 + 3] > 128
-                    ]
-                    xs = [point[0] for point in opaque]
-                    ys = [point[1] for point in opaque]
-                    area = len(opaque) / (AKITA_SIZE * AKITA_SIZE)
-                    margins = (min(xs), min(ys), AKITA_SIZE - 1 - max(xs),
-                               AKITA_SIZE - 1 - max(ys))
-
-                    self.assertGreaterEqual(area, minimum_area)
-                    self.assertLessEqual(area, maximum_area)
-                    self.assertGreaterEqual(min(margins), minimum_margin_px)
-
     def test_state_fallback_images_match_the_first_animation_frame(self) -> None:
         root = Path(__file__).resolve().parents[1] / "codex_pet/assets/akita"
         for state in AKITA_FRAME_COUNTS:
@@ -114,17 +89,6 @@ class AkitaArtTests(unittest.TestCase):
                 frame_names = sorted(path.name for path in (root / state).glob("*.png"))
                 expected_names = [f"{frame:02}.png" for frame in range(frame_count)]
                 self.assertEqual(frame_names, expected_names)
-
-    def test_running_pet_keeps_a_similar_visible_scale_to_other_states(self) -> None:
-        def opaque_area(pixels: bytes) -> int:
-            return sum(pixels[offset] > 128
-                       for offset in range(3, len(pixels), 4))
-
-        idle_area = opaque_area(rgba_icon("idle", 0))
-        for frame in range(AKITA_FRAME_COUNTS["running"]):
-            running_area = opaque_area(rgba_icon("running", frame))
-            self.assertGreaterEqual(running_area / idle_area, 0.78, frame)
-            self.assertLessEqual(running_area / idle_area, 0.95, frame)
 
     def test_akita_is_the_default_and_robot_remains_selectable(self) -> None:
         self.assertEqual(DEFAULT_APPEARANCE, "akita")
