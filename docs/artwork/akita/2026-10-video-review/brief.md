@@ -67,3 +67,7 @@ Ready 进入表改为 ready/04 蹲下 160ms → /01 上升 200ms → /02 顶点 
 - 隔离本线程会话后 `codex-pet test` 通过；合成 Stop 后追加迟到 PostToolUse，状态仍是 Ready、GUI ready；恢复本线程时保留 turn_id。
 - `git diff --check` 通过。尚未取得本轮新录屏的人工视觉确认；未重测真实拖动（触摸实现未改）。
 - 新 daemon 启动后的日志无 ERROR / traceback；较早的超时属于旧进程记录，本轮未修改其处理逻辑。
+
+## 后续设备录屏
+
+第二份录屏已完成逐帧复核，见 [followup.md](followup.md)。Ready 去停顿已生效，未发现停止后再跑；整帧换序对后脚轨迹产生代价，四肢协调与转身过渡仍未通过视觉验收。
