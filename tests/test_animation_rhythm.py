@@ -2,6 +2,7 @@
 
 import unittest
 import hashlib
+from png_fingerprint import historical_png_sha256
 import json
 from pathlib import Path
 import tempfile
@@ -54,8 +55,8 @@ class AnimationRhythmTests(unittest.TestCase):
             export(PACKAGE / 'export-draft.json', target)
             for item, frame in zip(recipe['exports'], manifest['frames']):
                 png = (target / item['output']).read_bytes()
-                self.assertEqual(png, (PACKAGE / frame['file']).read_bytes())
-                self.assertEqual(hashlib.sha256(png).hexdigest(), frame['sha256'])
+                self.assertEqual(_decode_rgba_png(png), _decode_rgba_png((PACKAGE / frame['file']).read_bytes()))
+                self.assertEqual(historical_png_sha256(png), frame['sha256'])
                 w, h, actual = _decode_rgba_png(png)
                 self.assertEqual((w, h), (256, 256))
                 _, _, reference = _decode_rgba_png((PACKAGE / item['original']).read_bytes())

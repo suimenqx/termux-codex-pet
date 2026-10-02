@@ -1,0 +1,71 @@
+{
+  "Pillow": "12.3.0",
+  "note": "Actual production PNG renderer on two fresh native connections; command fence is not screen presentation",
+  "observations": [
+    {
+      "connection": 0,
+      "pet": "akita",
+      "state": "idle",
+      "prepare_ms": 193.179687,
+      "PNG_submit_and_fence_ms": 67.864584,
+      "plugin_version": 7
+    },
+    {
+      "connection": 0,
+      "pet": "akita",
+      "state": "running",
+      "prepare_ms": 63.118229,
+      "PNG_submit_and_fence_ms": 52.596875,
+      "plugin_version": 7
+    },
+    {
+      "connection": 0,
+      "pet": "robot",
+      "state": "running",
+      "prepare_ms": 20.155729,
+      "PNG_submit_and_fence_ms": 3.058333,
+      "plugin_version": 7
+    },
+    {
+      "connection": 0,
+      "pet": "akita",
+      "state": "ready",
+      "prepare_ms": 4.898958,
+      "PNG_submit_and_fence_ms": 35.719271,
+      "plugin_version": 7
+    },
+    {
+      "connection": 1,
+      "pet": "akita",
+      "state": "idle",
+      "prepare_ms": 12.25573,
+      "PNG_submit_and_fence_ms": 65.26875,
+      "plugin_version": 7
+    },
+    {
+      "connection": 1,
+      "pet": "akita",
+      "state": "running",
+      "prepare_ms": 133.317708,
+      "PNG_submit_and_fence_ms": 64.696875,
+      "plugin_version": 7
+    },
+    {
+      "connection": 1,
+      "pet": "robot",
+      "state": "running",
+      "prepare_ms": 78.584895,
+      "PNG_submit_and_fence_ms": 3.797396,
+      "plugin_version": 7
+    },
+    {
+      "connection": 1,
+      "pet": "akita",
+      "state": "ready",
+      "prepare_ms": 9.673959,
+      "PNG_submit_and_fence_ms": 52.541145,
+      "plugin_version": 7
+    }
+  ],
+  "method": "Two real native connections, cold per-connection source/composer, first Pillow decode included. The full unit suite was running concurrently, so timings are diagnostic observations under load, not a controlled performance comparison."
+}

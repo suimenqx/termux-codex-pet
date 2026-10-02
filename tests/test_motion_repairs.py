@@ -101,7 +101,8 @@ class MotionRepairTests(unittest.TestCase):
                 target = ROOT / 'codex_pet/assets/akita/frames' / item['output']
                 if item['output'] == 'ready/06.png':
                     target = ROOT / 'docs/artwork/akita/2026-10-continuity/originals/ready/06.png'
-                self.assertEqual((output / item['output']).read_bytes(), target.read_bytes())
+                self.assertEqual(_decode_rgba_png((output / item['output']).read_bytes()),
+                                 _decode_rgba_png(target.read_bytes()))
             with self.assertRaises(ValueError):
                 export(folder / 'export.json', output)
 

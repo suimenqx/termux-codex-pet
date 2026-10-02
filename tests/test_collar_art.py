@@ -79,7 +79,8 @@ class CollarArtTests(unittest.TestCase):
             output = Path(temp) / 'export'
             export(PACKAGE / 'export.json', output)
             for item in json.loads((PACKAGE / 'export.json').read_text())['exports']:
-                self.assertEqual((output / item['output']).read_bytes(), (ASSETS / item['output']).read_bytes())
+                self.assertEqual(_decode_rgba_png((output / item['output']).read_bytes()),
+                                 _decode_rgba_png((ASSETS / item['output']).read_bytes()))
 
     def test_sheet_cell_selection_and_invalid_indices(self):
         with tempfile.TemporaryDirectory() as temp:

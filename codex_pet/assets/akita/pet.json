@@ -366,5 +366,6 @@
       "visible_above": 1,
       "clamp": 10
     }
-  }
+  },
+  "color_space": "srgb"
 }

@@ -84,6 +84,8 @@ def compile_pack(manifest: Path, *, validate_images: bool = False) -> PetPack:
         display = _dimensions(data.get('display_dp'), 'display_dp')
         if canvas[0] * canvas[1] * 4 > MAX_DECODE_BYTES:
             raise ValueError('Canvas exceeds decode budget')
+        if data.get('color_space', 'srgb') != 'srgb':
+            raise ValueError('Only sRGB pet assets are supported')
         source = _mapping(data.get('source'), 'source')
         builtin = source.get('kind') == 'builtin'
         if builtin:
@@ -213,6 +215,8 @@ def bundled_pack(pack_id: str) -> PetPack:
 
 
 def preflight(package: Path) -> None:
+    from .image_codec import check_capability
+    check_capability()
     for name in ('robot', 'akita'):
         pack = compile_pack(package / 'assets' / name / 'pet.json', validate_images=True)
         if pack.id != name:

@@ -6,23 +6,13 @@ import zlib
 from codex_pet.animation import AKITA_FRAME_COUNTS
 from codex_pet.art import icon, rgba_icon
 from codex_pet.pets import DEFAULT_APPEARANCE
+from codex_pet.image_codec import decode_png
 
 
 def png_pixel(image: bytes, x: int, y: int) -> tuple[int, int, int, int]:
-    offset = 8
-    compressed = bytearray()
-    while offset < len(image):
-        size = struct.unpack_from(">I", image, offset)[0]
-        kind = image[offset + 4:offset + 8]
-        data = image[offset + 8:offset + 8 + size]
-        if kind == b"IDAT":
-            compressed.extend(data)
-        offset += size + 12
-    pixels = zlib.decompress(compressed)
-    stride = 1 + 64 * 4
-    row = pixels[y * stride:(y + 1) * stride]
-    start = 1 + x * 4
-    return tuple(row[start:start + 4])  # type: ignore[return-value]
+    width, _, pixels = decode_png(image)
+    start = (y * width + x) * 4
+    return tuple(pixels[start:start + 4])  # type: ignore[return-value]
 
 
 def png_dimensions(image: bytes) -> tuple[int, int]:

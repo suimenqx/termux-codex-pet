@@ -1,6 +1,7 @@
 """Recorded breakdowns, fixed key times and interruptible turn completion."""
 
 import hashlib
+from png_fingerprint import historical_png_sha256
 import json
 from pathlib import Path
 import tempfile
@@ -58,8 +59,8 @@ class AnimationContinuityTests(unittest.TestCase):
             for key, expected in delivery['sha256'].items():
                 relative = Path(key).relative_to('frames')
                 data = (output / relative).read_bytes()
-                self.assertEqual(hashlib.sha256(data).hexdigest(), expected)
-                self.assertEqual(data, (ASSETS / relative).read_bytes())
+                self.assertEqual(historical_png_sha256(data), expected)
+                self.assertEqual(_decode_rgba_png(data), _decode_rgba_png((ASSETS / relative).read_bytes()))
 
     def test_breakdowns_preserve_pixels_outside_the_declared_limb_regions(self):
         for item in json.loads((PACKAGE / 'export.json').read_text())['exports']:

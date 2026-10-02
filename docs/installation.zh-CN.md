@@ -10,7 +10,7 @@
 | Termux:GUI Android 应用 | 创建原生悬浮窗 | 需单独安装；其签名来源必须与已安装的 Termux 兼容。`install.sh` 不安装 APK。 |
 | 悬浮窗权限 | 让 Pet 显示在其他应用上层 | 在 Android 中打开 **Termux:GUI → Advanced → Display over other apps** 并开启。安装脚本无法替用户授权。 |
 | `git` 命令 | 克隆仓库 | 克隆前运行 `pkg install -y git`；仓库下载前安装脚本无法安装 Git。 |
-| Python、libpng、`termuxgui` Python binding | 绘制素材并连接 Termux:GUI | 缺少时由 `install.sh` 自动安装。 |
+| Python、Pillow（`python-pillow`）、`termuxgui` Python binding | 绘制素材并连接 Termux:GUI | 缺少时由 `install.sh` 自动安装。 |
 | Codex CLI | 让真实 Codex 会话驱动 Pet 状态 | 安装和演示 Pet 不需要；要接收真实会话 hook 才需要。若未安装，请单独安装 Codex。 |
 | Termux:API 应用和包 | 悬浮窗不可用时的可选通知 | 悬浮窗不依赖它。只有需要通知回退时才安装签名兼容的 Android 应用，并运行 `pkg install termux-api`。 |
 
@@ -44,7 +44,7 @@ git -C ~/codex-pet pull --ff-only origin main
 
 安装器会把运行文件复制到 `~/.local/share/codex-pet/releases/` 下的版本目录，并在 `~/.local/bin/` 创建固定命令入口。运行中的 Pet 不再依赖源码仓库的位置，因此安装后可以移动仓库。更新或卸载时仍需要一个源码仓库。如果仓库位于 Android 共享存储，请通过 `bash ./install.sh` 启动安装器；共享存储不支持直接执行脚本。
 
-`install.sh` 会通过 `pkg` 安装缺少的 Python 和 `libpng`，再通过 `python -m pip` 安装 `termuxgui` Python binding。部署模块会创建独立的私有运行版本、原子切换当前版本、创建固定命令入口、安全合并 Codex hooks、重启 daemon 并发送 IPC 冒烟事件。它会保留上一个运行版本；若已检查的安装步骤失败，会恢复原先的版本链接、命令路径及 hooks 文件，此前 daemon 正在运行时还会重新启动它。修改 Codex 配置前会备份原文件。它不会安装 Termux:GUI Android 应用、开启 Android 权限、安装 Codex CLI，也不会替用户信任 hook。
+`install.sh` 会通过 `pkg` 安装缺少的 Python 和 `python-pillow`，再通过 `python -m pip` 安装 `termuxgui` Python binding。部署模块会暂存独立的私有运行版本，验证真实 Pillow PNG 解码能力、两个素材清单及全部引用图片，再原子切换当前版本、创建固定命令入口、安全合并 Codex hooks、重启 daemon 并发送 IPC 冒烟事件。它会保留上一个运行版本；若已检查的安装步骤失败，会恢复原先的版本链接、命令路径及 hooks 文件，此前 daemon 正在运行时还会重新启动它。修改 Codex 配置前会备份原文件。它不会安装 Termux:GUI Android 应用、开启 Android 权限、安装 Codex CLI，也不会替用户信任 hook。
 
 如果 `~/.codex/config.toml` 已有内联 hook 事件组，安装器会更新该文件；否则会把 Pet 命令合并到 `~/.codex/hooks.json`。只有 `hooks.state` 元数据并不会触发 inline 模式。已有用户 hooks 会保留，修改过的配置会备份，使用的模式会记录在 `~/.config/codex-pet/install.json`。`import termuxgui` 只验证 Python binding；还需通过 `codex-pet status` 确认设备侧 Android 应用和权限正常，即显示 `GUI=ready`。
 
@@ -57,13 +57,13 @@ git -C ~/codex-pet pull --ff-only origin main
 
 ## 依赖检查与修复
 
-在 Termux 中运行以下命令，确认具体缺少哪项依赖：
+在 Termux 的源码仓库目录中运行以下命令，确认具体缺少哪项依赖：
 
 ```sh
 command -v pkg
 command -v git
 printf 'PREFIX=%s\n' "${PREFIX:-unset}"
-python -c 'import ctypes; ctypes.CDLL("libpng16.so"); print("libpng OK")'
+python -c 'from codex_pet.image_codec import check_capability; check_capability(); print("Pillow PNG OK")'
 python -c 'import termuxgui; print(termuxgui.__file__)'
 ```
 
@@ -72,7 +72,7 @@ python -c 'import termuxgui; print(termuxgui.__file__)'
 | 找不到 `pkg` 或 `PREFIX=unset` | 命令不在 Termux 应用内运行，或 Termux 环境异常。不要从桌面 Linux、macOS 或普通 Android shell 运行 `install.sh`；打开 Termux 后重试检查。 |
 | 克隆前提示 `git: command not found` | 运行 `pkg install -y git`。若软件包索引过期，先运行 `pkg update`。 |
 | `Unable to locate package` 或软件源下载错误 | 保留完整的 `pkg` 输出，先检查网络并运行 `pkg update`。若当前镜像不可用，通过 Termux 软件源选择器切换后重试。 |
-| libpng 检查报 `libpng16.so` 的 `OSError` | 运行 `pkg install -y libpng`，然后重复原检查。这是原生图像解码依赖。 |
+| `Pillow PNG capability unavailable` | 运行 `pkg install -y python-pillow`，再从源码仓库重复真实 PNG 解码检查；仅 import 成功不足以验证解码器。素材包或 codec 预检失败会保留当前版本。 |
 | `No module named termuxgui` | 运行 `python -m pip install termuxgui`，再重复 import 检查。如果 pip 失败，保留完整错误并检查 PyPI/网络；不要换成其他 binding 包。 |
 | `Codex Pet did not start` 或 `GUI=unavailable` | 检查 Termux:GUI Android 应用是否已安装、签名来源是否兼容，以及 **Display over other apps** 是否开启。然后运行 `codex-pet restart`、`codex-pet status` 并查看 `~/.cache/codex-pet/pet.log`。 |
 | `Cannot install over directory` | 命令链接位置上存在目录。先检查目录及内部文件，再决定备份或换安装位置；安装器会拒绝覆盖目录。 |
@@ -86,3 +86,5 @@ python -c 'import termuxgui; print(termuxgui.__file__)'
 没有 Codex CLI 也能安装 Pet 并演示各状态。要让真实会话驱动状态，请安装并启动 Codex；安装 hooks 后重启 Codex。在新会话中运行 `/hooks` 查看已注册命令。如 Codex 提示信任 hook，应把提示交给用户查看和决定。安装器会把 hook 模式（写入 `~/.codex/config.toml` 的 inline hooks 或 `~/.codex/hooks.json`）记录在 `~/.config/codex-pet/install.json`。
 
 如需卸载，从任一源码仓库运行 `bash ./uninstall.sh`。脚本会停止 daemon，移除 Pet 命令入口、Pet 自己添加的 hooks 和带有标记的运行版本，同时保留 Python 依赖、Codex 配置备份及保存的位置和形象选择。
+
+图片契约是 sRGB、紧密排列的 straight RGBA8。无颜色标签的 PNG 按素材包声明的 sRGB 解释；ICC、HDR 和不兼容 gamma／色度会被拒绝，不进行隐式颜色转换。运行时不安装 NumPy。本机实测 Python 3.14.6、Pillow 12.3.0、binding 0.1.6、Termux:GUI version 7；其他设备仍需检查本机权限和 GUI。

@@ -1,72 +1,97 @@
-"""PNG pixel conversion, isolated from asset selection and native windows.
+"""Lazy Pillow conversion to tightly packed, straight-alpha sRGB RGBA8.
 
-The existing codec is retained behind this boundary until the Pillow ticket.
+Untagged PNGs are interpreted as sRGB under the pet asset contract. Other
+profiles are rejected, not silently converted or stripped.
 """
 from __future__ import annotations
-import ctypes
+from io import BytesIO
 import struct
-import zlib
+
+MAX_DECODE_BYTES = 64 * 1024 * 1024
+_CAPABILITY_PNG = bytes.fromhex(
+    '89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489'
+    '0000000d49444154789c63300aa8680000032d017bc223cb020000000049454e44ae426082')
+_SRGB_CHROMATICITY = (.3127, .3290, .64, .33, .30, .60, .15, .06)
+
+
+def _dimensions(width: int, height: int) -> None:
+    if (type(width) is not int or type(height) is not int or min(width, height) <= 0
+            or width * height * 4 > MAX_DECODE_BYTES):
+        raise ValueError(
+            'Image exceeds decode budget or has invalid dimensions')
+
+
+def _check_container(data: bytes) -> None:
+    if len(data) > MAX_DECODE_BYTES or data[:8] != b'\x89PNG\r\n\x1a\n':
+        raise ValueError('Expected PNG within encoded byte budget')
+    offset = 8
+    while offset + 12 <= len(data):
+        length = struct.unpack_from('>I', data, offset)[0]
+        tag = data[offset + 4:offset + 8]
+        if offset + 12 + length > len(data):
+            raise ValueError('Truncated PNG chunk')
+        if tag in (b'iCCP', b'cICP', b'mDCV', b'cLLI'):
+            raise ValueError('Unsupported PNG color profile')
+        offset += 12 + length
+        if tag == b'IEND':
+            break
+
+
+def decode_png(data: bytes) -> tuple[int, int, bytearray]:
+    from PIL import Image
+    _check_container(data)
+    try:
+        with Image.open(BytesIO(data)) as image:
+            if image.format != 'PNG':
+                raise ValueError('Expected PNG')
+            width, height = image.size
+            _dimensions(width, height)
+            info = image.info
+            if 'srgb' in info and info['srgb'] not in (0, 1, 2, 3):
+                raise ValueError('Invalid sRGB rendering intent')
+            if 'gamma' in info and abs(info['gamma'] - .45455) > .00001:
+                raise ValueError('Unsupported PNG gamma')
+            if 'chromaticity' in info:
+                values = info['chromaticity']
+                if len(values) != 8 or any(abs(a - b) > .00001 for a, b in zip(values, _SRGB_CHROMATICITY)):
+                    raise ValueError('Unsupported PNG chromaticity')
+            image.verify()
+        with Image.open(BytesIO(data)) as image:
+            image.load()
+            with image.convert('RGBA') as rgba:
+                pixels = rgba.tobytes()
+        if len(pixels) != width * height * 4:
+            raise ValueError('Unexpected RGBA stride')
+        return width, height, bytearray(pixels)
+    except (OSError, SyntaxError, Image.DecompressionBombError) as exc:
+        raise ValueError(f'Cannot decode PNG: {exc}') from exc
+
 
 def encode_png(width: int, height: int, pixels: bytes | bytearray) -> bytes:
-    raw = b"".join(b"\0" + pixels[y * width * 4:(y + 1) * width * 4]
-                   for y in range(height))
-
-    def chunk(tag: bytes, data: bytes) -> bytes:
-        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data))
-
-    return (
-        b"\x89PNG\r\n\x1a\n"
-        + chunk(b"IHDR", struct.pack(">2I5B", width, height, 8, 6, 0, 0, 0))
-        + chunk(b"IDAT", zlib.compress(raw, 6))
-        + chunk(b"IEND", b"")
-    )
+    from PIL import Image
+    _dimensions(width, height)
+    if len(pixels) != width * height * 4:
+        raise ValueError('Expected tightly packed RGBA8')
+    output = BytesIO()
+    with Image.frombytes('RGBA', (width, height), bytes(pixels)) as image:
+        image.save(output, format='PNG', compress_level=6)
+    return output.getvalue()
 
 
-class _PNGImage(ctypes.Structure):
-    _fields_ = [
-        ("opaque", ctypes.c_void_p), ("version", ctypes.c_uint32),
-        ("width", ctypes.c_uint32), ("height", ctypes.c_uint32),
-        ("format", ctypes.c_uint32), ("flags", ctypes.c_uint32),
-        ("colormap_entries", ctypes.c_uint32), ("warning_or_error", ctypes.c_uint32),
-        ("message", ctypes.c_char * 64),
-    ]
+def premultiply(width: int, height: int, pixels: bytes) -> bytes:
+    from PIL import Image
+    _dimensions(width, height)
+    if len(pixels) != width * height * 4:
+        raise ValueError('Expected tightly packed RGBA8')
+    with Image.frombytes('RGBA', (width, height), pixels) as image:
+        with image.convert('RGBa') as premultiplied:
+            return premultiplied.tobytes()
 
 
-_LIBPNG: ctypes.CDLL | None
-try:
-    _LIBPNG = ctypes.CDLL("libpng16.so")
-    _LIBPNG.png_image_begin_read_from_memory.argtypes = (
-        ctypes.POINTER(_PNGImage), ctypes.c_void_p, ctypes.c_size_t)
-    _LIBPNG.png_image_begin_read_from_memory.restype = ctypes.c_int
-    _LIBPNG.png_image_finish_read.argtypes = (
-        ctypes.POINTER(_PNGImage), ctypes.c_void_p, ctypes.c_void_p,
-        ctypes.c_int32, ctypes.c_void_p)
-    _LIBPNG.png_image_finish_read.restype = ctypes.c_int
-    _LIBPNG.png_image_free.argtypes = (ctypes.POINTER(_PNGImage),)
-except (AttributeError, OSError):
-    _LIBPNG = None
-
-
-def decode_png(image: bytes) -> tuple[int, int, bytearray]:
-    """Decode the illustration with libpng before drawing its live count badge."""
-    if _LIBPNG is None:
-        raise ValueError("libpng is unavailable")
-    source = ctypes.create_string_buffer(image)
-    decoded = _PNGImage()
-    decoded.version = 1
-    pointer = ctypes.byref(decoded)
+def check_capability() -> None:
+    """Exercise the actual PNG decoder, not merely the Pillow import."""
     try:
-        if not _LIBPNG.png_image_begin_read_from_memory(pointer, source, len(image)):
-            raise ValueError(decoded.message.decode("utf-8", "replace"))
-        width, height = int(decoded.width), int(decoded.height)
-        if width <= 0 or height <= 0 or width * height * 4 > 64 * 1024 * 1024:
-            raise ValueError("Image exceeds decode budget")
-        decoded.format = 3  # PNG_FORMAT_RGBA
-        pixels = bytearray(width * height * 4)
-        output = (ctypes.c_char * len(pixels)).from_buffer(pixels)
-        if not _LIBPNG.png_image_finish_read(pointer, None, output, 0, None):
-            raise ValueError(decoded.message.decode("utf-8", "replace"))
-        return width, height, pixels
-    finally:
-        _LIBPNG.png_image_free(pointer)
-
+        if decode_png(_CAPABILITY_PNG) != (1, 1, bytearray((50, 80, 120, 128))):
+            raise ValueError('PNG decoder changed the capability fixture')
+    except (ImportError, OSError, ValueError, AttributeError) as exc:
+        raise ValueError(f'Pillow PNG capability unavailable: {exc}') from exc

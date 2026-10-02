@@ -135,12 +135,12 @@ def main() -> None:
         },
         "checks": {}, "timings": {}, "raw_timings": {},
     }
-    from codex_pet import image_codec
-    libpng_version = image_codec._LIBPNG.png_get_libpng_ver
-    libpng_version.argtypes = (ctypes.c_void_p,)
-    libpng_version.restype = ctypes.c_char_p
-    result["environment"]["libpng"] = libpng_version(None).decode()
-    # -I ignores PYTHONPATH, proving that package trials did not install globally.
+    import PIL
+    result["environment"]["production_codec"] = "Pillow " + PIL.__version__
+    result["method"]["baseline_note"] = (
+        "Current production codec is Pillow. The Pillow/production comparison is not an independent codec oracle; "
+        "use the committed pre-refactor RGBA fingerprints for migration validation. Historical libpng results remain archived.")
+    # -I ignores PYTHONPATH and records current global dependency availability.
     result["environment"]["global_modules"] = json.loads(subprocess.check_output([
         sys.executable, "-I", "-c",
         "import json,importlib.util; print(json.dumps({m:bool(importlib.util.find_spec(m)) for m in ('PIL','numpy')}))",
@@ -186,8 +186,8 @@ def main() -> None:
     }
     sample_bytes = source_bytes[0]
     sample_rgba = bytes(decoded[0][2])
-    bench("libpng_decode_one_256", lambda: art._decode_rgba_png(sample_bytes))
-    bench("libpng_decode_all_34", lambda: [art._decode_rgba_png(b) for b in source_bytes], samples=10)
+    bench("production_decode_one_256", lambda: art._decode_rgba_png(sample_bytes))
+    bench("production_decode_all_34", lambda: [art._decode_rgba_png(b) for b in source_bytes], samples=10)
     bench("stdlib_premultiply_256", lambda: premultiply_integer(sample_rgba), samples=10)
     art.rgba_icon("running", 0)
     art.icon("running", 0)
@@ -218,7 +218,7 @@ def main() -> None:
         }
         imports["pillow_image"] = "from PIL import Image"
         frames = [Image.open(io.BytesIO(b)).convert("RGBA") for b in source_bytes]
-        result["checks"]["pillow_libpng_all_frames_exact"] = all(im.tobytes() == bytes(d[2]) for im, d in zip(frames, decoded))
+        result["checks"]["pillow_production_all_frames_exact"] = all(im.tobytes() == bytes(d[2]) for im, d in zip(frames, decoded))
         bench("pillow_decode_one_256", lambda: Image.open(io.BytesIO(sample_bytes)).convert("RGBA").tobytes())
         bench("pillow_decode_all_34", lambda: [Image.open(io.BytesIO(b)).convert("RGBA").tobytes() for b in source_bytes], samples=10)
 

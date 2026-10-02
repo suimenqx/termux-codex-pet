@@ -6,9 +6,10 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 if ! command -v python >/dev/null 2>&1; then
   pkg install -y python
 fi
-if ! python -c 'import ctypes; ctypes.CDLL("libpng16.so")' >/dev/null 2>&1; then
-  pkg install -y libpng
+if ! PYTHONPATH="$PROJECT_DIR" python -c 'from codex_pet.image_codec import check_capability; check_capability()' >/dev/null 2>&1; then
+  pkg install -y python-pillow
 fi
+PYTHONPATH="$PROJECT_DIR" python -c 'from codex_pet.image_codec import check_capability; check_capability()'
 if ! python -c 'import termuxgui' >/dev/null 2>&1; then
   python -m pip install termuxgui
 fi
