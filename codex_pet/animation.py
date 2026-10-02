@@ -1,225 +1,152 @@
-"""Pet animation policy and the shared playback timeline."""
+"""Offline playback and historical index adapters over compiled pet packs.
 
+Frame references are the production interface. Integer indices remain for old
+artwork exports and regression fixtures; they are derived, never another table.
+"""
 from __future__ import annotations
-
 from dataclasses import dataclass
+from functools import lru_cache
+from .pet_pack import PetPack, bundled_pack
+from .clip_timeline import schedule
+from .pet_runtime import PetRuntime, PetVisual
+from .pets import appearance_for
 
-from .pets import (
-    ANIMATION_PROFILE_AKITA, ANIMATION_PROFILE_ROBOT, appearance_for,
-)
-
-AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
-# Keep the eight key poses at their original times; split two large leg moves.
-_AKITA_RUNNING_SEQUENCE = (0, 8, 1, 2, 3, 4, 9, 5, 6, 7)
-_AKITA_READY_SEQUENCE = (
-    ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
-    ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
-    ("idle", 7), ("idle", 0),
-)
-AKITA_READY_LOOP_START = 4
-AKITA_READY_LOOP_END = len(_AKITA_READY_SEQUENCE) - 1
-AKITA_READY_RUNNING_ENTRY_START = len(_AKITA_READY_SEQUENCE)
-# Contextual entry is outside the rest loop. It joins the normal entry at 0.
-_AKITA_READY_SEQUENCE += (("ready", 5), ("ready", 6), ("ready", 7))
-AKITA_FRAME_COUNTS = {
-    "idle": 8,
-    "running": len(_AKITA_RUNNING_SEQUENCE),
-    "needs_input": 4,
-    "ready": len(_AKITA_READY_SEQUENCE),
-    "blocked": 4,
-}
-AKITA_FRAME_INTERVALS = {
-    # Slow breath, one quick blink, then a quiet pause before the next loop.
-    "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    # Two 40 ms breakdowns preserve the original 640 ms cycle and key times.
-    "running": (0.04, 0.04, 0.08, 0.08, 0.08, 0.04, 0.04, 0.08, 0.08, 0.08),
-    # A small wave with a longer hold at the raised paw.
-    "needs_input": (0.2, 0.18, 0.18, 0.85),
-    # The entry hop settles into subtle breathing and a slow blink.
-    "ready": (0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8,
-              0.12, 0.12, 0.12),
-    # Blocked is a brief reaction that settles and holds its final pose.
-    "blocked": (0.12, 0.18, 0.18, 0.12),
-}
-AKITA_LOOP_STATES = frozenset(("idle", "running", "needs_input", "ready"))
-PREVIEW_FINAL_HOLD_SECONDS = 0.8
+AKITA_STATES = ('idle', 'running', 'needs_input', 'ready', 'blocked')
+PREVIEW_FINAL_HOLD_SECONDS = .8
 
 
 @dataclass(frozen=True)
-class PlaybackFrame:
-    """One logical frame and its finite duration in an offline playback."""
-
-    frame: int
-    duration_seconds: float
-
-
-def _appearance_id(appearance: str) -> str:
-    return appearance_for(appearance).id
+class _Slot:
+    clip: str
+    index: int
+    reference: str
+    duration: float | None
 
 
-def _akita_state(state: str) -> str:
-    return state if state in AKITA_FRAME_COUNTS else "idle"
+@lru_cache(maxsize=16)
+def _slots(appearance: str, state: str) -> tuple[_Slot, ...]:
+    pack = bundled_pack(appearance_for(appearance).id)
+    state = state if state in pack.roles else 'idle'
+    entries = [pack.entry(state)] + [entry for (_, target),
+                                     entry in pack.transitions.items() if target == state]
+    seen: set[str] = set()
+    result: list[_Slot] = []
+    for entry in entries:
+        clip = pack.clips[entry]
+        while clip.name not in seen:
+            seen.add(clip.name)
+            result.extend(_Slot(clip.name, i, ref, ns/1_000_000_000 if ns is not None else None)
+                          for i, (ref, ns) in enumerate(zip(clip.references, clip.durations_ns, strict=True)))
+            if clip.mode == 'hold' and clip.durations_ns[-1] is not None:
+                result.append(_Slot(clip.name, len(
+                    clip.references), clip.references[-1], None))
+            if clip.mode != 'next':
+                break
+            assert clip.next_clip is not None
+            clip = pack.clips[clip.next_clip]
+    return tuple(result)
 
 
-def _state_id(appearance: str, state: str) -> str:
-    profile = appearance_for(appearance).animation_profile
-    return _akita_state(state) if profile == ANIMATION_PROFILE_AKITA else state
+def frame_reference(appearance: str, state: str, frame: int = 0) -> str:
+    slots = _slots(appearance, state)
+    return slots[max(0, min(int(frame), len(slots)-1))].reference
 
 
 def akita_artwork_frame(state: str, frame: int) -> tuple[str, int]:
-    """Resolve one logical Akita frame to the artwork used for that pose."""
-    state = _akita_state(state)
-    frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-    if state == "ready":
-        return _AKITA_READY_SEQUENCE[frame]
-    if state == "running":
-        return state, _AKITA_RUNNING_SEQUENCE[frame]
-    return state, frame
+    pose, index = frame_reference('akita', state, frame).split('/')
+    return ('blink', 0) if index == 'blink' else (pose, int(index))
 
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:
-    """Return the frame's duration, or None when its final pose holds."""
-    profile = appearance_for(appearance).animation_profile
-    if profile == ANIMATION_PROFILE_AKITA:
-        state = _akita_state(state)
-        frame = max(0, int(frame))
-        intervals = AKITA_FRAME_INTERVALS[state]
-        if state not in AKITA_LOOP_STATES and frame >= len(intervals):
-            return None
-        return intervals[frame % len(intervals)]
-    if profile == ANIMATION_PROFILE_ROBOT:
-        if state == "running":
-            return 2.0
-        if state == "needs_input":
-            return 1.4
-        return None
-    raise ValueError(f"Unsupported animation profile: {profile}")
+    slots = _slots(appearance, state)
+    return slots[max(0, min(int(frame), len(slots)-1))].duration
 
 
 def advance_animation(appearance: str, state: str, frame: int) -> int:
-    """Return the next logical frame, preserving each appearance's cycle."""
-    profile = appearance_for(appearance).animation_profile
-    if profile == ANIMATION_PROFILE_AKITA:
-        state = _akita_state(state)
-        frame = max(0, int(frame))
-        frame_count = AKITA_FRAME_COUNTS[state]
-        if state == "ready":
-            if frame >= frame_count - 1:
-                return 0
-            if frame == AKITA_READY_LOOP_END:
-                return AKITA_READY_LOOP_START
-        if state in AKITA_LOOP_STATES:
-            return (frame + 1) % frame_count
-        return min(frame + 1, frame_count)
-    if profile == ANIMATION_PROFILE_ROBOT:
-        if state in ("running", "needs_input"):
-            return 1 - frame
-        return frame
-    raise ValueError(f"Unsupported animation profile: {profile}")
-
-
-def _cycle_bounds(appearance: str, state: str) -> tuple[int, int] | None:
-    profile = appearance_for(appearance).animation_profile
-    if profile == ANIMATION_PROFILE_AKITA:
-        state = _akita_state(state)
-        if state == "ready":
-            return AKITA_READY_LOOP_START, AKITA_READY_LOOP_END
-        if state in AKITA_LOOP_STATES:
-            return 0, AKITA_FRAME_COUNTS[state] - 1
-        return None
-    if profile == ANIMATION_PROFILE_ROBOT:
-        if state in ("running", "needs_input"):
-            return 0, 1
-        return None
-    raise ValueError(f"Unsupported animation profile: {profile}")
+    slots = _slots(appearance, state)
+    slot = slots[max(0, min(int(frame), len(slots)-1))]
+    clip = bundled_pack(appearance_for(appearance).id).clips[slot.clip]
+    if slot.index+1 < len(clip.references):
+        key = clip.name, slot.index+1
+    elif clip.mode == 'next':
+        assert clip.next_clip is not None
+        key = clip.next_clip, 0
+    elif clip.mode == 'loop':
+        key = clip.name, 0
+    else:
+        key = clip.name, len(
+            clip.references) if clip.durations_ns[-1] is not None else 0
+    return next(i for i, row in enumerate(slots) if (row.clip, row.index) == key)
 
 
 class AnimationTimeline:
-    """Advance one pet state's frames against an anchored monotonic schedule."""
+    """Compatibility view of PetRuntime for archived artwork tooling."""
 
-    def __init__(self, appearance: str, state: str, now: float,
-                 running_count: int = 0) -> None:
-        self.frame = 0
-        self.deadline: float | None = None
+    def __init__(self, appearance: str, state: str, now: float, running_count: int = 0):
         self.reset(appearance, state, now, running_count)
 
-    def reset(self, appearance: str, state: str, now: float,
-              running_count: int = 0) -> None:
-        """Start a changed visual at frame zero and anchor its next deadline."""
-        self.appearance = _appearance_id(appearance)
-        self.state = _state_id(self.appearance, state)
-        self.visual = (self.appearance, self.state,
-                       int(running_count) if self.state == "running" else 0)
-        self.frame = 0
-        self._set_deadline(now)
+    def reset(self, appearance: str, state: str, now: float, running_count: int = 0) -> None:
+        self.runtime = PetRuntime(
+            PetVisual(appearance, state, running_count), now)
 
-    def sync(self, appearance: str, state: str, running_count: int,
-             now: float) -> bool:
-        """Reset only when the visible appearance, state, or badge changes."""
-        appearance = _appearance_id(appearance)
-        state = _state_id(appearance, state)
-        visual = (appearance, state, int(running_count) if state == "running" else 0)
-        if visual == self.visual:
-            return False
-        from_running = (self.appearance == appearance
-                        and appearance_for(appearance).animation_profile == ANIMATION_PROFILE_AKITA
-                        and self.state == "running" and state == "ready")
-        self.reset(appearance, state, now, running_count)
-        if from_running:
-            self.frame = AKITA_READY_RUNNING_ENTRY_START
-            self._set_deadline(now)
-        return True
+    @property
+    def appearance(self) -> str:
+        return self.runtime.pack.id
 
-    def _set_deadline(self, now: float) -> None:
-        interval = animation_interval(self.appearance, self.state, self.frame)
-        self.deadline = now + interval if interval is not None else None
+    @property
+    def state(self) -> str:
+        state = self.runtime.visual.state
+        return state if state in self.runtime.pack.roles else 'idle'
+
+    @property
+    def frame(self) -> int:
+        timeline = self.runtime.timeline
+        return next(i for i, row in enumerate(_slots(self.appearance, self.state))
+                    if (row.clip, row.index) == (timeline.clip_id, timeline.index))
+
+    @property
+    def deadline(self) -> float | None:
+        return self.runtime.deadline
 
     def timeout(self, now: float) -> float | None:
-        if self.deadline is None:
-            return None
-        return max(0.0, self.deadline - now)
+        return self.runtime.timeout(now)
 
     def due(self, now: float) -> bool:
         return self.deadline is not None and now >= self.deadline
 
+    def sync(self, appearance: str, state: str, running_count: int, now: float) -> bool:
+        return self.runtime.sync(PetVisual(appearance, state, running_count), now)
+
     def advance(self, now: float) -> int:
-        """Advance to the frame due now, skipping missed frames without a burst."""
-        if not self.due(now):
-            return self.frame
-
-        assert self.deadline is not None
-        next_deadline = self.deadline
-        while True:
-            self.frame = advance_animation(self.appearance, self.state, self.frame)
-            interval = animation_interval(self.appearance, self.state, self.frame)
-            if interval is None:
-                self.deadline = None
-                return self.frame
-
-            next_deadline += interval
-            if next_deadline > now:
-                self.deadline = next_deadline
-                return self.frame
+        self.runtime.tick(now)
+        return self.frame
 
 
-def playback_frames(appearance: str, state: str, cycles: int = 1,
-                    *, from_state: str | None = None) -> tuple[PlaybackFrame, ...]:
-    """Build the same finite frame schedule used by the GUI for offline tools."""
-    if cycles < 1:
-        raise ValueError("cycles must be at least 1")
+@dataclass(frozen=True)
+class PlaybackFrame:
+    frame: int
+    duration_seconds: float
+    reference: str
 
-    # Temporary index compatibility for offline callers; all exposure timing
-    # and ordering comes from the compiled pack. Removed with tool migration.
-    from .pet_pack import bundled_pack
-    from .clip_timeline import schedule
-    appearance = _appearance_id(appearance)
-    pack = bundled_pack(appearance)
-    exposures = schedule(pack, state, cycles, from_state=from_state)
-    frame = 0
-    if appearance == 'akita' and from_state == 'running' and state == 'ready':
-        frame = AKITA_READY_RUNNING_ENTRY_START
-    result = []
-    for step in exposures:
-        result.append(PlaybackFrame(frame, step.duration_seconds))
-        frame = advance_animation(appearance, state, frame)
-    return tuple(result)
+
+def playback_frames(appearance: str, state: str, cycles: int = 1, *, from_state: str | None = None) -> tuple[PlaybackFrame, ...]:
+    pack = bundled_pack(appearance_for(appearance).id)
+    indices = {(row.clip, row.index): i for i,
+               row in enumerate(_slots(pack.id, state))}
+    return tuple(PlaybackFrame(indices[step.clip, step.index], step.duration_seconds, step.reference)
+                 for step in schedule(pack, state, cycles, from_state=from_state))
+
+
+# Read-only compatibility names for existing artwork checks. No authored
+# timings, frame mappings or appearance-specific playback logic live here.
+AKITA_FRAME_COUNTS = {state: max(1, sum(row.duration is not None for row in _slots(
+    'akita', state))) for state in AKITA_STATES}
+AKITA_FRAME_INTERVALS = {state: tuple(row.duration for row in _slots(
+    'akita', state) if row.duration is not None) for state in AKITA_STATES}
+_ready_slots = _slots('akita', 'ready')
+_ready_pack = bundled_pack('akita')
+_ready_loop = [i for i, row in enumerate(
+    _ready_slots) if _ready_pack.clips[row.clip].mode == 'loop']
+AKITA_READY_LOOP_START, AKITA_READY_LOOP_END = _ready_loop[0], _ready_loop[-1]
+AKITA_READY_RUNNING_ENTRY_START = next(i for i, row in enumerate(
+    _ready_slots) if row.clip == _ready_pack.entry('ready', 'running'))

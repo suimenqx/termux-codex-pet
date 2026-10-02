@@ -16,17 +16,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.animation import (  # noqa: E402
-    AKITA_FRAME_COUNTS,
-    AKITA_STATES,
-    akita_artwork_frame,
-    playback_frames,
-)
-from codex_pet.art import (  # noqa: E402
-    AKITA_SIZE,
-    _png,
-    rgba_icon,
-)
+from codex_pet.image_codec import encode_png as _png  # noqa: E402
+from codex_pet.frames import FrameSource, FrameComposer  # noqa: E402
+from codex_pet.pet_pack import bundled_pack  # noqa: E402
+from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
+
+AKITA_SIZE = 256
 
 PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3.0
@@ -39,9 +34,11 @@ MIN_TAIL_EDGE_SWEEP_DP = 1.5
 _RUNNING_MANIFEST = json.loads((
     ROOT / "docs/artwork/akita/current-running.json"
 ).read_text())
-RUNNING_GAIT_PHASES = tuple(item["phase"] for item in _RUNNING_MANIFEST["frames"])
+RUNNING_GAIT_PHASES = tuple(item["phase"]
+                            for item in _RUNNING_MANIFEST["frames"])
 RUNNING_PAW_POINTS = {
-    name: tuple(item["paw_centers"][name] for item in _RUNNING_MANIFEST["frames"])
+    name: tuple(item["paw_centers"][name]
+                for item in _RUNNING_MANIFEST["frames"])
     for name in ("hind_near", "hind_far", "fore_near", "fore_far")
 }
 HIP_ORANGE_SOURCE_BOX = (60, 125, 135, 170)
@@ -89,6 +86,7 @@ class RenderedFrame:
     frame: int
     delay_seconds: float
     rgba: bytes
+    reference: str
 
 
 @dataclass(frozen=True)
@@ -98,14 +96,15 @@ class RenderAudit:
     contact_sheet: bytes
 
 
-def _resize_rgba(source: bytes, size: int) -> bytes:
+def _resize_rgba(source: bytes, size: int, source_size: tuple[int, int] = (256, 256)) -> bytes:
     """Scale the shared-buffer RGBA frame with premultiplied bilinear sampling."""
-    expected = AKITA_SIZE * AKITA_SIZE * 4
+    expected = source_size[0] * source_size[1] * 4
     if len(source) != expected:
-        raise ValueError(f"expected {expected} RGBA bytes, received {len(source)}")
+        raise ValueError(
+            f"expected {expected} RGBA bytes, received {len(source)}")
 
     result = bytearray(size * size * 4)
-    source_width = source_height = AKITA_SIZE
+    source_width, source_height = source_size
     for y in range(size):
         source_y = max(0.0, min(source_height - 1.0,
                                 (y + 0.5) * source_height / size - 0.5))
@@ -131,11 +130,13 @@ def _resize_rgba(source: bytes, size: int) -> bytes:
                 sample_alpha = source[offset + 3] / 255.0
                 alpha += sample_alpha * weight
                 for channel in range(3):
-                    color[channel] += source[offset + channel] * sample_alpha * weight
+                    color[channel] += source[offset +
+                                             channel] * sample_alpha * weight
 
             output = (y * size + x) * 4
             if alpha:
-                result[output:output + 3] = bytes(round(channel / alpha) for channel in color)
+                result[output:output +
+                       3] = bytes(round(channel / alpha) for channel in color)
             result[output + 3] = round(alpha * 255)
     return bytes(result)
 
@@ -156,26 +157,16 @@ def _changed_pixels(first: bytes, second: bytes, size: int,
     for y in range(y0, y1):
         for x in range(x0, x1):
             offset = (y * size + x) * 4
-            deltas = [abs(first[offset + c] - second[offset + c]) for c in range(4)]
+            deltas = [abs(first[offset + c] - second[offset + c])
+                      for c in range(4)]
             changed += max(deltas) > CHANGE_THRESHOLD
             difference += sum(deltas)
             channels += 4
     return changed, difference / channels if channels else 0.0
 
 
-def _tail_pose_frames(state: str) -> tuple[int, int] | None:
-    if state == "idle":
-        return 6, 7
-    if state != "ready":
-        return None
-    pose_steps: dict[int, int] = {}
-    for step in range(AKITA_FRAME_COUNTS["ready"]):
-        asset_state, asset_frame = akita_artwork_frame("ready", step)
-        if asset_state == "idle" and asset_frame in (6, 7):
-            pose_steps.setdefault(asset_frame, step)
-    if set(pose_steps) == {6, 7}:
-        return pose_steps[6], pose_steps[7]
-    return None
+def _tail_pose_frames(state: str) -> tuple[str, str] | None:
+    return ('idle/06', 'idle/07') if state in ('idle', 'ready') else None
 
 
 def _alpha_centroid(rgba: bytes, size: int,
@@ -216,8 +207,10 @@ def _tail_metrics(state: str, frames: tuple[RenderedFrame, ...], size: int,
     if poses is None:
         return None
     # Contextual entry changes exposure positions, not logical pose identities.
-    high = next((frame for frame in frames if frame.frame == poses[0]), None)
-    low = next((frame for frame in frames if frame.frame == poses[1]), None)
+    high = next(
+        (frame for frame in frames if frame.reference == poses[0]), None)
+    low = next(
+        (frame for frame in frames if frame.reference == poses[1]), None)
     if high is None or low is None:
         return None
     tail_box = _scaled_box(TAIL_SOURCE_BOX, size)
@@ -230,7 +223,8 @@ def _tail_metrics(state: str, frames: tuple[RenderedFrame, ...], size: int,
     low_bounds = _alpha_bounds(low.rgba, size, tail_box)
     centroid_delta_dp = None
     if high_center is not None and low_center is not None:
-        centroid_delta_dp = round(math.dist(high_center, low_center) / density, 3)
+        centroid_delta_dp = round(
+            math.dist(high_center, low_center) / density, 3)
     edge_sweep_dp = None
     if high_bounds is not None and low_bounds is not None:
         edge_sweep_dp = round(abs(high_bounds[2] - low_bounds[2]) / density, 3)
@@ -302,7 +296,8 @@ def _track_transitions(
     distance per exposure is diagnostic information, not a gait pass threshold.
     """
     if not points or len(points) != len(durations) or len(points) != len(physical_frames):
-        raise ValueError("each pose needs a point, duration and physical frame")
+        raise ValueError(
+            "each pose needs a point, duration and physical frame")
     if not math.isfinite(pixels_per_dp) or pixels_per_dp <= 0:
         raise ValueError("pixels per dp must be finite and positive")
     if any(not math.isfinite(seconds) or seconds <= 0 for seconds in durations):
@@ -330,11 +325,15 @@ def _track_transitions(
 def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
                          kind: str) -> dict[str, object] | None:
     """Track the near and far paws of one pair against the orange hip."""
-    if state != "running" or len(frames) < AKITA_FRAME_COUNTS["running"]:
+    pack = bundled_pack('akita')
+    count = len(pack.clips[pack.roles['running']].references)
+    if state != "running" or len(frames) < count:
         return None
 
-    cycle = frames[:AKITA_FRAME_COUNTS["running"]]
-    source_frames = [rgba_icon("running", frame.frame) for frame in cycle]
+    cycle = frames[:count]
+    source = FrameSource()
+    source_frames = [source.frame(
+        pack.id, pack.revision, frame.reference).pixels for frame in cycle]
     anchors = [_orange_hip_anchor(pixels) for pixels in source_frames]
     if any(anchor is None for anchor in anchors):
         return {"measurement": f"{kind}-paw paths relative to orange hip", "passed": False,
@@ -351,7 +350,7 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
     minimum_path = (MIN_HIND_FOOT_PATH_DP if kind == "hind"
                     else MIN_FORE_FOOT_PATH_DP)
     # Annotations describe physical drawings, not their playback positions.
-    source_indices = [akita_artwork_frame("running", frame.frame)[1] for frame in cycle]
+    source_indices = [int(frame.reference.split("/")[1]) for frame in cycle]
     for side in ("near", "far"):
         name = f"{kind}_{side}"
         points = [RUNNING_PAW_POINTS[name][index] for index in source_indices]
@@ -430,7 +429,8 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
         for near, far in zip(near_track, far_track)
         if near is not None and far is not None
     ]
-    mean_pair_separation_dp = sum(pair_separations_dp) / len(pair_separations_dp)
+    mean_pair_separation_dp = sum(
+        pair_separations_dp) / len(pair_separations_dp)
     separated_poses = sum(gap >= 6.0 for gap in pair_separations_dp)
     opposed_transitions = 0
     for index in range(len(near_track)):
@@ -446,7 +446,8 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
                       near_track[next_index][1] - near_track[index][1])
         far_delta = (far_track[next_index][0] - far_track[index][0],
                      far_track[next_index][1] - far_track[index][1])
-        magnitude = math.dist((0, 0), near_delta) * math.dist((0, 0), far_delta)
+        magnitude = math.dist((0, 0), near_delta) * \
+            math.dist((0, 0), far_delta)
         if magnitude and (near_delta[0] * far_delta[0] + near_delta[1] * far_delta[1]) / magnitude < -0.15:
             opposed_transitions += 1
     minimum_separation = (MIN_HIND_PAIR_SEPARATION_DP if kind == "hind"
@@ -533,15 +534,18 @@ def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
                 alpha = frame.rgba[source + 3]
                 inverse = 255 - alpha
                 canvas[destination:destination + 4] = bytes((
-                    (frame.rgba[source] * alpha + color[0] * inverse + 127) // 255,
-                    (frame.rgba[source + 1] * alpha + color[1] * inverse + 127) // 255,
-                    (frame.rgba[source + 2] * alpha + color[2] * inverse + 127) // 255,
+                    (frame.rgba[source] * alpha +
+                     color[0] * inverse + 127) // 255,
+                    (frame.rgba[source + 1] * alpha +
+                     color[1] * inverse + 127) // 255,
+                    (frame.rgba[source + 2] * alpha +
+                     color[2] * inverse + 127) // 255,
                     255,
                 ))
         if state == "running":
             marker_radius = max(2, round(size / AKITA_SIZE * 6))
             for name, points in RUNNING_PAW_POINTS.items():
-                point = points[akita_artwork_frame("running", frame.frame)[1]]
+                point = points[int(frame.reference.split("/")[1])]
                 if point is None:
                     continue
                 marker_x = cell_x + round(point[0] * size / AKITA_SIZE)
@@ -555,7 +559,7 @@ def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
 
 def render_audit(state: str, cycles: int = 1,
                  density: float = PREVIEW_DENSITY,
-                 *, from_state: str | None = None) -> RenderAudit:
+                 *, from_state: str | None = None, appearance: str = 'akita', count: int = 0) -> RenderAudit:
     """Render the production RGBA sequence at overlay size and report its motion."""
     if state not in AKITA_STATES:
         raise ValueError(f"unknown Akita state: {state}")
@@ -568,19 +572,26 @@ def render_audit(state: str, cycles: int = 1,
     if display_size < 1:
         raise ValueError("density is too small to render a pixel")
 
-    scale_cache: dict[int, bytes] = {}
+    pack = bundled_pack(appearance)
+    source, composer = FrameSource(), FrameComposer()
+    scale_cache: dict[str, bytes] = {}
     rendered: list[RenderedFrame] = []
-    for step, scheduled in enumerate(playback_frames("akita", state, cycles, from_state=from_state)):
-        frame = scheduled.frame
-        pixels = scale_cache.get(frame)
+    for step, scheduled in enumerate(playback_frames(appearance, state, cycles, from_state=from_state)):
+        reference = scheduled.reference
+        pixels = scale_cache.get(reference)
         if pixels is None:
-            pixels = _resize_rgba(rgba_icon(state, frame), display_size)
-            scale_cache[frame] = pixels
-        rendered.append(RenderedFrame(step, frame, scheduled.duration_seconds, pixels))
+            image = composer.compose(source.frame(
+                pack.id, pack.revision, reference), count if state == 'running' else 0)
+            pixels = _resize_rgba(image.pixels, display_size,
+                                  (image.width, image.height))
+            scale_cache[reference] = pixels
+        rendered.append(RenderedFrame(step, scheduled.frame,
+                        scheduled.duration_seconds, pixels, reference))
 
     transitions = []
     for before, after in zip(rendered, rendered[1:]):
-        changed, mean_delta = _changed_pixels(before.rgba, after.rgba, display_size)
+        changed, mean_delta = _changed_pixels(
+            before.rgba, after.rgba, display_size)
         transitions.append({
             "from_step": before.step,
             "to_step": after.step,
@@ -591,11 +602,16 @@ def render_audit(state: str, cycles: int = 1,
         })
 
     frames = tuple(rendered)
-    tail_metrics = _tail_metrics(state, frames, display_size, density)
-    hind_leg_metrics = _running_leg_metrics(state, frames, "hind")
-    fore_leg_metrics = _running_leg_metrics(state, frames, "fore")
+    tail_metrics = _tail_metrics(
+        state, frames, display_size, density) if appearance == "akita" else None
+    hind_leg_metrics = _running_leg_metrics(
+        state, frames, "hind") if appearance == "akita" else None
+    fore_leg_metrics = _running_leg_metrics(
+        state, frames, "fore") if appearance == "akita" else None
     report: dict[str, object] = {
-        "renderer": "rgba_icon with premultiplied bilinear downsampling",
+        "renderer": "compiled frames with premultiplied bilinear downsampling",
+        "appearance": appearance,
+        "count": count,
         "state": state,
         "from_state": from_state,
         "display_size_dp": PET_SIZE_DP,
@@ -607,6 +623,7 @@ def render_audit(state: str, cycles: int = 1,
             {
                 "step": item.step,
                 "frame": item.frame,
+                "reference": item.reference,
                 "delay_seconds": item.delay_seconds,
                 "sha256": hashlib.sha256(item.rgba).hexdigest(),
             }
@@ -618,7 +635,7 @@ def render_audit(state: str, cycles: int = 1,
         "fore_leg_motion": fore_leg_metrics,
         "contact_sheet": "contact-sheet.png",
     }
-    return RenderAudit(report, frames, _contact_sheet(frames, display_size, state))
+    return RenderAudit(report, frames, _contact_sheet(frames, display_size, state if appearance == "akita" else ""))
 
 
 def write_audit(result: RenderAudit, output: Path) -> Path:
@@ -626,7 +643,8 @@ def write_audit(result: RenderAudit, output: Path) -> Path:
     frame_dir = output / "frames"
     frame_dir.mkdir(exist_ok=True)
     report = dict(result.report)
-    report_frames = [dict(frame) for frame in report["frames"]]  # type: ignore[arg-type]
+    report_frames = [dict(frame)
+                     for frame in report["frames"]]  # type: ignore[arg-type]
     report["frames"] = report_frames
     size = int(report["display_size_px"])
     for frame, metadata in zip(result.frames, report_frames):
@@ -648,6 +666,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", choices=AKITA_STATES, default="ready")
     parser.add_argument("--cycles", type=int, default=2)
+    parser.add_argument("--pet", choices=("akita", "robot"), default="akita")
+    parser.add_argument("--count", type=int, default=0)
     parser.add_argument("--from-state", choices=AKITA_STATES)
     parser.add_argument("--density", type=float, default=PREVIEW_DENSITY,
                         help="device density multiplier; default matches the overlay's 3x fallback")
@@ -659,7 +679,8 @@ def main() -> int:
     if not math.isfinite(args.density) or args.density <= 0:
         parser.error("--density must be greater than 0")
 
-    result = render_audit(args.state, args.cycles, args.density, from_state=args.from_state)
+    result = render_audit(args.state, args.cycles, args.density,
+                          from_state=args.from_state, appearance=args.pet, count=args.count)
     manifest = write_audit(result, args.output)
     tail = result.report["tail_motion"]
     hind_legs = result.report["hind_leg_motion"]

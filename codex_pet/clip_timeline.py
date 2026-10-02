@@ -24,8 +24,9 @@ class ClipTimeline:
         if clip.mode == 'loop':
             cycles, elapsed = divmod(elapsed, clip.duration_ns)
             start += cycles * clip.duration_ns
-        index = bisect_right(clip.ends_ns, elapsed)
-        if index == len(clip.references):
+        index = 0 if clip.durations_ns[0] is None else bisect_right(clip.ends_ns, elapsed)
+        self.clip_id, self.index = clip.name, index
+        if index == len(clip.references) or clip.durations_ns[index] is None:
             self.reference = clip.references[-1]
             self.deadline_ns = None
         else:
@@ -45,6 +46,8 @@ class ClipTimeline:
 class Exposure:
     reference: str
     duration_ms: int
+    clip: str
+    index: int
 
     @property
     def duration_seconds(self) -> float:
@@ -59,12 +62,12 @@ def schedule(pack: PetPack, state: str, cycles: int = 1, *,
     clip = pack.clips[pack.entry(state, from_state)]
     result = []
     while True:
-        exposures = [Exposure(ref, ns // 1_000_000 if ns is not None else 800)
-                     for ref, ns in zip(clip.references, clip.durations_ns, strict=True)]
+        exposures = [Exposure(ref, ns // 1_000_000 if ns is not None else 800, clip.name, index)
+                     for index, (ref, ns) in enumerate(zip(clip.references, clip.durations_ns, strict=True))]
         result.extend(exposures * (cycles if clip.mode == 'loop' else 1))
         if clip.mode != 'next':
             if clip.mode == 'hold' and clip.durations_ns[-1] is not None:
-                result.append(Exposure(clip.references[-1], 800))
+                result.append(Exposure(clip.references[-1], 800, clip.name, len(clip.references)))
             return tuple(result)
         assert clip.next_clip is not None
         clip = pack.clips[clip.next_clip]

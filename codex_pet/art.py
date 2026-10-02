@@ -7,7 +7,6 @@ from pathlib import Path
 import zlib
 
 from .image_codec import decode_png as _decode_rgba_png, encode_png as _png
-from .animation import akita_artwork_frame
 from .pets import ART_PROFILE_AKITA, ART_PROFILE_ROBOT, DEFAULT_APPEARANCE, appearance_for
 
 SIZE = 64
@@ -212,73 +211,34 @@ def _add_count_badge(image: bytes, count: int) -> bytes:
     return _png(width, height, pixels)
 
 
-@lru_cache(maxsize=1)
 def _ready_blink_icon() -> bytes:
-    """Build a blink from one stable body pose so the chest does not jump."""
-    base = _akita_asset("idle", 0)
-    try:
-        width, height, pixels = _decode_rgba_png(base)
-        blink_width, blink_height, blink_pixels = _decode_rgba_png(_akita_asset("idle", 2))
-    except ValueError:
-        # The static PNG path still works on systems without libpng.
-        return base
-    if (width, height) != (blink_width, blink_height):
-        return base
-
-    # Replace just the eyes and their immediate fur, leaving the torso pixels
-    # byte-for-byte identical to the open-eye frame around the blink.
-    x0, y0, x1, y1 = 58, 54, 198, 116
-    for y in range(y0, y1):
-        start = (y * width + x0) * 4
-        end = (y * width + x1) * 4
-        pixels[start:end] = blink_pixels[start:end]
-    return _png(width, height, pixels)
+    """Historical export alias for the static, validated derived asset."""
+    return (AKITA_ASSET_DIR / "derived/ready-blink.png").read_bytes()
 
 
-@lru_cache(maxsize=80)
-def _akita_icon(state: str, frame: int, count: int = 0) -> bytes:
-    asset_state, asset_frame = akita_artwork_frame(state, frame)
-    image = _ready_blink_icon() if asset_state == "blink" else _akita_asset(asset_state, asset_frame)
-    if state == "running" and count > 1:
-        try:
-            return _add_count_badge(image, count)
-        except (ValueError, zlib.error):
-            # Art remains visible if an asset is replaced with an unsupported PNG.
-            return image
-    return image
+@lru_cache(maxsize=1)
+def _legacy_pipeline():
+    from .frames import FrameSource, FrameComposer
+    return FrameSource(), FrameComposer()
 
 
-@lru_cache(maxsize=80)
-def _akita_rgba(state: str, frame: int, count: int) -> bytes:
-    width, height, pixels = _decode_rgba_png(_akita_icon(state, frame, count))
-    if (width, height) != (AKITA_SIZE, AKITA_SIZE):
-        raise ValueError(f"unexpected Akita frame size: {width}x{height}")
-    return bytes(pixels)
-
-
-def _render_akita(state: str, frame: int, count: int) -> bytes:
-    bounded_count = max(0, min(int(count), 10))
-    return _akita_icon(state, frame, bounded_count if state == "running" else 0)
-
-
-_ART_RENDERERS = {
-    ART_PROFILE_AKITA: _render_akita,
-    ART_PROFILE_ROBOT: _robot_icon,
-}
+def _legacy_frame(state: str, frame: int, count: int, appearance: str):
+    from .animation import frame_reference
+    from .pet_pack import bundled_pack
+    pack = bundled_pack(appearance_for(appearance).id)
+    source, composer = _legacy_pipeline()
+    return composer.compose(source.frame(pack.id, pack.revision,
+                            frame_reference(pack.id,state,frame)),
+                            count if state == 'running' else 0)
 
 
 def icon(state: str, frame: int = 0, count: int = 0,
          appearance: str = DEFAULT_APPEARANCE) -> bytes:
-    """Load one frame for a registered pet appearance."""
-    spec = appearance_for(appearance)
-    try:
-        renderer = _ART_RENDERERS[spec.art_profile]
-    except KeyError as exc:
-        raise ValueError(f"Unsupported art profile: {spec.art_profile}") from exc
-    return renderer(state, frame, count)
+    """Historical PNG export facade; production callers use FrameSource."""
+    image = _legacy_frame(state,frame,count,appearance)
+    return _png(image.width,image.height,image.pixels)
 
 
 def rgba_icon(state: str, frame: int = 0, count: int = 0) -> bytes:
-    """Return a cached 256-square RGBA Akita frame for Termux:GUI's shared buffer."""
-    bounded_count = max(0, min(int(count), 10)) if state == "running" else 0
-    return _akita_rgba(state, frame, bounded_count)
+    """Historical Akita pixel export facade over the production pipeline."""
+    return _legacy_frame(state,frame,count,'akita').pixels

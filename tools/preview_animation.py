@@ -14,19 +14,29 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from codex_pet.frames import FrameSource, FrameComposer  # noqa: E402
+from codex_pet.pet_pack import bundled_pack  # noqa: E402
+from codex_pet.image_codec import decode_png as _decode_rgba_png, encode_png  # noqa: E402
 from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
-from codex_pet.art import AKITA_SIZE, _decode_rgba_png, icon  # noqa: E402
+
+AKITA_SIZE = 256
 
 PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3
 
 
-def _timeline(state: str, cycles: int, from_state: str | None = None) -> list[dict[str, object]]:
+def _timeline(state: str, cycles: int, from_state: str | None = None, *,
+              appearance: str = 'akita', count: int = 0) -> list[dict[str, object]]:
     result = []
-    for scheduled in playback_frames("akita", state, cycles, from_state=from_state):
-        png = icon(state, scheduled.frame, appearance="akita")
+    pack = bundled_pack(appearance)
+    source, composer = FrameSource(), FrameComposer()
+    for scheduled in playback_frames(appearance, state, cycles, from_state=from_state):
+        frame = composer.compose(source.frame(pack.id, pack.revision, scheduled.reference),
+                                 count if state == 'running' else 0)
+        png = encode_png(frame.width, frame.height, frame.pixels)
         result.append({
             "frame": scheduled.frame,
+            "reference": scheduled.reference,
             "seconds": scheduled.duration_seconds,
             "src": "data:image/png;base64," + base64.b64encode(png).decode("ascii"),
         })
@@ -66,8 +76,9 @@ def _candidate_timeline(manifest: Path, cycles: int = 1) -> list[dict[str, objec
 
 def _html(state: str, cycles: int,
           candidate: list[dict[str, object]] | None = None,
-          from_state: str | None = None) -> str:
-    timeline = _timeline(state, cycles, from_state) if candidate is None else candidate
+          from_state: str | None = None, *, appearance: str = 'akita', count: int = 0) -> str:
+    timeline = (_timeline(state, cycles, from_state, appearance=appearance, count=count)
+                if candidate is None else candidate)
     if not timeline:
         raise ValueError("preview needs at least one frame")
     frames = json.dumps(timeline, separators=(",", ":"))
@@ -122,7 +133,7 @@ def _html(state: str, cycles: int,
   <div class="layout">
     <section class="stage" aria-label="宠物动画画布">
       <div class="pet-frame"><img id="pet" alt="{label} 宠物帧"></div>
-      <div class="size">256 × 256 PNG → {PET_SIZE_DP} dp overlay</div>
+      <div class="size">{bundled_pack(appearance).canvas[0]} × {bundled_pack(appearance).canvas[1]} PNG → {PET_SIZE_DP} dp overlay</div>
     </section>
     <section class="panel">
       <div class="readout"><span>循环状态</span><strong id="frame-label"></strong></div>
@@ -186,6 +197,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", choices=AKITA_STATES, default="ready")
     parser.add_argument("--cycles", type=int, default=2)
+    parser.add_argument("--pet", choices=("akita", "robot"), default="akita")
+    parser.add_argument("--count", type=int, default=0)
     parser.add_argument("--from-state", choices=AKITA_STATES,
                         help="include the production entry from this previous state")
     parser.add_argument("--output", type=Path)
@@ -195,13 +208,16 @@ def main() -> int:
     if args.cycles < 1:
         parser.error("--cycles must be at least 1")
     if args.from_state and args.candidate:
-        parser.error("--from-state applies to production playback, not a candidate manifest")
+        parser.error(
+            "--from-state applies to production playback, not a candidate manifest")
 
-    output = args.output or Path.home() / ".cache" / "codex-pet" / f"preview-{args.state}.html"
+    output = args.output or Path.home() / ".cache" / "codex-pet" / \
+        f"preview-{args.state}.html"
     output.parent.mkdir(parents=True, exist_ok=True)
     candidate = (_candidate_timeline(args.candidate, args.cycles)
                  if args.candidate is not None else None)
-    output.write_text(_html(args.state, args.cycles, candidate, args.from_state), encoding="utf-8")
+    output.write_text(_html(args.state, args.cycles, candidate, args.from_state,
+                      appearance=args.pet, count=args.count), encoding="utf-8")
     print(output)
     return 0
 

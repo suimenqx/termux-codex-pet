@@ -97,3 +97,5 @@ This stops the daemon, removes its command wrappers, installed runtime releases,
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+Animation review tools use the same compiled packs and frame composition as the overlay. For example, `python tools/preview_animation.py --pet akita --state ready --from-state running` includes the completion transition; `python tools/audit_animation.py --pet robot --state running --count 10` exports the Robot badge. Both accept `--cycles`. Audit paw measurements apply to Akita; candidate previews retain their separate explicit file list.

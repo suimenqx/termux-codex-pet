@@ -97,3 +97,5 @@ bash ./uninstall.sh
 ## 许可证
 
 MIT。见 [LICENSE](LICENSE)。
+
+动画预览和审图工具与悬浮窗共用编译后的 Pet Pack 和帧合成。`python tools/preview_animation.py --pet akita --state ready --from-state running` 包含完成转场；`python tools/audit_animation.py --pet robot --state running --count 10` 导出带数量徽标的机器人。两者均支持 `--cycles`；爪点测量只适用于秋田犬，候选图预览仍使用独立的显式文件清单。

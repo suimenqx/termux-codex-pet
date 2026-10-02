@@ -45,3 +45,13 @@ Both pets now use PetRuntime and the compiled integer timeline. Akita's transiti
 Validation: all 1080 baseline paths / 8694 exposures match decoded RGBA and duration. Additional exact-boundary, count reset, interruption, cross-pet, 1 h/24 h and static-hold checks pass. Missing/corrupt derived assets are rejected before activation. Exported blink reproduces byte-for-byte. All original artwork fingerprints remain asserted; the two file-set checks now explicitly include the recorded derived file. Final full suite: 179 tests passed (100.888 s); GUI: 29 passed; five affected modules pass mypy. Resume observations are recorded in `docs/experiments/2026-10-renderer/compiled-timeline.json` and are not timing guarantees.
 
 Deployed release `20261002T220332Z-085d6799`, PID 11854, passed the isolated full-state demonstration with zero remaining sessions and GUI ready. No new GUI errors. New production visual/gesture acceptance remains pending human observation.
+
+### Production gesture feedback
+
+2026-10-02: after deploying the production input/drag path, the user replied “基本都是正常的。” to the requested tap/small motion, edge dragging and persistence, secondary-finger, and drag-during-screen-off checks. No specific abnormal behavior was reported. This feedback applies to the PNG production path; shared transport has not yet been accepted.
+
+## T09 / #10 — offline tools share production frames
+
+Preview and audit now use compiled physical references plus FrameSource/FrameComposer, with `--pet`, `--count`, source-state transitions and finite cycles. Audit retains Akita paw annotations, image fingerprints, candidate workflows and visual-review caveats. Authored playback tables and the linear catch-up algorithm are removed. Historical integer labels are computed from clips for archived artwork scripts and their regression fixtures; the compatibility inventory is documented in architecture.md. Existing experiment and artwork evidence was not rewritten.
+
+Validation: actual preview/audit subprocess entrypoints pass for both pets, badges, transitions and holds; preview pixels match live runtime requests across all visible states. Existing audit tests (8), playback tests (16) and artwork checks pass. The CLI-entry regression caught a formatter moving imports above path setup; imports were corrected and retested through the commands. Final full suite: 181 tests passed (109.561 s). Whole-package mypy: 25 modules pass. Isolated device demonstration on release `20261002T221113Z-59adb111` returned zero sessions and GUI ready; logs remain clean. User production gesture feedback is recorded above.
