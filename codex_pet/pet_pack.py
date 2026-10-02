@@ -181,6 +181,8 @@ def compile_pack(manifest: Path, *, validate_images: bool = False) -> PetPack:
         if (style not in ('akita_count_v1', 'robot_count_v1')
                 or decoration.get('visible_above') != 1 or decoration.get('clamp') != 10):
             raise ValueError('Unsupported count decoration')
+        if style == 'robot_count_v1' and canvas != (64,64):
+            raise ValueError('robot_count_v1 requires a 64-square canvas')
         pack = PetPack(pack_id, hashlib.sha256(raw).hexdigest(), canvas, display,
                        MappingProxyType(frames), MappingProxyType(clips), MappingProxyType(roles),
                        MappingProxyType(transitions), style)

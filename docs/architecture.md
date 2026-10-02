@@ -80,3 +80,9 @@ Deployment validates both staged manifests and decodes their referenced images b
 Compatibility inventory: `art.icon`/`rgba_icon` remain only for historical artwork scripts, experiments and artwork regression fixtures, forwarding to the production frame pipeline. `_akita_asset`, `_ready_blink_icon`, codec aliases and builtin/badge drawing remain for the cache step; the GUI, preview and audit do not use state-to-art dispatch. Archived experiment JSON and artwork acceptance records remain unchanged.
 
 The image codec imports Pillow lazily, validates dimensions before allocation and rejects unsupported profiles. The installer exercises a known partially transparent PNG and decodes the staged pack before activation. Missing Pillow or its PNG decoder preserves the prior release. Hook/status/catalog entrypoints are tested without image or native GUI imports. `tests/png_fingerprint.py` is a test-only frozen serializer for archived hashes; no legacy codec ABI remains in the runtime.
+
+## Managed frame memory
+
+The GUI owner shares one `FrameCache` across source pixels, count composition and active PNG encoding. Its 32 MiB budget counts immutable byte values, not total Python/Android RSS. Derived frames and old encodings are evicted before decoded originals; zero/insufficient capacity still renders through bounded temporary values. Individual decoded/encoded image inputs are capped at 64 MiB. Robot and count decorations draw directly into RGBA, without intermediate PNG round trips. Cache keys include pack revision/reference and a bounded count; connection close drops its encoding while reusable source pixels survive reconnect. PNG last-frame deduplication advances only after a successful native send.
+
+`python tools/probe_frame_cache.py --output /tmp/cache.json` measures cold preparation, switches, variant pressure, managed bytes and Python-visible RSS in a fresh process. It does not measure the Android GUI process or power.

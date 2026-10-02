@@ -6,6 +6,7 @@ import time
 from typing import Any
 import termuxgui as tg
 from ..image_codec import encode_png
+from ..frame_cache import FrameCache
 from .protocol import RgbaFrame, TouchInput
 from .transport import Connection
 
@@ -45,7 +46,8 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
 
 
 class TermuxGuiRenderer:
-    def __init__(self, connection: Connection, position: tuple[int, int] = (700, 420)) -> None:
+    def __init__(self, connection: Connection, position: tuple[int, int] = (700, 420),
+                 *, cache: FrameCache | None = None) -> None:
         self.c = connection
         self.x, self.y = position
         self.display_px = (192, 192)
@@ -59,7 +61,7 @@ class TermuxGuiRenderer:
         self.face.sendtouchevent(True)
         self.last_key: tuple | None = None
         self.image_width = self.image_height = 256
-        self._encoded: dict[tuple, bytes] = {}
+        self.cache = cache if cache is not None else FrameCache()
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
@@ -91,12 +93,10 @@ class TermuxGuiRenderer:
         self.image_width, self.image_height = frame.width, frame.height
         if frame.key == self.last_key:
             return
-        image = self._encoded.get(frame.key)
+        image = self.cache.get(('png', frame.key))
         if image is None:
             image = encode_png(frame.width, frame.height, frame.pixels)
-            if len(self._encoded) >= 80:
-                self._encoded.clear()
-            self._encoded[frame.key] = image
+            self.cache.put(('png', frame.key), image)
         self.face.setimage(image)
         self.last_key = frame.key
 
@@ -134,6 +134,7 @@ class TermuxGuiRenderer:
         return None
 
     def close(self) -> None:
+        self.cache.discard_encoding('png')
         self.pet.finish()
 
 

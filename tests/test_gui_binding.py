@@ -9,6 +9,7 @@ from unittest.mock import patch
 from codex_pet import gui
 from codex_pet.renderer import termux_gui as backend
 from codex_pet.frames import FrameSource, FrameComposer
+from codex_pet.frame_cache import FrameCache
 from codex_pet.pet_runtime import PetRuntime, PetVisual
 from codex_pet.image_codec import decode_png
 from codex_pet.animation import AnimationTimeline
@@ -108,6 +109,34 @@ class GuiBindingTests(unittest.TestCase):
             self.assertEqual(len(pet.face.image_updates), 3)
             render(pet, {**snapshot, "state": "ready"}, frame=0)
             self.assertEqual(len(pet.face.image_updates), 4)
+
+    def test_failed_present_is_retried_and_connection_close_releases_encoding(self):
+        class FlakyView(FakeView):
+            failed = False
+            def setimage(self, value):
+                if not self.failed:
+                    self.failed = True
+                    raise OSError('native send failed')
+                super().setimage(value)
+        cache = FrameCache()
+        snapshot = {'state':'running','running_count':2,'appearance':'akita'}
+        with patch.object(backend.tg,'LinearLayout',FakeView), patch.object(backend.tg,'ImageView',FlakyView):
+            pet = backend.TermuxGuiRenderer(FakeConnection(),cache=cache)
+            with self.assertRaises(OSError):
+                render(pet,snapshot)
+            render(pet,snapshot)
+            self.assertEqual(len(pet.face.image_updates),1)
+            render(pet,snapshot)
+            self.assertEqual(len(pet.face.image_updates),1)
+            self.assertGreater(cache.stats().hits,0)
+            self.assertGreater(cache.stats().bytes_used,0)
+            pet.close()
+            self.assertEqual(cache.stats().bytes_used,0)
+        with patch.object(backend.tg,'LinearLayout',FakeView), patch.object(backend.tg,'ImageView',FakeView):
+            replacement = backend.TermuxGuiRenderer(FakeConnection(),cache=cache)
+            render(replacement,snapshot)
+            self.assertEqual(decode_png(replacement.face.image),decode_png(icon('running',0,2)))
+            replacement.close()
 
     def test_worker_preserves_count_reset_and_interrupts_ready_entry(self):
         snapshot = {"appearance":"akita", "state":"running", "running_count":1}

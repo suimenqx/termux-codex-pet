@@ -1,0 +1,106 @@
+{
+  "method": "Fresh Python process; OS disk cache not flushed; no GUI/native CPU or power measurement.",
+  "cold_and_switch": [
+    {
+      "pet": "akita",
+      "state": "idle",
+      "count": 0,
+      "prepare_and_encode_ms": 87.349479,
+      "cache": {
+        "bytes_used": 334145,
+        "budget": 33554432,
+        "entries": 2,
+        "hits": 0,
+        "misses": 2,
+        "evictions": 0
+      },
+      "rss_kib": 27472
+    },
+    {
+      "pet": "akita",
+      "state": "running",
+      "count": 2,
+      "prepare_and_encode_ms": 24.913542,
+      "cache": {
+        "bytes_used": 927804,
+        "budget": 33554432,
+        "entries": 5,
+        "hits": 0,
+        "misses": 5,
+        "evictions": 0
+      },
+      "rss_kib": 28080
+    },
+    {
+      "pet": "robot",
+      "state": "running",
+      "count": 2,
+      "prepare_and_encode_ms": 8.259375,
+      "cache": {
+        "bytes_used": 961348,
+        "budget": 33554432,
+        "entries": 8,
+        "hits": 0,
+        "misses": 8,
+        "evictions": 0
+      },
+      "rss_kib": 28144
+    },
+    {
+      "pet": "akita",
+      "state": "idle",
+      "count": 0,
+      "prepare_and_encode_ms": 0.042187,
+      "cache": {
+        "bytes_used": 961348,
+        "budget": 33554432,
+        "entries": 8,
+        "hits": 2,
+        "misses": 8,
+        "evictions": 0
+      },
+      "rss_kib": 28144
+    },
+    {
+      "pet": "akita",
+      "state": "running",
+      "count": 2,
+      "prepare_and_encode_ms": 0.026563,
+      "cache": {
+        "bytes_used": 961348,
+        "budget": 33554432,
+        "entries": 8,
+        "hits": 5,
+        "misses": 8,
+        "evictions": 0
+      },
+      "rss_kib": 28144
+    }
+  ],
+  "stress": {
+    "presentations": 1011,
+    "seconds": 7.839551561046392,
+    "peak_observed_rss_kib": 62148,
+    "initial_rss_kib": 22256,
+    "peak_managed_bytes": 33554425,
+    "cache": {
+      "bytes_used": 33551437,
+      "budget": 33554432,
+      "entries": 240,
+      "hits": 2101,
+      "misses": 798,
+      "evictions": 558
+    }
+  },
+  "after_clear": {
+    "cache": {
+      "bytes_used": 0,
+      "budget": 33554432,
+      "entries": 0,
+      "hits": 2101,
+      "misses": 798,
+      "evictions": 558
+    },
+    "rss_kib": 28116
+  }
+}

@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
 
 from codex_pet.image_codec import encode_png as _png  # noqa: E402
 from codex_pet.frames import FrameSource, FrameComposer  # noqa: E402
+from codex_pet.frame_cache import FrameCache  # noqa: E402
 from codex_pet.pet_pack import bundled_pack  # noqa: E402
 from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
 
@@ -573,7 +574,8 @@ def render_audit(state: str, cycles: int = 1,
         raise ValueError("density is too small to render a pixel")
 
     pack = bundled_pack(appearance)
-    source, composer = FrameSource(), FrameComposer()
+    cache = FrameCache()
+    source, composer = FrameSource(cache), FrameComposer(cache)
     scale_cache: dict[str, bytes] = {}
     rendered: list[RenderedFrame] = []
     for step, scheduled in enumerate(playback_frames(appearance, state, cycles, from_state=from_state)):

@@ -14,6 +14,7 @@ from typing import Any, Callable
 
 from .pet_runtime import PetRuntime, PetVisual
 from .frames import FrameSource, FrameComposer
+from .frame_cache import FrameCache
 from .touch import DragController
 from .renderer.protocol import TouchInput
 from .preferences import read_config, save_position
@@ -46,8 +47,9 @@ class GuiWorker:
         self.ui: TermuxGuiRenderer | None = None
         self.overlay_status: OverlayStatus | None = None
         self.runtime: PetRuntime | None = None
-        self.source = FrameSource()
-        self.composer = FrameComposer()
+        self.cache = FrameCache()
+        self.source = FrameSource(self.cache)
+        self.composer = FrameComposer(self.cache)
         self.drag: DragController | None = None
 
     def start(self) -> None:
@@ -90,7 +92,7 @@ class GuiWorker:
                     position = max(0, int(saved["x"])), max(0, int(saved["y"]))
                 except (KeyError, TypeError, ValueError):
                     position = (700, 420)
-                self.ui = TermuxGuiRenderer(connection, position)
+                self.ui = TermuxGuiRenderer(connection, position, cache=self.cache)
                 self.drag = DragController(position, self.ui.density)
                 self._publish_overlay()
                 self.on_status(True, "")
@@ -120,6 +122,8 @@ class GuiWorker:
                 if readable:
                     self._drain_wake()
                     failures = 0
+
+        self.cache.clear()
 
     def _loop(self, connection: Connection) -> None:
         assert self.ui is not None

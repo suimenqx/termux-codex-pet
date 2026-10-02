@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from codex_pet.frames import FrameSource, FrameComposer  # noqa: E402
+from codex_pet.frame_cache import FrameCache  # noqa: E402
 from codex_pet.pet_pack import bundled_pack  # noqa: E402
 from codex_pet.image_codec import decode_png as _decode_rgba_png, encode_png  # noqa: E402
 from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
@@ -29,7 +30,8 @@ def _timeline(state: str, cycles: int, from_state: str | None = None, *,
               appearance: str = 'akita', count: int = 0) -> list[dict[str, object]]:
     result = []
     pack = bundled_pack(appearance)
-    source, composer = FrameSource(), FrameComposer()
+    cache = FrameCache()
+    source, composer = FrameSource(cache), FrameComposer(cache)
     for scheduled in playback_frames(appearance, state, cycles, from_state=from_state):
         frame = composer.compose(source.frame(pack.id, pack.revision, scheduled.reference),
                                  count if state == 'running' else 0)
