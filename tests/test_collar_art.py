@@ -6,8 +6,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from codex_pet.animation import AKITA_FRAME_COUNTS, akita_artwork_frame
-from codex_pet.art import _decode_rgba_png, _png, rgba_icon
+from tools.historical_animation import AKITA_FRAME_COUNTS, akita_artwork_frame
+from tools.historical_art import _decode_rgba_png, _png, rgba_icon
 from tools.prepare_motion_repairs import export
 
 ROOT = Path(__file__).resolve().parents[1]

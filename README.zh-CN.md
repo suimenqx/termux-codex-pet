@@ -72,6 +72,8 @@ codex-pet status
 
 ## 故障排查
 
+`codex-pet status` 同时显示真实 binding／插件版本、当前 renderer transport、选择原因、已记住的共享回退原因和最近连接错误。共享实现已接入，但默认启用仍等待 Android 侧资源验收；普通安装目前保持 PNG。共享路径失败会关闭旧连接，并通过全新 PNG 连接恢复。
+
 - **Pet 消失：**先运行 `codex-pet status`；如果已停止，运行 `codex-pet start`。下一个 Codex 事件也会尝试自动拉起 daemon。
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
@@ -86,8 +88,6 @@ codex-pet status
 [当前生产版本](docs/artwork/akita/2026-10-continuity/brief.md)使用十姿势跑步和三张停止过渡。最新录屏确认停止后进入Ready，但跑步补帧的四肢形体与整圈节奏仍有问题。[整圈重绘候选与原速对照](docs/artwork/akita/2026-10-rhythm/review.md)已保存；候选后腿回收路径未通过审查，尚未替换手机上的动画。`tools/audit_animation.py`新增每段曝光、脚掌位移与弦长速度诊断；测试通过不代表步态自然。
 
 ## 卸载
-
-`codex-pet status` 同时显示真实 binding／插件版本、当前 renderer transport、选择原因、已记住的共享回退原因和最近连接错误。共享实现已接入，但默认启用仍等待真机验收；普通安装目前保持 PNG。共享路径失败会关闭旧连接，并通过全新 PNG 连接恢复。
 
 ```sh
 cd ~/codex-pet

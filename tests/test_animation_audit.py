@@ -7,7 +7,7 @@ import struct
 import tempfile
 import unittest
 
-from codex_pet.art import rgba_icon
+from tools.historical_art import rgba_icon
 from tools.audit_animation import render_audit, write_audit
 from tools.prepare_running_frames import split_sheet
 from tools.preview_animation import _timeline

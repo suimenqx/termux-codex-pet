@@ -3,14 +3,14 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from codex_pet.animation import (
+from tools.historical_animation import (
     AKITA_FRAME_COUNTS,
     AKITA_FRAME_INTERVALS,
     AKITA_READY_LOOP_START,
     AKITA_READY_LOOP_END,
     animation_interval,
 )
-from codex_pet.art import icon, _png
+from tools.historical_art import icon, _png
 from tools.preview_animation import _candidate_timeline, _html, _timeline
 
 

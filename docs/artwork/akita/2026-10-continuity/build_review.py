@@ -3,8 +3,8 @@ import json,base64,sys
 ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from codex_pet.animation import playback_frames,akita_artwork_frame
-from codex_pet.art import icon
+from tools.historical_animation import playback_frames,akita_artwork_frame
+from tools.historical_art import icon
 p = Path(__file__).resolve().parent
 def frame(data,seconds,label):return {'src':'data:image/png;base64,'+base64.b64encode(data).decode(),'seconds':seconds,'label':label}
 def current(state,source=None):return [frame(icon(state,s.frame),s.duration_seconds,str(akita_artwork_frame(state,s.frame))) for s in playback_frames('akita',state,from_state=source)]

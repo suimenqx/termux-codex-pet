@@ -54,6 +54,7 @@ Expected checks:
 - `codex-pet test` displays Idle, Running, Needs input, Ready, and Blocked, then removes its temporary test session. Allow about 18 seconds. With no other active sessions, the Pet returns to Idle; end or isolate other sessions when visually checking each selected state.
 - The installer reports `Codex hooks installed (inline)` or `Codex hooks installed (json)`. If it changes an existing hooks file, it prints the backup path.
 - The runtime log is `~/.cache/codex-pet/pet.log`.
+- Status also reports renderer transport, actual binding/plugin versions, the selection reason, any remembered shared fallback, and the latest connection error. PNG remains the default while Android-side shared-resource acceptance is pending. USB/ADB access is not required to install or use the Pet.
 
 ## Dependency checks and recovery
 

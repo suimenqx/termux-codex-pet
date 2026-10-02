@@ -1,6 +1,6 @@
 import unittest
 
-from codex_pet.art import _decode_rgba_png, _png
+from tools.historical_art import _decode_rgba_png, _png
 from tools.prepare_sprite_frames import split_sheet
 
 

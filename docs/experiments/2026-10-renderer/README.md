@@ -95,6 +95,24 @@ timeout 40s python tools/probe_termux_gui.py \
 
 ## 解释结果时必须保留的边界
 
+以上文件是重构前的调查证据。重构后的生产路径与新版 Pillow 复现以
+[实施记录](../../research/implementation-status.md) 为准；历史探针通过
+`tools/historical_art.py` / `historical_animation.py` 保留原报告标签，当前
+图片准备使用生产 Pillow codec，因此重跑这些脚本需要 Pillow。
+
+生产 renderer 的独立验收入口：
+
+```sh
+python tools/probe_production_renderer.py --samples 60 --output "$HOME/.cache/codex-pet/renderer-comparison.json"
+python tools/probe_renderer_recovery.py "$HOME/.cache/codex-pet/renderer-recovery.json"
+python tools/probe_shared_daemon.py --seconds 300
+```
+
+前两个临时创建额外测试 overlay，后一个短时重启唯一正式 daemon 并在退出时
+恢复普通启动策略。记录分别是 `shared-production-serial.json`、
+`shared-recovery.json` 及实施记录中的人工反馈。不要和测试套件同时运行计时。
+本地 FD/mmap 归零不替代 Android 窗口与 buffer 的资源观测。
+
 - 本机 JSON buffer 参数是 `ARGB888`；不能把协议文档的 `ARGB8888` 名称直接代入。探针隔离不同格式的连接，并保护 EOF；生产 binding 的 EOF 读取缺陷尚不因运行探针而修复。
 - GUI 耗时止于同连接的 `getversion()` 命令屏障。根据已核对版本的顺序处理，它可确认先前 staging 像素已被插件读取；不能测量 Android 实际上屏延迟。`python_cpu_ms` 只属于探针进程，未包括插件进程，也不是设备 CPU 或耗电。
 - 共享 buffer 仍会从共享内存复制到插件 bitmap；`flush()`、发送成功、双缓冲或固定等待均不自动证明消费者已读完。最终删除 buffer 后断连与本地 FD 清理必须结合生命周期记录解读。

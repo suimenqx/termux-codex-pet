@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.art import _decode_rgba_png, _png
+from tools.historical_art import _decode_rgba_png, _png
 from tools.prepare_sprite_frames import split_sheet
 
 

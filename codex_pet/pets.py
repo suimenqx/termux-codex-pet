@@ -10,34 +10,20 @@ class PetAppearance:
     id: str
     name: str
     description: str
-    image_size_px: int
-    art_profile: str
-    animation_profile: str
     is_default: bool = False
 
-
-ART_PROFILE_AKITA = "akita"
-ART_PROFILE_ROBOT = "robot"
-ANIMATION_PROFILE_AKITA = "akita"
-ANIMATION_PROFILE_ROBOT = "robot"
 
 APPEARANCES = (
     PetAppearance(
         id="akita",
         name="Akita",
         description="An orange-red Akita with a round cream face and happy open mouth.",
-        image_size_px=256,
-        art_profile=ART_PROFILE_AKITA,
-        animation_profile=ANIMATION_PROFILE_AKITA,
         is_default=True,
     ),
     PetAppearance(
         id="robot",
         name="Robot",
         description="The original dark pixel robot.",
-        image_size_px=64,
-        art_profile=ART_PROFILE_ROBOT,
-        animation_profile=ANIMATION_PROFILE_ROBOT,
     ),
 )
 APPEARANCE_BY_ID = {appearance.id: appearance for appearance in APPEARANCES}

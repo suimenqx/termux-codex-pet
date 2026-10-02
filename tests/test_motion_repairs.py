@@ -3,9 +3,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from codex_pet.animation import (AKITA_FRAME_INTERVALS, AnimationTimeline,
+from tools.historical_animation import (AKITA_FRAME_INTERVALS, AnimationTimeline,
                                  akita_artwork_frame, playback_frames)
-from codex_pet.art import _decode_rgba_png, _png
+from tools.historical_art import _decode_rgba_png, _png
 from tools.prepare_motion_repairs import export, replace_region
 
 ROOT = Path(__file__).resolve().parents[1]

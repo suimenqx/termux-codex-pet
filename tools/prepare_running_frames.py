@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.art import AKITA_SIZE, _decode_rgba_png, _png  # noqa: E402
+from tools.historical_art import AKITA_SIZE, _decode_rgba_png, _png  # noqa: E402
 
 # Legacy-only registration needed to reproduce the existing running frames.
 LEGACY_SECOND_ROW_Y_OFFSET_PX = 10

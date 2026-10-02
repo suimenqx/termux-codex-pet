@@ -12,9 +12,10 @@ from codex_pet.frames import FrameSource, FrameComposer
 from codex_pet.frame_cache import FrameCache
 from codex_pet.pet_runtime import PetRuntime, PetVisual
 from codex_pet.image_codec import decode_png
-from codex_pet.animation import AnimationTimeline
-from codex_pet.art import icon
+from tools.historical_animation import AnimationTimeline
+from tools.historical_art import icon
 from codex_pet.pets import APPEARANCES
+from codex_pet.pet_pack import bundled_pack
 
 
 class FakeMainSocket:
@@ -46,9 +47,9 @@ class FakeConnection:
     def close(self):
         pass
 
-
     def getversion(self):
         return 7
+
 
 class FakeView:
     next_id = 1
@@ -194,7 +195,7 @@ class GuiBindingTests(unittest.TestCase):
                                 "elapsed": 10, "message": "hidden detail"})
                     self.assertEqual(decode_png(pet.face.image),
                                      decode_png(icon(state, 0, 2, appearance.id)))
-                    self.assertEqual(pet.image_width, appearance.image_size_px)
+                    self.assertEqual((pet.image_width, pet.image_height), bundled_pack(appearance.id).canvas)
             self.assertEqual(len(pet.face.image_updates), len(APPEARANCES) * 5)
             render(pet, {"state": "running", "running_count": 2, "appearance": "akita"})
             self.assertEqual(decode_png(pet.face.image), decode_png(icon("running", 0, 2)))

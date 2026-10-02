@@ -28,8 +28,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.animation import AnimationTimeline, playback_frames  # noqa: E402
-from codex_pet.art import (  # noqa: E402
+from tools.historical_animation import AnimationTimeline, playback_frames  # noqa: E402
+from tools.historical_art import (  # noqa: E402
     _add_count_badge, _akita_asset, _ready_blink_icon, _robot_icon, icon,
 )
 from codex_pet.gui import GuiWorker  # noqa: E402

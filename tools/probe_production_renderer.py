@@ -135,6 +135,7 @@ def probe(rounds=2, samples=20, interval=.08):
             order = ('png', 'shared') if round_index % 2 == 0 else (
                 'shared', 'png')
             for transport in order:
+                print(f'round={round_index + 1} canvas={size[0]}x{size[1]} transport={transport}', flush=True)
                 results.append(run_case(size, transport, samples, interval))
     return {'binding': version('termuxgui'), 'rounds': rounds, 'interval_seconds': interval,
             'method': 'Serial, alternating order; same production frames/deadlines, fresh connection/cache per case; two initial exposures then 16 warmup exposures then timed samples. Warm medians exclude unchanged frames for both transports. PNG adds getVersion only for changed frames for comparable consumption. OS disk cache not flushed. Running production daemon remains active.',

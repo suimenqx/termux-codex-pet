@@ -1,4 +1,4 @@
-"""Offline playback and historical index adapters over compiled pet packs.
+"""Historical index labels over compiled packs, outside the installed runtime.
 
 Frame references are the production interface. Integer indices remain for old
 artwork exports and regression fixtures; they are derived, never another table.
@@ -6,13 +6,12 @@ artwork exports and regression fixtures; they are derived, never another table.
 from __future__ import annotations
 from dataclasses import dataclass
 from functools import lru_cache
-from .pet_pack import PetPack, bundled_pack
-from .clip_timeline import schedule
-from .pet_runtime import PetRuntime, PetVisual
-from .pets import appearance_for
+from codex_pet.pet_pack import bundled_pack
+from codex_pet.clip_timeline import schedule
+from codex_pet.pet_runtime import PetRuntime, PetVisual
+from codex_pet.pets import appearance_for
 
 AKITA_STATES = ('idle', 'running', 'needs_input', 'ready', 'blocked')
-PREVIEW_FINAL_HOLD_SECONDS = .8
 
 
 @dataclass(frozen=True)
@@ -35,7 +34,7 @@ def _slots(appearance: str, state: str) -> tuple[_Slot, ...]:
         clip = pack.clips[entry]
         while clip.name not in seen:
             seen.add(clip.name)
-            result.extend(_Slot(clip.name, i, ref, ns/1_000_000_000 if ns is not None else None)
+            result.extend(_Slot(clip.name, i, ref, ns / 1_000_000_000 if ns is not None else None)
                           for i, (ref, ns) in enumerate(zip(clip.references, clip.durations_ns, strict=True)))
             if clip.mode == 'hold' and clip.durations_ns[-1] is not None:
                 result.append(_Slot(clip.name, len(
@@ -49,7 +48,7 @@ def _slots(appearance: str, state: str) -> tuple[_Slot, ...]:
 
 def frame_reference(appearance: str, state: str, frame: int = 0) -> str:
     slots = _slots(appearance, state)
-    return slots[max(0, min(int(frame), len(slots)-1))].reference
+    return slots[max(0, min(int(frame), len(slots) - 1))].reference
 
 
 def akita_artwork_frame(state: str, frame: int) -> tuple[str, int]:
@@ -59,15 +58,15 @@ def akita_artwork_frame(state: str, frame: int) -> tuple[str, int]:
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:
     slots = _slots(appearance, state)
-    return slots[max(0, min(int(frame), len(slots)-1))].duration
+    return slots[max(0, min(int(frame), len(slots) - 1))].duration
 
 
 def advance_animation(appearance: str, state: str, frame: int) -> int:
     slots = _slots(appearance, state)
-    slot = slots[max(0, min(int(frame), len(slots)-1))]
+    slot = slots[max(0, min(int(frame), len(slots) - 1))]
     clip = bundled_pack(appearance_for(appearance).id).clips[slot.clip]
-    if slot.index+1 < len(clip.references):
-        key = clip.name, slot.index+1
+    if slot.index + 1 < len(clip.references):
+        key = clip.name, slot.index + 1
     elif clip.mode == 'next':
         assert clip.next_clip is not None
         key = clip.next_clip, 0

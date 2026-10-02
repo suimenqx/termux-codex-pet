@@ -113,7 +113,7 @@ def main() -> None:
         env["CODEX_PET_IMAGE_PROBE_DEPS"] = str(args.deps_root.resolve())
         os.execve(sys.executable, [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]], env)
 
-    from codex_pet import art
+    from tools import historical_art as art
 
     args.cache_dir.mkdir(parents=True, exist_ok=True)
     result = {
@@ -198,7 +198,7 @@ def main() -> None:
 
     available = {name: importlib.util.find_spec(name) is not None for name in ("PIL", "numpy")}
     result["environment"]["modules_found"] = available
-    imports = {"baseline": "pass", "production_art": "import codex_pet.art", "termuxgui": "import termuxgui"}
+    imports = {"baseline": "pass", "production_frames": "import codex_pet.frames", "termuxgui": "import termuxgui"}
     for width, height in ((256, 256), (384, 416)):
         nbytes = width * height * 4
         memory = mmap.mmap(-1, nbytes)

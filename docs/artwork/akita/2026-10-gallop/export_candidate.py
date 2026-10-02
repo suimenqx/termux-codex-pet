@@ -14,7 +14,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(ROOT))
-from codex_pet.art import _decode_rgba_png, _png
+from tools.historical_art import _decode_rgba_png, _png
 
 # Centers of dark eye regions in normalized 256 px views; manual correspondence
 # checked against the source images. Coordinates have about 1 px annotation error.

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from codex_pet.art import _decode_rgba_png, _png
+from tools.historical_art import _decode_rgba_png, _png
 from tools.review_recording import (
     contact_sheet, crop_box, frame_table, media_environment, prepare,
     review_html, window_spec,

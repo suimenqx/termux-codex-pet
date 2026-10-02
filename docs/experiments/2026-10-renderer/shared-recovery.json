@@ -1,0 +1,60 @@
+{
+  "method": "Production worker/binding and real APK; a single synthetic fence fault on the first native connection. Timeout substitutes the known overlay getConfiguration no-reply path; EOF shuts down the local read side. Only the connection factory is injected. The normal installed daemon is unchanged.",
+  "limits": "Local FD/map observations only. Native Android resource cleanup still needs independent observation.",
+  "cases": [
+    {
+      "fault": "timeout",
+      "connections": 2,
+      "status": {
+        "binding_version": "0.1.6",
+        "plugin_version": 7,
+        "transport": "png",
+        "reason": "shared disabled after failure",
+        "fallback_reason": "Shared transport failed: timed out",
+        "last_connection_error": "Shared transport failed: timed out"
+      },
+      "before": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 30784
+      },
+      "recovered": {
+        "fds": 8,
+        "ashmem_maps": 0,
+        "rss_kib": 37576
+      },
+      "after_stop": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 35892
+      }
+    },
+    {
+      "fault": "eof",
+      "connections": 2,
+      "status": {
+        "binding_version": "0.1.6",
+        "plugin_version": 7,
+        "transport": "png",
+        "reason": "shared disabled after failure",
+        "fallback_reason": "Shared transport failed: Termux:GUI closed the stream",
+        "last_connection_error": "Shared transport failed: Termux:GUI closed the stream"
+      },
+      "before": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 35932
+      },
+      "recovered": {
+        "fds": 8,
+        "ashmem_maps": 0,
+        "rss_kib": 37488
+      },
+      "after_stop": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 36092
+      }
+    }
+  ]
+}

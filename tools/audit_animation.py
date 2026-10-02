@@ -20,7 +20,7 @@ from codex_pet.image_codec import encode_png as _png  # noqa: E402
 from codex_pet.frames import FrameSource, FrameComposer  # noqa: E402
 from codex_pet.frame_cache import FrameCache  # noqa: E402
 from codex_pet.pet_pack import bundled_pack  # noqa: E402
-from codex_pet.animation import AKITA_STATES, playback_frames  # noqa: E402
+from tools.historical_animation import AKITA_STATES, playback_frames  # noqa: E402
 
 AKITA_SIZE = 256
 

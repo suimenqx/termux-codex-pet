@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import tempfile
 
-from codex_pet.art import _decode_rgba_png
+from tools.historical_art import _decode_rgba_png
 from tools.audit_animation import _track_transitions
 from tools.prepare_motion_repairs import export
 

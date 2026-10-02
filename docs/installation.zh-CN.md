@@ -54,6 +54,7 @@ git -C ~/codex-pet pull --ff-only origin main
 - `codex-pet test` 依次演示 Idle、Running、Needs input、Ready 和 Blocked，最后移除临时测试会话；大约需要 18 秒。没有其他活动会话时 Pet 会回到 Idle。若要逐一目视检查状态，请先结束或隔离其他会话。
 - 安装器会输出 `Codex hooks installed (inline)` 或 `Codex hooks installed (json)`。如果改动了已有 hooks 文件，也会打印备份路径。
 - 运行日志在 `~/.cache/codex-pet/pet.log`。
+- 状态还会报告 renderer transport、真实 binding／插件版本、选择原因、共享回退及最近连接错误。Android 侧共享资源验收尚未完成，因此默认保持 PNG；日常安装和使用桌宠不需要 USB／ADB。
 
 ## 依赖检查与修复
 

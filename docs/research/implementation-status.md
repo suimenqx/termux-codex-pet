@@ -131,3 +131,66 @@ release policy and restores normal startup after its finite acceptance window.
 Shared production edges/gestures/lock/rotation/background human verification has
 been requested during that window. Native Android resource observation is still
 pending ADB pairing. No default rollout approval or completion of #14 is claimed.
+
+### Production human feedback and recovery evidence
+
+The user replied **“正常。”** to the shared production check covering dark/light
+edges, tap/slop, edge anchor, multi-touch, drag during lock/unlock, rotation and
+another foreground app. This is separate from the earlier simplified probe and
+the PNG feedback. The five-minute controlled window ended normally and restored
+the ordinary PNG daemon (PID 7445). It does not establish long-duration background
+stability or native allocation cleanup.
+
+`shared-production-serial.json` repeats the comparison without concurrent test
+work: two alternating rounds, 16 warmup exposures and 60 samples per case,
+80 ms deadlines. Changed Akita 256×256 sample medians were PNG 6.231/14.700 ms
+versus shared 1.904/2.768 ms including the consumption response; they are not
+screen latency. Robot has only three changed samples per case because its
+original 2-second exposures are preserved, so no Robot performance conclusion
+is drawn. Each case returned to four local FDs and zero ashmem mappings.
+
+`shared-recovery.json` runs the real worker and APK with one controlled missing
+fence reply (the known overlay configuration no-reply path) and one local EOF
+injection. Both opened exactly one fresh PNG connection, published the cause,
+and returned local resources to baseline on stop. These tests do not establish
+Android-side cleanup.
+
+The user reports their Mate 60 Pro+ has no wireless-debugging entry. Huawei's
+[official explanation](https://consumer.huawei.com/en/support/content/en-us15997564/)
+confirms this limitation and suggests USB debugging. A computer/data-cable path
+has been requested; no pairing credentials were collected. Native window/buffer
+observations and longer background/reconnect pressure remain unfulfilled gates.
+
+The user subsequently confirmed **“目前没有，先保留 PNG 默认”** (no available
+computer; keep PNG as default for now). Normal deployment therefore retains the
+closed rollout gate. USB setup is not a user installation dependency. Shared
+native-resource acceptance/default rollout is explicitly deferred, not passed.
+
+## T14 / #15 — real deployment and pipeline checks
+
+The actual shell install/uninstall entrypoints now run in isolated temporary
+source/home/prefix fixtures. The only platform substitute is an external Android
+broadcast executable that speaks real Termux:GUI socket messages and records
+decoded PNG pixels and moves. A separate executable fault stops the old daemon
+then fails the new restart; the installer restores both runtime links, exact
+hooks/preferences, and a working prior daemon. Repeated installation, moving the
+checkout, invalid activation target/pack, explicit rollback, foreign command
+restoration and uninstall pass. Real hook stdin→Adapter→Unix IPC→SessionStore→
+PetRuntime/compiler/source/composer→native-wire recording covers visible poses,
+late turns, input bounds/fail-open, one daemon and persisted drag position.
+
+The deployed package no longer contains old art/playback facades or unused
+catalog geometry/profile dispatch. Historical labels/export names live only in
+`tools/historical_*.py` for archived reproduction and original image tests; they
+delegate to the current codec/pipeline and compiled clips. Original artwork
+and archived result files are preserved. Final full-suite/review/deploy evidence
+follows; #15 cannot close before the upstream native-resource gates pass.
+
+Final software check before independent review: 201 tests passed (115.393 s),
+27 production modules passed mypy, and diff whitespace checks passed. The first
+full run found a historical export script still importing the removed facade;
+all four archived script imports were migrated, its reproduction test passed,
+and the full suite was rerun successfully. Release
+`20261002T231632Z-b8080171`, PID 11883, passed isolated status/state demonstration
+and recent-log checks with normal PNG policy. The source cleanup preserves all
+asset bytes; historical helper modules are excluded from the installed release.

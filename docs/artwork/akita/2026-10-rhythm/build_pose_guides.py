@@ -5,7 +5,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from codex_pet.art import _png
+from tools.historical_art import _png
 p = Path(__file__).resolve().parent
 poses={6:{'hind_far':[(99,156),(90,178),(73,202),(91,218)],'fore_far':[(190,161),(201,175),(191,178),(198,185)],'hind_near':[(76,158),(111,179),(100,197),(121,211)],'fore_near':[(149,165),(166,179),(161,183),(175,190)]},7:{'hind_far':[(99,156),(76,182),(48,204),(59,218)],'fore_far':[(190,161),(208,180),(204,193),(209,200)],'hind_near':[(76,158),(116,184),(104,214),(117,225)],'fore_near':[(149,165),(174,185),(177,193),(182,199)]}}
 colors={'hind_far':(45,150,170,255),'hind_near':(220,50,140,255),'fore_far':(190,145,35,255),'fore_near':(70,170,55,255)}

@@ -1,6 +1,6 @@
 import unittest
 
-from codex_pet.animation import (
+from tools.historical_animation import (
     AKITA_FRAME_COUNTS,
     AKITA_FRAME_INTERVALS,
     AKITA_READY_LOOP_START,

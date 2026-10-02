@@ -1,8 +1,9 @@
 import struct
 import unittest
 
-from codex_pet.animation import AnimationTimeline, playback_frames
-from codex_pet.art import icon
+from tools.historical_animation import AnimationTimeline, playback_frames
+from tools.historical_art import icon
+from codex_pet.pet_pack import bundled_pack
 from codex_pet.pets import (
     APPEARANCES, APPEARANCE_BY_ID, DEFAULT_APPEARANCE, DEFAULT_APPEARANCE_SPEC,
     appearance_for,
@@ -21,19 +22,17 @@ class AppearanceRegistryTests(unittest.TestCase):
     def test_every_appearance_resolves_art_dimensions_and_animation(self) -> None:
         for appearance in APPEARANCES:
             with self.subTest(appearance=appearance.id):
-                self.assertGreater(appearance.image_size_px, 0)
+                pack = bundled_pack(appearance.id)
                 image = icon("idle", appearance=appearance.id)
                 dimensions = struct.unpack_from(">II", image, 16)
                 self.assertEqual(
                     dimensions,
-                    (appearance.image_size_px, appearance.image_size_px),
+                    pack.canvas,
                 )
 
                 timeline = AnimationTimeline(appearance.id, "idle", now=0.0)
                 schedule = playback_frames(appearance.id, "idle")
                 self.assertEqual(schedule[0].frame, timeline.frame)
-                self.assertTrue(appearance.art_profile)
-                self.assertTrue(appearance.animation_profile)
 
     def test_unknown_and_non_string_ids_resolve_to_the_default(self) -> None:
         self.assertIs(appearance_for("missing"), DEFAULT_APPEARANCE_SPEC)

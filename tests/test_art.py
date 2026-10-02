@@ -3,8 +3,8 @@ import struct
 import unittest
 import zlib
 
-from codex_pet.animation import AKITA_FRAME_COUNTS
-from codex_pet.art import icon, rgba_icon
+from tools.historical_animation import AKITA_FRAME_COUNTS
+from tools.historical_art import icon, rgba_icon
 from codex_pet.pets import DEFAULT_APPEARANCE
 from codex_pet.image_codec import decode_png
 

@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from codex_pet.art import _decode_rgba_png
+from tools.historical_art import _decode_rgba_png
 from tools.audit_animation import (
     PAW_COLORS, RenderedFrame, _contact_sheet, _draw_paw_marker,
     _resize_rgba, _track_transitions,
