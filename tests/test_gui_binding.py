@@ -27,6 +27,7 @@ class FakeMainSocket:
 
 
 class FakeConnection:
+    timeout = 4.0
     def __init__(self) -> None:
         self._main = FakeMainSocket()
         self.messages: list[dict] = []
@@ -96,7 +97,7 @@ class GuiBindingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, \
              patch.object(backend.tg, "LinearLayout", FakeView), \
              patch.object(backend.tg, "ImageView", FakeView):
-            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
+            pet = backend.TermuxGuiRenderer(connection)
             snapshot = {"state": "running", "running_count": 1, "appearance": "akita"}
             for _ in range(50):
                 render(pet, snapshot, frame=0)
@@ -135,7 +136,7 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(backend.tg, "LinearLayout", FakeView), \
              patch.object(backend.tg, "ImageView", FakeView), \
              patch.object(backend.tg, "TextView", side_effect=AssertionError("text UI is not allowed")):
-            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
+            pet = backend.TermuxGuiRenderer(connection)
 
         self.assertEqual(connection.next_aid, 2)
         self.assertTrue(pet.face.touch_enabled)
@@ -150,7 +151,7 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(backend.tg, "ImageView", FakeView), \
              patch.object(backend.tg, "TextView", side_effect=AssertionError("text UI is not allowed")), \
              patch.object(backend.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
-            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
+            pet = backend.TermuxGuiRenderer(connection)
             for appearance in APPEARANCES:
                 for state in ("idle", "running", "needs_input", "ready", "blocked"):
                     render(pet, {"state": state, "running_count": 2,
@@ -173,7 +174,7 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(backend.tg, "LinearLayout", FakeView), \
              patch.object(backend.tg, "ImageView", FakeView), \
              patch.object(backend.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
-            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
+            pet = backend.TermuxGuiRenderer(connection)
             render(pet, {"state": "running", "running_count": 1, "appearance": "akita"}, frame=3)
             render(pet, {"state": "running", "running_count": 1, "appearance": "akita"}, frame=4)
 

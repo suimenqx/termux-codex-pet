@@ -25,3 +25,9 @@ P1–P5 are still in progress; no overall completion claim.
 #6 moves native window operations into TermuxGuiRenderer. PetRuntime selects FrameRequest; FrameSource/FrameComposer return immutable packed RGBA. Native rendering no longer receives a business snapshot. Old codec and artwork helpers remain temporary compatibility code until their own tickets.
 
 Frame-pipeline and artwork (14) tests pass, GUI tests (25) pass, eight affected modules pass mypy, and the deployed isolated full-state device demonstration returns to zero sessions with GUI ready. Production transport remains PNG. Full suite: 167 tests passed (140.031 s).
+
+## T06 / #7 — input and gesture ownership
+
+Native event normalization now produces immutable `TouchInput`; a pure `DragController` handles anchors, 6 dp slop, cancellation and commits. The GUI owner performs movement and persistence. Non-square source and measured view axes scale independently; measurement has a 1.5 second budget. Screen-off and targeted cancellation restore the saved position.
+
+Validation: full suite 169 tests passed (150.031 s); two additional focused cancellation/screen-off cases passed with all 16 touch tests. Targeted type checks passed. Deployed release `20261002T214948Z-7d8f47f7`; isolated five-state device smoke returned idle with zero sessions and GUI ready. Production tap, edge drag, secondary-finger and screen-off gestures are pending the requested human check; earlier probe acceptance does not substitute for this.

@@ -14,6 +14,9 @@ from typing import Any, Callable
 
 from .pet_runtime import PetRuntime, PetVisual
 from .frames import FrameSource, FrameComposer
+from .touch import DragController
+from .renderer.protocol import TouchInput
+from .preferences import read_config, save_position
 from .renderer.termux_gui import TermuxGuiRenderer
 from .renderer.transport import Connection
 
@@ -45,6 +48,7 @@ class GuiWorker:
         self.runtime: PetRuntime | None = None
         self.source = FrameSource()
         self.composer = FrameComposer()
+        self.drag: DragController | None = None
 
     def start(self) -> None:
         self.thread.start()
@@ -81,7 +85,13 @@ class GuiWorker:
             connection: Connection | None = None
             try:
                 connection = Connection()
-                self.ui = TermuxGuiRenderer(connection, self.config_path)
+                saved = read_config(self.config_path).get("position", {})
+                try:
+                    position = max(0, int(saved["x"])), max(0, int(saved["y"]))
+                except (KeyError, TypeError, ValueError):
+                    position = (700, 420)
+                self.ui = TermuxGuiRenderer(connection, position)
+                self.drag = DragController(position, self.ui.density)
                 self._publish_overlay()
                 self.on_status(True, "")
                 failures = 0
@@ -91,6 +101,8 @@ class GuiWorker:
                 LOG.exception("Termux:GUI connection or overlay failed")
                 self.on_status(False, str(exc)[:180])
             finally:
+                if self.drag is not None:
+                    self.drag.handle(TouchInput("cancel"))
                 if self.ui is not None:
                     try:
                         self.ui.close()
@@ -125,7 +137,9 @@ class GuiWorker:
             if connection._event in readable:
                 event = connection.checkevent()
                 if event is not None:
-                    self.ui.handle(event)
+                    normalized = self.ui.input(event)
+                    if normalized is not None:
+                        self.handle_input(normalized)
                     self._publish_overlay()
             now = time.monotonic()
             if self.runtime.deadline is not None and now >= self.runtime.deadline:
@@ -143,3 +157,13 @@ class GuiWorker:
         request = self.runtime.current()
         base = self.source.frame(request.pack_id, request.revision, request.reference)
         self.ui.present(self.composer.compose(base, request.count))
+
+    def handle_input(self, event: TouchInput) -> None:
+        """Apply normalized input to position and persistence, on the GUI owner."""
+        assert self.ui is not None and self.drag is not None
+        result = self.drag.handle(event)
+        if result.position is not None:
+            if (self.ui.x, self.ui.y) != result.position:
+                self.ui.move(*result.position)
+            if result.commit:
+                save_position(self.config_path, *result.position)

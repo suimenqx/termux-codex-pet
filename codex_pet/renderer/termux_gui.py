@@ -1,13 +1,12 @@
 """Termux:GUI pixels, window and native input; no business snapshots."""
 from __future__ import annotations
 import logging
-from pathlib import Path
+import math
 import time
 from typing import Any
 import termuxgui as tg
-from ..preferences import read_config, save_position
 from ..image_codec import encode_png
-from .protocol import RgbaFrame
+from .protocol import RgbaFrame, TouchInput
 from .transport import Connection
 
 LOG = logging.getLogger(__name__)
@@ -30,7 +29,8 @@ def _point(value: Any) -> tuple[float, float] | None:
     if not isinstance(value, dict):
         return None
     try:
-        return float(value["x"]), float(value["y"])
+        point = float(value["x"]), float(value["y"])
+        return point if all(math.isfinite(v) for v in point) else None
     except (KeyError, TypeError, ValueError):
         return None
 
@@ -45,10 +45,10 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
 
 
 class TermuxGuiRenderer:
-    def __init__(self, connection: tg.Connection, config_path: Path) -> None:
+    def __init__(self, connection: Connection, position: tuple[int, int] = (700, 420)) -> None:
         self.c = connection
-        self.config_path = config_path
-        self.x, self.y = self._load_position()
+        self.x, self.y = position
+        self.display_px = (192, 192)
         self.density = 3.0
         self.pet = _overlay(connection)
         self.root = tg.LinearLayout(self.pet, vertical=False)
@@ -63,37 +63,29 @@ class TermuxGuiRenderer:
         self.root.sendtouchevent(True)
         self.pet.sendoverlayevents(True)
         self.pet.setposition(self.x, self.y)
-        # Screen down, corrected drag anchor, original logical position.
-        self.down: tuple[float, float, int, int, int, int] | None = None
-        self.dragged = False
         self.touch_count = 0
         self.last_touch = ""
         self._measure_density()
 
-    def _load_position(self) -> tuple[int, int]:
-        try:
-            pos = read_config(self.config_path).get("position", {})
-            return max(0, int(pos["x"])), max(0, int(pos["y"]))
-        except (KeyError, TypeError, ValueError):
-            return 700, 420
-
-    def _save_position(self) -> None:
-        save_position(self.config_path, self.x, self.y)
-
     def _measure_density(self) -> None:
-        # getConfiguration never replies for an overlay on this binding/device.
-        # The measured native View provides the density without Android APIs.
-        time.sleep(0.12)
-        old_timeout = self.c._main.gettimeout()
+        # The native layout size supplies density; getConfiguration is not
+        # reliable for this overlay. A failed transaction discards the connection.
+        deadline = time.monotonic() + 1.5
+        timeout = self.c.timeout
         try:
-            self.c._main.settimeout(1.5)
-            width = self.root.getdimensions()[0]
-            if width > 0:
-                self.density = width / PET_SIZE_DP
-        except (OSError, ValueError):
-            LOG.warning("Could not measure overlay density; using 3.0")
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError('Overlay layout did not acquire dimensions')
+                self.c.timeout = min(timeout, remaining)
+                width, height = self.root.getdimensions()
+                if width > 0 and height > 0:
+                    self.display_px = width, height
+                    self.density = width / PET_SIZE_DP
+                    return
+                time.sleep(min(.02, max(0, deadline - time.monotonic())))
         finally:
-            self.c._main.settimeout(old_timeout)
+            self.c.timeout = timeout
 
     def present(self, frame: RgbaFrame) -> None:
         self.image_width, self.image_height = frame.width, frame.height
@@ -112,68 +104,34 @@ class TermuxGuiRenderer:
         self.pet.setposition(x, y)
         self.x, self.y = x, y
 
-    def handle(self, event: tg.Event) -> bool:
+    def input(self, event: tg.Event) -> TouchInput | None:
+        if event.type == tg.Event.screen_off:
+            return TouchInput('screen_off')
         if not isinstance(event.value, dict):
-            return False
-        if event.type == tg.Event.touch:
-            if (event.value.get("aid") == self.pet.aid and
-                event.value.get("id") == self.face.id and
-                event.value.get("action") == "down" and self.down is not None):
-                local_px = _first_pointer(event.value.get("pointers"))
-                if (local_px is not None and
-                    0 <= local_px[0] <= self.image_width and
-                    0 <= local_px[1] <= self.image_height):
-                    # ImageView pointer coordinates use source-image pixels.
-                    # Normalize them to the 64 dp view before correcting a
-                    # system-clamped overlay position.
-                    local_x = local_px[0] * PET_SIZE_DP / self.image_width
-                    local_y = local_px[1] * PET_SIZE_DP / self.image_height
-                    raw_x, raw_y, _, _, origin_x, origin_y = self.down
-                    anchor_x = max(0, round(raw_x - local_x * self.density))
-                    anchor_y = max(0, round(raw_y - local_y * self.density))
-                    self.down = (raw_x, raw_y, anchor_x, anchor_y, origin_x, origin_y)
-            return False
-        if event.type != tg.Event.overlaytouch:
-            return False
-        # Termux:GUI may omit the Activity ID from overlay-wide touch events.
-        aid = event.value.get("aid")
+            return None
+        value = event.value
+        aid = value.get('aid')
         if aid is not None and aid != self.pet.aid:
-            return False
-        self.touch_count += 1
-        self.last_touch = str(event.value.get("action", ""))
-        xy = _point(event.value)
-        if xy is None:
-            return False
-        action = event.value.get("action")
-        if action == "down":
-            # overlayTouch is the gesture source. View touch events are only
-            # an optional source of a more precise anchor near screen edges.
-            # They arrive on a separate event path, so requiring both downs
-            # makes drag behavior depend on event ordering.
-            self.down = (xy[0], xy[1], self.x, self.y, self.x, self.y)
-            self.dragged = False
-        elif action == "move" and self.down is not None:
-            dx, dy = xy[0] - self.down[0], xy[1] - self.down[1]
-            slop = DRAG_SLOP_DP * self.density
-            if dx * dx + dy * dy > slop * slop:
-                self.dragged = True
-            if self.dragged:
-                self.x = max(0, self.down[2] + round(dx))
-                self.y = max(0, self.down[3] + round(dy))
-                self.pet.setposition(self.x, self.y)
-        elif action in ("up", "cancel") and self.down is not None:
-            if action == "cancel":
-                if self.dragged:
-                    self.x, self.y = self.down[4], self.down[5]
-                    self.pet.setposition(self.x, self.y)
-                self.down = None
-                return False
-            if self.dragged:
-                self._save_position()
-            self.down = None
-        elif action in ("up", "cancel"):
-            self.down = None
-        return False
+            return None
+        action = value.get('action')
+        if event.type == tg.Event.touch:
+            if value.get('id') != self.face.id:
+                return None
+            if action == 'cancel':
+                return TouchInput('cancel')
+            if action == 'down':
+                local = _first_pointer(value.get('pointers'))
+                if (local is not None and 0 <= local[0] <= self.image_width
+                        and 0 <= local[1] <= self.image_height):
+                    return TouchInput('anchor', (local[0] * self.display_px[0] / self.image_width,
+                                                 local[1] * self.display_px[1] / self.image_height))
+            return None
+        if event.type == tg.Event.overlaytouch:
+            self.touch_count += 1
+            self.last_touch = str(action)
+            if action in ('down', 'move', 'up', 'cancel'):
+                return TouchInput(action, _point(value))
+        return None
 
     def close(self) -> None:
         self.pet.finish()

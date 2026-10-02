@@ -22,3 +22,9 @@ class Renderer(Protocol):
     def present(self, frame: RgbaFrame) -> None: ...
     def move(self, x: int, y: int) -> None: ...
     def close(self) -> None: ...
+
+
+@dataclass(frozen=True)
+class TouchInput:
+    action: str
+    point: tuple[float, float] | None = None
