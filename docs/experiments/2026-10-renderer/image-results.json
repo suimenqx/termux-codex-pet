@@ -1,0 +1,495 @@
+{
+  "generated_utc": "2026-10-02T05:16:37.120785+00:00",
+  "scope": "Offline Python image preparation only; no GUI, Android frame, power, or thermal measurement.",
+  "method": {
+    "decode": "Resident encoded bytes, uncached decoded result; OS disk caches are NOT flushed.",
+    "timing": "perf_counter_ns wall time, 2 warmups, serial measurements; no CPU governor control.",
+    "copy": "Anonymous mmap, same Python buffer interface as termuxgui.Buffer.mem; NOT Android shared memory.",
+    "384x416": "Unscaled production 256x256 frame pasted in a transparent test canvas; no new artwork.",
+    "startup": "Fresh processes, warm OS caches; VmRSS from /proc/self/status before/after import, not inherited resource.ru_maxrss."
+  },
+  "environment": {
+    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+    "machine": "aarch64",
+    "platform": "Android-12-aarch64-64bit",
+    "git_head": "ca2bc4d5859713626e2c8a345bcecd8b3ca57d84",
+    "isolated_deps": "/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root",
+    "libpng": "1.6.59",
+    "global_modules": {
+      "PIL": false,
+      "numpy": false
+    },
+    "downloaded_packages": [
+      {
+        "file": "libavif_1.4.2_aarch64.deb",
+        "bytes": 385324,
+        "sha256": "98d2b89c5547d07191c55c7a4efe4a0906c600953b62504056ebe96baafce52e",
+        "control_fields": "Package: libavif\nVersion: 1.4.2\nInstalled-Size: 1488\nDepends: libaom, libc++, libdav1d, libjpeg-turbo, libpng, libwebp, librav1e, svt-av1"
+      },
+      {
+        "file": "libimagequant_4.4.1_aarch64.deb",
+        "bytes": 225132,
+        "sha256": "fdbb4f1eb6c62d76fd47bbc0d7773ba9e548eddcdf6cba0809f0b76e15da4b99",
+        "control_fields": "Package: libimagequant\nVersion: 4.4.1\nInstalled-Size: 640"
+      },
+      {
+        "file": "libopenblas_0.3.34_aarch64.deb",
+        "bytes": 2596208,
+        "sha256": "c110b2925318d49e1d95adc13b6931ad57e08661427c5adca6ff0f2af35e8d27",
+        "control_fields": "Package: libopenblas\nVersion: 0.3.34\nInstalled-Size: 11852"
+      },
+      {
+        "file": "libraqm_0.11.0_aarch64.deb",
+        "bytes": 15020,
+        "sha256": "72e907ef7bc7a5d54b042df4602f49c4309b2e128e49618616795e3d5bc4a174",
+        "control_fields": "Package: libraqm\nVersion: 0.11.0\nInstalled-Size: 96\nDepends: freetype, harfbuzz, fribidi"
+      },
+      {
+        "file": "libxcb_1.17.0-1_aarch64.deb",
+        "bytes": 913948,
+        "sha256": "191c3642b6a8c754bc75b69b94a81858ecb5f18766dc085aff55559b8087ad34",
+        "control_fields": "Package: libxcb\nVersion: 1.17.0-1\nInstalled-Size: 12772\nDepends: libxau, libxdmcp"
+      },
+      {
+        "file": "openjpeg_2.5.4_aarch64.deb",
+        "bytes": 149728,
+        "sha256": "93ad32c8caa0eb8943e2dd86b5c2eaf48a767709a3fa069a5b670d948656c7d8",
+        "control_fields": "Package: openjpeg\nVersion: 2.5.4\nInstalled-Size: 516"
+      },
+      {
+        "file": "python-numpy_2.4.4-1_aarch64.deb",
+        "bytes": 3479660,
+        "sha256": "ebea290c2f89cb283ce3930e825e74094c9a9c9622cc767eb5d3402d27037114",
+        "control_fields": "Package: python-numpy\nVersion: 2.4.4-1\nInstalled-Size: 20316\nDepends: libc++, libopenblas, python"
+      },
+      {
+        "file": "python-pillow_12.3.0_aarch64.deb",
+        "bytes": 407220,
+        "sha256": "3add75907c16921a32d2c6053a69086b25adcdf746269a0d2c62e712443e3073",
+        "control_fields": "Package: python-pillow\nVersion: 12.3.0\nInstalled-Size: 2032\nDepends: freetype, libavif, libimagequant, libjpeg-turbo, libraqm, libtiff, libwebp, libxcb, littlecms, openjpeg, python, python-pip, zlib"
+      }
+    ],
+    "apt_simulated_install": "NOTE: This is only a simulation!\n      apt-get needs root privileges for real execution.\n      Keep also in mind that locking is deactivated,\n      so don't depend on the relevance to the real current situation!\nReading package lists...\nBuilding dependency tree...\nReading state information...\nThe following additional packages will be installed:\n  libavif libimagequant libopenblas libraqm openjpeg\nThe following NEW packages will be installed:\n  libavif libimagequant libopenblas libraqm openjpeg python-numpy\n  python-pillow\n0 upgraded, 7 newly installed, 0 to remove and 0 not upgraded.\nInst libavif (1.4.2 termux-main stable:stable [aarch64])\nInst libimagequant (4.4.1 termux-main stable:stable [aarch64])\nInst libopenblas (0.3.34 termux-main stable:stable [aarch64])\nInst libraqm (0.11.0 termux-main stable:stable [aarch64])\nInst openjpeg (2.5.4 termux-main stable:stable [aarch64])\nInst python-numpy (2.4.4-1 termux-main stable:stable [aarch64])\nInst python-pillow (12.3.0 termux-main stable:stable [aarch64])\nConf libavif (1.4.2 termux-main stable:stable [aarch64])\nConf libimagequant (4.4.1 termux-main stable:stable [aarch64])\nConf libopenblas (0.3.34 termux-main stable:stable [aarch64])\nConf libraqm (0.11.0 termux-main stable:stable [aarch64])\nConf openjpeg (2.5.4 termux-main stable:stable [aarch64])\nConf python-numpy (2.4.4-1 termux-main stable:stable [aarch64])\nConf python-pillow (12.3.0 termux-main stable:stable [aarch64])\n",
+    "control_imports_without_isolated_native_library_path": {
+      "PIL.Image": {
+        "returncode": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import PIL.Image\n  File \"/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/PIL/Image.py\", line 95, in <module>\n    from . import _imaging as core\nImportError: dlopen failed: library \"libopenjp2.so\" not found: needed by /data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/PIL/_imaging.cpython-314-aarch64-linux-android.so in namespace (default)\n"
+      },
+      "numpy": {
+        "returncode": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/_core/__init__.py\", line 24, in <module>\n    from . import multiarray\n  File \"/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/_core/multiarray.py\", line 11, in <module>\n    from . import _multiarray_umath, overrides\nImportError: dlopen failed: library \"libopenblas.so\" not found: needed by /data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-aarch64-linux-android.so in namespace (default)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import numpy\n  File \"/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/__init__.py\", line 112, in <module>\n    from numpy.__config__ import show_config\n  File \"/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/__config__.py\", line 4, in <module>\n    from numpy._core._multiarray_umath import (\n    ...<3 lines>...\n    )\n  File \"/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/_core/__init__.py\", line 85, in <module>\n    raise ImportError(msg) from exc\nImportError: \n\nIMPORTANT: PLEASE READ THIS FOR ADVICE ON HOW TO SOLVE THIS ISSUE!\n\nImporting the numpy C-extensions failed. This error can happen for\nmany reasons, often due to issues with your setup or how NumPy was\ninstalled.\n\nWe have compiled some common reasons and troubleshooting tips at:\n\n    https://numpy.org/devdocs/user/troubleshooting-importerror.html\n\nPlease note and check the following:\n\n  * The Python version is: Python 3.14 from \"/data/data/com.termux/files/usr/bin/python\"\n  * The NumPy version is: \"2.4.4\"\n\nand make sure that they are the versions you expect.\n\nPlease carefully study the information and documentation linked above.\nThis is unlikely to be a NumPy issue but will be caused by a bad install\nor environment on your machine.\n\nOriginal error was: dlopen failed: library \"libopenblas.so\" not found: needed by /data/data/com.termux/files/home/.cache/codex-pet/refactor-research/deps/root/data/data/com.termux/files/usr/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-aarch64-linux-android.so in namespace (default)\n\n"
+      }
+    },
+    "modules_found": {
+      "PIL": true,
+      "numpy": true
+    },
+    "pillow": "12.3.0",
+    "pillow_features": {
+      "webp": {
+        "available": true,
+        "version": "1.6.0"
+      },
+      "zlib": {
+        "available": true,
+        "version": "1.3.2"
+      },
+      "jpg": {
+        "available": true,
+        "version": "8.0"
+      },
+      "jpg_2000": {
+        "available": true,
+        "version": "2.5.4"
+      },
+      "libtiff": {
+        "available": true,
+        "version": "4.7.2"
+      },
+      "raqm": {
+        "available": true,
+        "version": "0.11.0"
+      },
+      "libimagequant": {
+        "available": true,
+        "version": "4.2.2"
+      }
+    },
+    "numpy": "2.4.4"
+  },
+  "checks": {
+    "pillow_libpng_all_frames_exact": true,
+    "webp_hidden_rgb": {
+      "False": {
+        "exact": false,
+        "output": [
+          0,
+          0,
+          0,
+          0,
+          99,
+          55,
+          11,
+          128
+        ]
+      },
+      "True": {
+        "exact": true,
+        "output": [
+          255,
+          77,
+          33,
+          0,
+          99,
+          55,
+          11,
+          128
+        ]
+      }
+    },
+    "pillow_premultiply_all_alpha_color_pairs_exact": true,
+    "png_prepared_frames_match": true,
+    "webp_lossless_exact_prepared_frames_match": true,
+    "numpy_premultiply_all_alpha_color_pairs_exact": true,
+    "numpy_atlas_crop": {
+      "atlas_shape": [
+        1536,
+        1536,
+        4
+      ],
+      "crop_strides": [
+        6144,
+        4,
+        1
+      ],
+      "crop_c_contiguous": false,
+      "direct_mmap_assignment": "ValueError: ndarray is not C-contiguous",
+      "contiguous_assignment_exact": true,
+      "view_keeps_atlas_bytes_alive": 9437184
+    }
+  },
+  "timings": {
+    "libpng_decode_one_256": {
+      "samples": 30,
+      "median_ms": 1.236979,
+      "p95_ms": 1.44427,
+      "min_ms": 1.226042
+    },
+    "libpng_decode_all_34": {
+      "samples": 10,
+      "median_ms": 48.360937,
+      "p95_ms": 49.130729,
+      "min_ms": 48.035417
+    },
+    "stdlib_premultiply_256": {
+      "samples": 10,
+      "median_ms": 37.427083,
+      "p95_ms": 37.547916,
+      "min_ms": 37.346354
+    },
+    "production_cached_rgba_lookup": {
+      "samples": 30,
+      "median_ms": 0.000435,
+      "p95_ms": 0.000437,
+      "min_ms": 0.000432
+    },
+    "production_cached_png_lookup": {
+      "samples": 30,
+      "median_ms": 0.000641,
+      "p95_ms": 0.000695,
+      "min_ms": 0.000638
+    },
+    "prepared_bytes_dict_lookup": {
+      "samples": 30,
+      "median_ms": 8.1e-05,
+      "p95_ms": 8.1e-05,
+      "min_ms": 7.8e-05
+    },
+    "mmap_copy_bytes_256x256": {
+      "samples": 30,
+      "median_ms": 0.004784,
+      "p95_ms": 0.00551,
+      "min_ms": 0.004453
+    },
+    "mmap_copy_bytes_384x416": {
+      "samples": 30,
+      "median_ms": 0.018016,
+      "p95_ms": 0.020661,
+      "min_ms": 0.012974
+    },
+    "pillow_decode_one_256": {
+      "samples": 30,
+      "median_ms": 1.591927,
+      "p95_ms": 1.646875,
+      "min_ms": 1.555729
+    },
+    "pillow_decode_all_34": {
+      "samples": 10,
+      "median_ms": 61.14401,
+      "p95_ms": 61.755729,
+      "min_ms": 60.7125
+    },
+    "png_atlas_decode": {
+      "samples": 10,
+      "median_ms": 84.230469,
+      "p95_ms": 101.027083,
+      "min_ms": 75.642187
+    },
+    "webp_lossless_default_atlas_decode": {
+      "samples": 10,
+      "median_ms": 84.970313,
+      "p95_ms": 104.127083,
+      "min_ms": 78.272396
+    },
+    "webp_lossless_exact_atlas_decode": {
+      "samples": 10,
+      "median_ms": 102.24401,
+      "p95_ms": 144.969271,
+      "min_ms": 80.395312
+    },
+    "pillow_premultiply_256x256": {
+      "samples": 30,
+      "median_ms": 0.504688,
+      "p95_ms": 0.533854,
+      "min_ms": 0.496875
+    },
+    "pillow_premultiply_384x416": {
+      "samples": 30,
+      "median_ms": 1.244271,
+      "p95_ms": 2.539063,
+      "min_ms": 0.983333
+    },
+    "png_atlas_prepare_all_34_premultiplied_bytes": {
+      "samples": 10,
+      "median_ms": 119.850521,
+      "p95_ms": 141.334896,
+      "min_ms": 105.040104
+    },
+    "webp_lossless_exact_atlas_prepare_all_34_premultiplied_bytes": {
+      "samples": 10,
+      "median_ms": 109.031771,
+      "p95_ms": 121.825521,
+      "min_ms": 94.411459
+    },
+    "numpy_premultiply_256x256": {
+      "samples": 30,
+      "median_ms": 2.272136,
+      "p95_ms": 3.329167,
+      "min_ms": 2.222396
+    },
+    "numpy_premultiply_384x416": {
+      "samples": 30,
+      "median_ms": 6.134115,
+      "p95_ms": 8.842188,
+      "min_ms": 5.665625
+    },
+    "numpy_crop_tobytes_256": {
+      "samples": 30,
+      "median_ms": 0.090625,
+      "p95_ms": 0.097917,
+      "min_ms": 0.088541
+    },
+    "numpy_crop_ascontiguous_256": {
+      "samples": 30,
+      "median_ms": 0.090104,
+      "p95_ms": 0.560938,
+      "min_ms": 0.089062
+    },
+    "numpy_contiguous_mmap_copy_256": {
+      "samples": 30,
+      "median_ms": 0.007135,
+      "p95_ms": 0.007536,
+      "min_ms": 0.007115
+    }
+  },
+  "sources": {
+    "count": 34,
+    "total_png_bytes": 3021653,
+    "sha256": {
+      "codex_pet/assets/akita/frames/blocked/00.png": "7c980dc611d074362924ad7bb9b792681119a95eb1cf81d05873404d0f92748f",
+      "codex_pet/assets/akita/frames/blocked/01.png": "85646eaecffb86d8a0fc3b9bd56a2d14f07ecd41ab9c98dd93c38cb3c4e7471c",
+      "codex_pet/assets/akita/frames/blocked/02.png": "df14d5222fff17d4c437e87e773ffcfbcf269667cdb05e34d2269df09d99289d",
+      "codex_pet/assets/akita/frames/blocked/03.png": "8b1275157e70b77c8aa38a62f08c5f7b2c8e20159bb264d039b860d60de87c61",
+      "codex_pet/assets/akita/frames/idle/00.png": "bc373fbcfb792b53b6dfe0a20fcf720c0a06e8bfd007fe1239d674292399fba4",
+      "codex_pet/assets/akita/frames/idle/01.png": "4c23f7a6887936ef1f69ea4f39e4c6c2ddefdd789152259257ba73fe23f2a10a",
+      "codex_pet/assets/akita/frames/idle/02.png": "07e57b213fef293704e6103b189d1afe266992103765f56673e629ca47aef5f0",
+      "codex_pet/assets/akita/frames/idle/03.png": "2eb96817128be37ed27701baa3e10fb23f2386b3561ed0f7cd73553a6ad15344",
+      "codex_pet/assets/akita/frames/idle/04.png": "16eb619b8066636cfbcd4e65b183b9974dd2787e9bc15043f66d636e4e1db46d",
+      "codex_pet/assets/akita/frames/idle/05.png": "2929572dc08f916011f99b6b1762dc7f38aadfddeb356a17202905a62652f49b",
+      "codex_pet/assets/akita/frames/idle/06.png": "22cb93d78cfbc0071653eaa13fcf77d5fb5242e0946d7ed03344517a04b15e7e",
+      "codex_pet/assets/akita/frames/idle/07.png": "2f5b9dd4237c7691e0aadc8a00645aa40c66334e64483f6d7c09980f9e8a47e5",
+      "codex_pet/assets/akita/frames/needs_input/00.png": "495327d6756f2398fbe277b1fe194f3f756539bd5cda86cb68890ce6688ecd98",
+      "codex_pet/assets/akita/frames/needs_input/01.png": "1307d27087179f3651f9877a5d99bb309edbde94fd6bca9d679a59c1fcc83f39",
+      "codex_pet/assets/akita/frames/needs_input/02.png": "e9c34c35c14ecc4bd0c526619a7803ee56c98cbc654144107d2a13e504245589",
+      "codex_pet/assets/akita/frames/needs_input/03.png": "ee0c02c77d7d87b6c987f78fa5466a2e7d119c7e979e2f35807a24e3e8788a4d",
+      "codex_pet/assets/akita/frames/ready/00.png": "a6fb89e93ae92015df478b19e98a3b732522e090ebaa5d1cf863661d8bb2fe71",
+      "codex_pet/assets/akita/frames/ready/01.png": "1dbae007dbc5e096f4805eb1386cb1d6049aaecb5a16f8d058bad336942a5367",
+      "codex_pet/assets/akita/frames/ready/02.png": "da2e5c3ef984754da7df3a1595d989f58f563c066cd12d0ede0b56a9d29fad18",
+      "codex_pet/assets/akita/frames/ready/03.png": "7df27e72ab2d4aedcb65cd038f29694b134dc250d4281385819d88c86e9b36dd",
+      "codex_pet/assets/akita/frames/ready/04.png": "52b219904ef82a4aab0098adbd168a9ccb1d9dfe45c7e6634b8e09280c3c7cb9",
+      "codex_pet/assets/akita/frames/ready/05.png": "230996a3a7983b84a7f0d207b19430cf3dc2edf289e76d85a46889013f52b74f",
+      "codex_pet/assets/akita/frames/ready/06.png": "5c9cc49faf8e85fd16130538dc78e33e773fc137a834a1a100b6830bff233401",
+      "codex_pet/assets/akita/frames/ready/07.png": "d1b2c14d044d61f402886f17fbb5905adb30d5f9bd057d6b94e9a00aa4d6bb5e",
+      "codex_pet/assets/akita/frames/running/00.png": "11a1e1228b1815ebffae9dca74b09981a09d4bfe54b3d6fed0fe3d41e6fdb135",
+      "codex_pet/assets/akita/frames/running/01.png": "44a43ec4e94f271bd7c9e169adba76a8f6a706280821f57f62935dabe9cbf5df",
+      "codex_pet/assets/akita/frames/running/02.png": "8ff508a3065428b78bf7869e95242db5ae74e82bf6713be446f6abb1e48d3400",
+      "codex_pet/assets/akita/frames/running/03.png": "7157be1f2923fee0f2ca048dc10e22de168d28e341fe7b6ab997b9c912322419",
+      "codex_pet/assets/akita/frames/running/04.png": "0bfe008612aa41313b839f08dc1b82933aee4615cecabbdbd7a3f166055c7c67",
+      "codex_pet/assets/akita/frames/running/05.png": "fdc62b73f8bd2e5588de398b80c0ee955e4664cfec406efc3bb0e23d8659ffe0",
+      "codex_pet/assets/akita/frames/running/06.png": "adf9d3a40d42f6128bb54bcd350e231630dde0043c5705da167552ff2aec5468",
+      "codex_pet/assets/akita/frames/running/07.png": "5357fcd3d0d476002ebe830348c28af4f74409bfca171909015b28cef5bb6009",
+      "codex_pet/assets/akita/frames/running/08.png": "3ec38bec100dfc5c0acc2eee28f016516620d9a1049155aea0994e396a046218",
+      "codex_pet/assets/akita/frames/running/09.png": "0c4d7f2e125e6e25fa8cbea2f968e83c8d9ef78ec092f8e9949f823420ba70c4"
+    }
+  },
+  "atlases": {
+    "png": {
+      "path": "/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/images/png.png",
+      "size_bytes": 2205697,
+      "encode_once_ms": 574.821354,
+      "sha256": "32d8368a960ef875da60bcb69d94f2502b49ea39ace7995711f41092db9035c3",
+      "raw_rgba_exact": true,
+      "changed_bytes": 0,
+      "nonzero_alpha_changed_pixels": 0
+    },
+    "webp_lossless_default": {
+      "path": "/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/images/webp_lossless_default.webp",
+      "size_bytes": 1576814,
+      "encode_once_ms": 1421.436458,
+      "sha256": "4dba4a0103944aabed5c65d0beec025a7f40bcd58fd4400dadb1dbffdc96d64c",
+      "raw_rgba_exact": false,
+      "changed_bytes": 3122873,
+      "nonzero_alpha_changed_pixels": 0
+    },
+    "webp_lossless_exact": {
+      "path": "/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/images/webp_lossless_exact.webp",
+      "size_bytes": 1585144,
+      "encode_once_ms": 1586.086979,
+      "sha256": "dd1eaaa053f96e1e4e27e8b9571f2cf3cb8244d6be7be0b1f1b5046e5629e1a0",
+      "raw_rgba_exact": true,
+      "changed_bytes": 0,
+      "nonzero_alpha_changed_pixels": 0
+    }
+  },
+  "fresh_processes": {
+    "baseline": {
+      "import": {
+        "samples": 7,
+        "median_ms": 0.001563,
+        "p95_ms": 0.002084,
+        "min_ms": 0.001562
+      },
+      "process_wall": {
+        "samples": 7,
+        "median_ms": 65.580209,
+        "p95_ms": 82.034896,
+        "min_ms": 52.6625
+      },
+      "rss_before_median_kib": 12636,
+      "rss_after_median_kib": 12668,
+      "rss_increase_median_kib": 36
+    },
+    "production_art": {
+      "import": {
+        "samples": 7,
+        "median_ms": 52.928125,
+        "p95_ms": 57.294792,
+        "min_ms": 48.519271
+      },
+      "process_wall": {
+        "samples": 7,
+        "median_ms": 126.240625,
+        "p95_ms": 145.925521,
+        "min_ms": 112.251563
+      },
+      "rss_before_median_kib": 12648,
+      "rss_after_median_kib": 16540,
+      "rss_increase_median_kib": 3856
+    },
+    "termuxgui": {
+      "import": {
+        "samples": 7,
+        "median_ms": 40.732291,
+        "p95_ms": 45.021875,
+        "min_ms": 38.356771
+      },
+      "process_wall": {
+        "samples": 7,
+        "median_ms": 118.929687,
+        "p95_ms": 138.296355,
+        "min_ms": 98.249479
+      },
+      "rss_before_median_kib": 12668,
+      "rss_after_median_kib": 20168,
+      "rss_increase_median_kib": 7512
+    },
+    "pillow_image": {
+      "import": {
+        "samples": 7,
+        "median_ms": 80.616667,
+        "p95_ms": 85.348958,
+        "min_ms": 65.727083
+      },
+      "process_wall": {
+        "samples": 7,
+        "median_ms": 161.141666,
+        "p95_ms": 181.215625,
+        "min_ms": 149.040104
+      },
+      "rss_before_median_kib": 12660,
+      "rss_after_median_kib": 18956,
+      "rss_increase_median_kib": 6296
+    },
+    "numpy": {
+      "import": {
+        "samples": 7,
+        "median_ms": 117.199479,
+        "p95_ms": 186.40625,
+        "min_ms": 100.364063
+      },
+      "process_wall": {
+        "samples": 7,
+        "median_ms": 201.557291,
+        "p95_ms": 279.413542,
+        "min_ms": 173.650521
+      },
+      "rss_before_median_kib": 12720,
+      "rss_after_median_kib": 26368,
+      "rss_increase_median_kib": 13620
+    },
+    "pillow_numpy": {
+      "import": {
+        "samples": 7,
+        "median_ms": 174.497396,
+        "p95_ms": 265.881771,
+        "min_ms": 151.416146
+      },
+      "process_wall": {
+        "samples": 7,
+        "median_ms": 270.292709,
+        "p95_ms": 340.553125,
+        "min_ms": 239.114063
+      },
+      "rss_before_median_kib": 12664,
+      "rss_after_median_kib": 30532,
+      "rss_increase_median_kib": 17868
+    }
+  },
+  "memory_calculations": {
+    "256x256": {
+      "frame_bytes": 262144,
+      "34_frames_mib": 8.5,
+      "100_frames_mib": 25.0,
+      "80_entry_rgba_cache_mib": 20.0,
+      "single_copy_10fps_mib_s": 2.5
+    },
+    "384x416": {
+      "frame_bytes": 638976,
+      "34_frames_mib": 20.71875,
+      "100_frames_mib": 60.9375,
+      "80_entry_rgba_cache_mib": 48.75,
+      "single_copy_10fps_mib_s": 6.09375
+    }
+  },
+  "full_results": "/data/data/com.termux/files/home/.cache/codex-pet/refactor-research/images/image-results-full.json"
+}

@@ -2,6 +2,8 @@
 
 This is the reference for agents changing hook ingestion, sessions, IPC, daemon lifecycle, native overlay layout or touch, and install/uninstall behavior. Read the relevant section, then inspect the owning code and its tests; code remains authoritative for exact values.
 
+The [measured refactor plan](research/termux-gui-refactor-plan.md) records the proposed next architecture, device experiments, dependency checks, and migration gates. It is a proposal; the contracts below still describe the current production implementation.
+
 ## Event path and ownership
 
 ```text

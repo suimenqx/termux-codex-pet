@@ -1,0 +1,10 @@
+{
+  "scope": "native API failure behavior; no production daemon changes",
+  "created_two": 7,
+  "after_remove_older": 7,
+  "latest_error": "ConnectionError: Termux:GUI closed stream (binding EOF guarded)",
+  "binding_overlay_constructor": "TypeError: cannot unpack non-iterable int object",
+  "overlay_configuration": "TimeoutError: timed out",
+  "configuration_wait_ms": 3001.098958076909,
+  "fresh_connection_version": 7
+}

@@ -1,0 +1,690 @@
+{
+  "recorded_utc": "2026-10-02T05:18:25Z",
+  "source_revision": "ca2bc4d5859713626e2c8a345bcecd8b3ca57d84",
+  "python": "3.14.6",
+  "machine": "aarch64",
+  "scope": "Offline refactor prototypes; no daemon/GUI connection/config mutation",
+  "manifest_parity": {
+    "comparisons": 1080,
+    "exposures_compared": 8694,
+    "pets": [
+      "akita",
+      "robot"
+    ],
+    "states": [
+      "idle",
+      "running",
+      "needs_input",
+      "ready",
+      "blocked"
+    ],
+    "from_states": [
+      null,
+      "idle",
+      "running",
+      "needs_input",
+      "ready",
+      "blocked"
+    ],
+    "cycles": [
+      1,
+      2,
+      3
+    ],
+    "counts": [
+      0,
+      1,
+      2,
+      9,
+      10,
+      25
+    ],
+    "identity": "Exact production PNG SHA256 and exposure milliseconds",
+    "pass": true,
+    "limitations": [
+      "Uses production frame/composition helpers; not a new loader or codec.",
+      "Same-pack state transitions only; appearance switches require their own test.",
+      "Static and blocked infinite holds get the existing offline 800 ms preview hold."
+    ]
+  },
+  "clock": {
+    "repeats": 3,
+    "rows": [
+      {
+        "gap_seconds": 60,
+        "legacy_wall_ns": [
+          1163541,
+          1089062,
+          1028125
+        ],
+        "legacy_median_ns": 1089062,
+        "prototype_wall_ns": [
+          11979,
+          3125,
+          1563
+        ],
+        "prototype_median_ns": 3125,
+        "legacy_frame": 8,
+        "legacy_deadline_seconds": 60.07999999999903,
+        "prototype_frame": 8,
+        "prototype_deadline_ns": 60080000000
+      },
+      {
+        "gap_seconds": 3600,
+        "legacy_wall_ns": [
+          64465625,
+          63693230,
+          63828646
+        ],
+        "legacy_median_ns": 63828646,
+        "prototype_wall_ns": [
+          9375,
+          3646,
+          9375
+        ],
+        "prototype_median_ns": 9375,
+        "legacy_frame": 0,
+        "legacy_deadline_seconds": 3600.039999997741,
+        "prototype_frame": 0,
+        "prototype_deadline_ns": 3600040000000
+      },
+      {
+        "gap_seconds": 86400,
+        "legacy_wall_ns": [
+          1709132812,
+          1929804687,
+          1915042187
+        ],
+        "legacy_median_ns": 1915042187,
+        "prototype_wall_ns": [
+          18750,
+          11458,
+          16146
+        ],
+        "prototype_median_ns": 16146,
+        "legacy_frame": 9,
+        "legacy_deadline_seconds": 86400.00000061218,
+        "prototype_frame": 0,
+        "prototype_deadline_ns": 86400040000000
+      }
+    ],
+    "exact_integer_boundary_checks": 300,
+    "non_boundary_legacy_phase_comparisons": 500,
+    "pass": true,
+    "limitations": [
+      "Local wall-clock diagnostic, not controlled CPU, energy, or Android frame timing.",
+      "Prototype covers Akita running loop; generic next/hold/transition clock remains to implement.",
+      "Legacy float deadlines can choose the preceding exposure at mathematically exact boundaries after long gaps."
+    ]
+  },
+  "wake": {
+    "original_write_socket_timeout": null,
+    "original_socket_blocking": true,
+    "injected_timeout_seconds": 0.01,
+    "one_byte_sends_before_saturation": 5462,
+    "bytes_drained": 5462,
+    "saturated_wake_wall_ns_with_injected_timeout": 10103646,
+    "nonblocking_saturated_wake_wall_ns": 45833,
+    "wake_after_drain_succeeded": true,
+    "pass": true,
+    "interpretation": "Existing wake has no timeout; a full isolated socket makes its send wait. The probe injects a timeout to bound that wait. Nonblocking coalescing returns immediately while a wake byte is already pending. The daemon's event branch calls wake after releasing its state lock; reconnect calls wake inside that lock. Either can stall the single IPC server thread.",
+    "limitations": [
+      "No production hook flood and no GUI connection used.",
+      "Saturation count depends on kernel/socket limits; not a session-count limit."
+    ]
+  },
+  "proposed_manifests": [
+    {
+      "schema_version": 1,
+      "id": "akita",
+      "canvas_px": [
+        256,
+        256
+      ],
+      "display_dp": [
+        64,
+        64
+      ],
+      "source": {
+        "kind": "png_directory"
+      },
+      "frames": {
+        "idle/00": {
+          "file": "frames/idle/00.png",
+          "fallback": "idle.png"
+        },
+        "idle/01": {
+          "file": "frames/idle/01.png",
+          "fallback": "idle.png"
+        },
+        "idle/02": {
+          "file": "frames/idle/02.png",
+          "fallback": "idle.png"
+        },
+        "idle/03": {
+          "file": "frames/idle/03.png",
+          "fallback": "idle.png"
+        },
+        "idle/04": {
+          "file": "frames/idle/04.png",
+          "fallback": "idle.png"
+        },
+        "idle/05": {
+          "file": "frames/idle/05.png",
+          "fallback": "idle.png"
+        },
+        "idle/06": {
+          "file": "frames/idle/06.png",
+          "fallback": "idle.png"
+        },
+        "idle/07": {
+          "file": "frames/idle/07.png",
+          "fallback": "idle.png"
+        },
+        "running/00": {
+          "file": "frames/running/00.png",
+          "fallback": "running.png"
+        },
+        "running/01": {
+          "file": "frames/running/01.png",
+          "fallback": "running.png"
+        },
+        "running/02": {
+          "file": "frames/running/02.png",
+          "fallback": "running.png"
+        },
+        "running/03": {
+          "file": "frames/running/03.png",
+          "fallback": "running.png"
+        },
+        "running/04": {
+          "file": "frames/running/04.png",
+          "fallback": "running.png"
+        },
+        "running/05": {
+          "file": "frames/running/05.png",
+          "fallback": "running.png"
+        },
+        "running/06": {
+          "file": "frames/running/06.png",
+          "fallback": "running.png"
+        },
+        "running/07": {
+          "file": "frames/running/07.png",
+          "fallback": "running.png"
+        },
+        "running/08": {
+          "file": "frames/running/08.png",
+          "fallback": "running.png"
+        },
+        "running/09": {
+          "file": "frames/running/09.png",
+          "fallback": "running.png"
+        },
+        "needs_input/00": {
+          "file": "frames/needs_input/00.png",
+          "fallback": "needs_input.png"
+        },
+        "needs_input/01": {
+          "file": "frames/needs_input/01.png",
+          "fallback": "needs_input.png"
+        },
+        "needs_input/02": {
+          "file": "frames/needs_input/02.png",
+          "fallback": "needs_input.png"
+        },
+        "needs_input/03": {
+          "file": "frames/needs_input/03.png",
+          "fallback": "needs_input.png"
+        },
+        "ready/00": {
+          "file": "frames/ready/00.png",
+          "fallback": "ready.png"
+        },
+        "ready/01": {
+          "file": "frames/ready/01.png",
+          "fallback": "ready.png"
+        },
+        "ready/02": {
+          "file": "frames/ready/02.png",
+          "fallback": "ready.png"
+        },
+        "ready/03": {
+          "file": "frames/ready/03.png",
+          "fallback": "ready.png"
+        },
+        "ready/04": {
+          "file": "frames/ready/04.png",
+          "fallback": "ready.png"
+        },
+        "ready/05": {
+          "file": "frames/ready/05.png",
+          "fallback": "ready.png"
+        },
+        "ready/06": {
+          "file": "frames/ready/06.png",
+          "fallback": "ready.png"
+        },
+        "ready/07": {
+          "file": "frames/ready/07.png",
+          "fallback": "ready.png"
+        },
+        "blocked/00": {
+          "file": "frames/blocked/00.png",
+          "fallback": "blocked.png"
+        },
+        "blocked/01": {
+          "file": "frames/blocked/01.png",
+          "fallback": "blocked.png"
+        },
+        "blocked/02": {
+          "file": "frames/blocked/02.png",
+          "fallback": "blocked.png"
+        },
+        "blocked/03": {
+          "file": "frames/blocked/03.png",
+          "fallback": "blocked.png"
+        },
+        "ready/blink": {
+          "file": "derived/ready-blink.png",
+          "derived_provenance": {
+            "base": "idle/00",
+            "patch": "idle/02",
+            "copy_rect": [
+              58,
+              54,
+              198,
+              116
+            ]
+          }
+        }
+      },
+      "roles": {
+        "idle": "idle",
+        "running": "running",
+        "needs_input": "needs_input",
+        "ready": "ready",
+        "blocked": "blocked"
+      },
+      "transitions": [
+        {
+          "from": "running",
+          "to": "ready",
+          "clip": "running_to_ready"
+        }
+      ],
+      "clips": {
+        "idle": {
+          "frames": [
+            {
+              "frame": "idle/00",
+              "duration_ms": 600
+            },
+            {
+              "frame": "idle/01",
+              "duration_ms": 80
+            },
+            {
+              "frame": "idle/02",
+              "duration_ms": 80
+            },
+            {
+              "frame": "idle/03",
+              "duration_ms": 80
+            },
+            {
+              "frame": "idle/04",
+              "duration_ms": 600
+            },
+            {
+              "frame": "idle/05",
+              "duration_ms": 600
+            },
+            {
+              "frame": "idle/06",
+              "duration_ms": 600
+            },
+            {
+              "frame": "idle/07",
+              "duration_ms": 600
+            }
+          ],
+          "end": {
+            "mode": "loop"
+          }
+        },
+        "running": {
+          "frames": [
+            {
+              "frame": "running/00",
+              "duration_ms": 40
+            },
+            {
+              "frame": "running/08",
+              "duration_ms": 40
+            },
+            {
+              "frame": "running/01",
+              "duration_ms": 80
+            },
+            {
+              "frame": "running/02",
+              "duration_ms": 80
+            },
+            {
+              "frame": "running/03",
+              "duration_ms": 80
+            },
+            {
+              "frame": "running/04",
+              "duration_ms": 40
+            },
+            {
+              "frame": "running/09",
+              "duration_ms": 40
+            },
+            {
+              "frame": "running/05",
+              "duration_ms": 80
+            },
+            {
+              "frame": "running/06",
+              "duration_ms": 80
+            },
+            {
+              "frame": "running/07",
+              "duration_ms": 80
+            }
+          ],
+          "end": {
+            "mode": "loop"
+          }
+        },
+        "needs_input": {
+          "frames": [
+            {
+              "frame": "needs_input/00",
+              "duration_ms": 200
+            },
+            {
+              "frame": "needs_input/01",
+              "duration_ms": 180
+            },
+            {
+              "frame": "needs_input/02",
+              "duration_ms": 180
+            },
+            {
+              "frame": "needs_input/03",
+              "duration_ms": 850
+            }
+          ],
+          "end": {
+            "mode": "loop"
+          }
+        },
+        "ready": {
+          "frames": [
+            {
+              "frame": "ready/04",
+              "duration_ms": 160
+            },
+            {
+              "frame": "ready/01",
+              "duration_ms": 200
+            },
+            {
+              "frame": "ready/02",
+              "duration_ms": 220
+            },
+            {
+              "frame": "ready/03",
+              "duration_ms": 360
+            }
+          ],
+          "end": {
+            "mode": "next",
+            "clip": "ready_rest"
+          }
+        },
+        "ready_rest": {
+          "frames": [
+            {
+              "frame": "idle/01",
+              "duration_ms": 800
+            },
+            {
+              "frame": "idle/00",
+              "duration_ms": 280
+            },
+            {
+              "frame": "ready/blink",
+              "duration_ms": 200
+            },
+            {
+              "frame": "idle/00",
+              "duration_ms": 300
+            },
+            {
+              "frame": "idle/03",
+              "duration_ms": 600
+            },
+            {
+              "frame": "idle/06",
+              "duration_ms": 800
+            },
+            {
+              "frame": "idle/07",
+              "duration_ms": 600
+            },
+            {
+              "frame": "idle/00",
+              "duration_ms": 800
+            }
+          ],
+          "end": {
+            "mode": "loop"
+          }
+        },
+        "running_to_ready": {
+          "frames": [
+            {
+              "frame": "ready/05",
+              "duration_ms": 120
+            },
+            {
+              "frame": "ready/06",
+              "duration_ms": 120
+            },
+            {
+              "frame": "ready/07",
+              "duration_ms": 120
+            }
+          ],
+          "end": {
+            "mode": "next",
+            "clip": "ready"
+          }
+        },
+        "blocked": {
+          "frames": [
+            {
+              "frame": "blocked/00",
+              "duration_ms": 120
+            },
+            {
+              "frame": "blocked/01",
+              "duration_ms": 180
+            },
+            {
+              "frame": "blocked/02",
+              "duration_ms": 180
+            },
+            {
+              "frame": "blocked/03",
+              "duration_ms": 120
+            }
+          ],
+          "end": {
+            "mode": "hold"
+          }
+        }
+      },
+      "decorations": {
+        "count": {
+          "style": "akita_count_v1",
+          "visible_above": 1,
+          "clamp": 10
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "id": "robot",
+      "canvas_px": [
+        64,
+        64
+      ],
+      "display_dp": [
+        64,
+        64
+      ],
+      "source": {
+        "kind": "builtin",
+        "id": "robot_v1"
+      },
+      "frames": {
+        "idle/00": {
+          "pose": "idle",
+          "variant": 0
+        },
+        "running/00": {
+          "pose": "running",
+          "variant": 0
+        },
+        "running/01": {
+          "pose": "running",
+          "variant": 1
+        },
+        "needs_input/00": {
+          "pose": "needs_input",
+          "variant": 0
+        },
+        "needs_input/01": {
+          "pose": "needs_input",
+          "variant": 1
+        },
+        "ready/00": {
+          "pose": "ready",
+          "variant": 0
+        },
+        "blocked/00": {
+          "pose": "blocked",
+          "variant": 0
+        }
+      },
+      "roles": {
+        "idle": "idle",
+        "running": "running",
+        "needs_input": "needs_input",
+        "ready": "ready",
+        "blocked": "blocked"
+      },
+      "transitions": [],
+      "clips": {
+        "idle": {
+          "frames": [
+            {
+              "frame": "idle/00",
+              "duration_ms": null
+            }
+          ],
+          "end": {
+            "mode": "hold"
+          }
+        },
+        "running": {
+          "frames": [
+            {
+              "frame": "running/00",
+              "duration_ms": 2000
+            },
+            {
+              "frame": "running/01",
+              "duration_ms": 2000
+            }
+          ],
+          "end": {
+            "mode": "loop"
+          }
+        },
+        "needs_input": {
+          "frames": [
+            {
+              "frame": "needs_input/00",
+              "duration_ms": 1400
+            },
+            {
+              "frame": "needs_input/01",
+              "duration_ms": 1400
+            }
+          ],
+          "end": {
+            "mode": "loop"
+          }
+        },
+        "ready": {
+          "frames": [
+            {
+              "frame": "ready/00",
+              "duration_ms": null
+            }
+          ],
+          "end": {
+            "mode": "hold"
+          }
+        },
+        "blocked": {
+          "frames": [
+            {
+              "frame": "blocked/00",
+              "duration_ms": null
+            }
+          ],
+          "end": {
+            "mode": "hold"
+          }
+        }
+      },
+      "decorations": {
+        "count": {
+          "style": "robot_count_v1",
+          "visible_above": 1,
+          "clamp": 10
+        }
+      }
+    }
+  ],
+  "startup_lock": {
+    "recorded_utc": "2026-10-02T20:28:37Z",
+    "start_daemon_wait_seconds": 0.05,
+    "watchdog_seconds": 0.3,
+    "still_blocked_after_ns": 300424479,
+    "observed_unbounded_start_lock_wait": true,
+    "child_terminated_by_watchdog": true,
+    "production_contact": false,
+    "child_stdout_after_ready": "",
+    "child_stderr": "",
+    "interpretation": "start_daemon acquires START_LOCK with blocking flock before creating its startup deadline. The wait parameter does not bound lock acquisition. A held temporary lock kept the call blocked beyond the requested startup wait.",
+    "isolation": [
+      "Only a TemporaryDirectory start.lock is opened/locked.",
+      "Child directories is replaced with a no-op.",
+      "Child request always returns an in-memory ok reply; no IPC is sent.",
+      "If the lock were acquired, the mock reply would return before spawning a daemon."
+    ],
+    "limitations": [
+      "This reproduces a failure path, not an observed production lock stall.",
+      "Mocked request isolates flock behavior; it does not validate real startup or notification timing."
+    ]
+  }
+}

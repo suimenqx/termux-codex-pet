@@ -1,0 +1,841 @@
+{
+  "schema": 1,
+  "python": "3.14.6",
+  "platform": "Android-12-aarch64-64bit",
+  "binding": "0.1.6",
+  "metric_scope": "submission plus getVersion command fence, not display latency",
+  "other_live_pet": "left running; no session or configuration changes",
+  "formats": [
+    {
+      "format": "ARGB888",
+      "created": true,
+      "bytes": 64,
+      "fence_version": 7,
+      "error": "ConnectionError: Termux:GUI closed stream (binding EOF guarded)"
+    },
+    {
+      "format": "ARGB8888",
+      "error": "TypeError: 'NoneType' object cannot be interpreted as an integer"
+    }
+  ],
+  "benchmarks": [
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 1.0414059506729245,
+        "p95_ms": 3.210937953554094,
+        "max_ms": 11.190103949047625
+      },
+      "python_cpu_ms": 33.996338999999764,
+      "wall_ms": 155.61510401312262,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "trial": 0
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 3.594010544475168,
+        "p95_ms": 7.691145990975201,
+        "max_ms": 8.8781249942258
+      },
+      "python_cpu_ms": 35.994786000000275,
+      "wall_ms": 1363.7416668934748,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.15260395593941212,
+        "p95_ms": 0.48072892241179943,
+        "max_ms": 0.7447919342666864
+      },
+      "trial": 0
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 1.6515624593012035,
+        "p95_ms": 3.704166039824486,
+        "max_ms": 7.006249972619116
+      },
+      "python_cpu_ms": 57.06145400000029,
+      "wall_ms": 225.17083398997784,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "trial": 0
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.03072900371626,
+        "p95_ms": 7.023437996394932,
+        "max_ms": 7.624999969266355
+      },
+      "python_cpu_ms": 42.78020299999996,
+      "wall_ms": 1365.91770790983,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.16302097355946898,
+        "p95_ms": 0.5609369836747646,
+        "max_ms": 0.7265619933605194
+      },
+      "trial": 0
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 6.436198018491268,
+        "p95_ms": 16.061458038166165,
+        "max_ms": 22.178125102072954
+      },
+      "python_cpu_ms": 220.32864600000002,
+      "wall_ms": 809.1546869836748,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "trial": 0
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 18.049478996545076,
+        "p95_ms": 22.397916996851563,
+        "max_ms": 24.267188040539622
+      },
+      "python_cpu_ms": 188.82708300000007,
+      "wall_ms": 1379.1182290297002,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.15833356883376837,
+        "p95_ms": 0.42916706297546625,
+        "max_ms": 0.45260414481163025
+      },
+      "trial": 0
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 2.212760504335165,
+        "p95_ms": 7.102604024112225,
+        "max_ms": 9.538021055050194
+      },
+      "python_cpu_ms": 85.08804999999997,
+      "wall_ms": 294.8656249791384,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "trial": 0
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.262239497620612,
+        "p95_ms": 6.737499963492155,
+        "max_ms": 7.682813098654151
+      },
+      "python_cpu_ms": 50.60052099999979,
+      "wall_ms": 1365.0864579249173,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.18645799718797207,
+        "p95_ms": 0.5104158772155643,
+        "max_ms": 0.6796868983656168
+      },
+      "trial": 0
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 6.382552441209555,
+        "p95_ms": 9.642707998864353,
+        "max_ms": 12.857291963882744
+      },
+      "python_cpu_ms": 189.006773,
+      "wall_ms": 733.4380199899897,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "trial": 0
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 19.259374996181577,
+        "p95_ms": 23.849999997764826,
+        "max_ms": 27.15833391994238
+      },
+      "python_cpu_ms": 195.2968679999998,
+      "wall_ms": 1379.121353966184,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.15963497571647167,
+        "p95_ms": 0.2031250623986125,
+        "max_ms": 0.24947896599769592
+      },
+      "trial": 0
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 0.9757810039445758,
+        "p95_ms": 3.2291669631376863,
+        "max_ms": 5.938541027717292
+      },
+      "python_cpu_ms": 47.22604500000038,
+      "wall_ms": 185.03177003003657,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "trial": 0
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.713020520284772,
+        "p95_ms": 7.469792035408318,
+        "max_ms": 7.804687018506229
+      },
+      "python_cpu_ms": 56.1177129999999,
+      "wall_ms": 1365.4333329759538,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.166145502589643,
+        "p95_ms": 0.6817709654569626,
+        "max_ms": 0.9598960168659687
+      },
+      "trial": 0
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 0.7440104964189231,
+        "p95_ms": 2.2645830176770687,
+        "max_ms": 5.236457916907966
+      },
+      "python_cpu_ms": 26.858863999999816,
+      "wall_ms": 120.1343749416992,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "trial": 1
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 3.2651040237396955,
+        "p95_ms": 5.954687017947435,
+        "max_ms": 8.07812507264316
+      },
+      "python_cpu_ms": 40.91561999999982,
+      "wall_ms": 1362.939583021216,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.16197905642911792,
+        "p95_ms": 0.5427079740911722,
+        "max_ms": 0.7234369404613972
+      },
+      "trial": 1
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 0.9492185199633241,
+        "p95_ms": 2.2494789445772767,
+        "max_ms": 5.7984379818663
+      },
+      "python_cpu_ms": 27.335938999999865,
+      "wall_ms": 151.8473959295079,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "trial": 1
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.319270432461053,
+        "p95_ms": 6.0286460211500525,
+        "max_ms": 8.675521006807685
+      },
+      "python_cpu_ms": 38.81197900000011,
+      "wall_ms": 1365.218227962032,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.1651034690439701,
+        "p95_ms": 0.3031239612028003,
+        "max_ms": 0.5781239597126842
+      },
+      "trial": 1
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 0.8778650080785155,
+        "p95_ms": 2.8947920072823763,
+        "max_ms": 7.610937929712236
+      },
+      "python_cpu_ms": 39.858846,
+      "wall_ms": 147.9317710036412,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "trial": 1
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.272656457033008,
+        "p95_ms": 7.959896000102162,
+        "max_ms": 10.858333902433515
+      },
+      "python_cpu_ms": 53.126051000000004,
+      "wall_ms": 1363.327082945034,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.1679685083217919,
+        "p95_ms": 0.23489596787840128,
+        "max_ms": 0.7380209863185883
+      },
+      "trial": 1
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 5.987500015180558,
+        "p95_ms": 9.386457968503237,
+        "max_ms": 10.600520996376872
+      },
+      "python_cpu_ms": 179.97917500000017,
+      "wall_ms": 681.3328131102026,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "trial": 1
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 18.491926952265203,
+        "p95_ms": 24.417186970822513,
+        "max_ms": 26.033332920633256
+      },
+      "python_cpu_ms": 190.17344900000043,
+      "wall_ms": 1377.5072910357267,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.17005210975185037,
+        "p95_ms": 0.2432290930300951,
+        "max_ms": 0.358853954821825
+      },
+      "trial": 1
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 1.0411455295979977,
+        "p95_ms": 4.205728997476399,
+        "max_ms": 7.074999972246587
+      },
+      "python_cpu_ms": 47.16458200000062,
+      "wall_ms": 166.187500115484,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "trial": 1
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.893749952316284,
+        "p95_ms": 9.004686959087849,
+        "max_ms": 10.675520985387266
+      },
+      "python_cpu_ms": 61.622910999999725,
+      "wall_ms": 1364.4677080446854,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.16145809786394238,
+        "p95_ms": 0.23593707010149956,
+        "max_ms": 0.7807291112840176
+      },
+      "trial": 1
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 5.980208050459623,
+        "p95_ms": 8.929167059250176,
+        "max_ms": 10.038021020591259
+      },
+      "python_cpu_ms": 174.00782699999962,
+      "wall_ms": 683.2864590687677,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "trial": 1
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 19.358072488103062,
+        "p95_ms": 26.08854090794921,
+        "max_ms": 28.90572906471789
+      },
+      "python_cpu_ms": 192.26561800000042,
+      "wall_ms": 1379.9286460271105,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.165364530403167,
+        "p95_ms": 0.2781249349936843,
+        "max_ms": 0.6656250916421413
+      },
+      "trial": 1
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 1.6562500386498868,
+        "p95_ms": 3.9906250312924385,
+        "max_ms": 7.081771036610007
+      },
+      "python_cpu_ms": 52.10364800000011,
+      "wall_ms": 213.7203129241243,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "trial": 2
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.114323004614562,
+        "p95_ms": 8.702084072865546,
+        "max_ms": 9.00729198474437
+      },
+      "python_cpu_ms": 41.23333500000026,
+      "wall_ms": 1362.99010401126,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.1736979465931654,
+        "p95_ms": 0.20468700677156448,
+        "max_ms": 0.2781250514090061
+      },
+      "trial": 2
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 0.9406249737367034,
+        "p95_ms": 1.7776039894670248,
+        "max_ms": 5.7921879924833775
+      },
+      "python_cpu_ms": 31.529683000000475,
+      "wall_ms": 141.7083339765668,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "trial": 2
+    },
+    {
+      "size": [
+        64,
+        64
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 3.8361979532055557,
+        "p95_ms": 4.6838539419695735,
+        "max_ms": 5.11770904995501
+      },
+      "python_cpu_ms": 44.27186900000013,
+      "wall_ms": 1362.8343750024214,
+      "png_bytes_mean": 459,
+      "rgba_bytes": 16384,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.16901054186746478,
+        "p95_ms": 0.6552080158144236,
+        "max_ms": 1.0583330877125263
+      },
+      "trial": 2
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 5.921354051679373,
+        "p95_ms": 8.108854060992599,
+        "max_ms": 11.846874956972897
+      },
+      "python_cpu_ms": 186.1312779999995,
+      "wall_ms": 704.7302089631557,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "trial": 2
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 18.37161445291713,
+        "p95_ms": 25.327604031190276,
+        "max_ms": 25.90833290014416
+      },
+      "python_cpu_ms": 192.50884500000075,
+      "wall_ms": 1370.598959038034,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.15338551020249724,
+        "p95_ms": 0.5218749865889549,
+        "max_ms": 0.5229170201346278
+      },
+      "trial": 2
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 1.1940104886889458,
+        "p95_ms": 3.797917044721544,
+        "max_ms": 9.770311997272074
+      },
+      "python_cpu_ms": 43.04583100000059,
+      "wall_ms": 190.26666600257158,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "trial": 2
+    },
+    {
+      "size": [
+        256,
+        256
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.245572490617633,
+        "p95_ms": 11.55781198758632,
+        "max_ms": 12.96406309120357
+      },
+      "python_cpu_ms": 49.84375100000005,
+      "wall_ms": 1371.8234379775822,
+      "png_bytes_mean": 93992.1,
+      "rgba_bytes": 262144,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.22552150767296553,
+        "p95_ms": 0.5203130422160029,
+        "max_ms": 0.914062955416739
+      },
+      "trial": 2
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "png",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 6.6963539575226605,
+        "p95_ms": 10.278646019287407,
+        "max_ms": 12.164582964032888
+      },
+      "python_cpu_ms": 187.84740200000005,
+      "wall_ms": 745.1786450110376,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "trial": 2
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "png",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 18.76796898432076,
+        "p95_ms": 22.523438092321157,
+        "max_ms": 27.42916706483811
+      },
+      "python_cpu_ms": 198.53385600000007,
+      "wall_ms": 1381.0489579336718,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.1536459312774241,
+        "p95_ms": 0.35052094608545303,
+        "max_ms": 0.64166693482548
+      },
+      "trial": 2
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "shared",
+      "workload": "unpaced",
+      "submission_fence": {
+        "n": 100,
+        "median_ms": 0.9244794491678476,
+        "p95_ms": 2.807812998071313,
+        "max_ms": 5.306771025061607
+      },
+      "python_cpu_ms": 45.6453149999998,
+      "wall_ms": 165.684896055609,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "trial": 2
+    },
+    {
+      "size": [
+        384,
+        416
+      ],
+      "mode": "shared",
+      "workload": "25_hz_with_move",
+      "submission_fence": {
+        "n": 30,
+        "median_ms": 4.6463540638796985,
+        "p95_ms": 8.947915979661047,
+        "max_ms": 12.075521051883698
+      },
+      "python_cpu_ms": 57.1520879999996,
+      "wall_ms": 1364.1119790263474,
+      "png_bytes_mean": 96396.4,
+      "rgba_bytes": 638976,
+      "wakeup_lateness": {
+        "n": 30,
+        "median_ms": 0.14895800268277526,
+        "p95_ms": 0.28593698516488075,
+        "max_ms": 0.5791670409962535
+      },
+      "trial": 2
+    }
+  ],
+  "fd_before": 5,
+  "plugin_version_code": 7,
+  "locked": false,
+  "view_dimensions_px": [
+    208,
+    208
+  ],
+  "empty_fence": {
+    "n": 100,
+    "median_ms": 0.2697919844649732,
+    "p95_ms": 0.9578129975125194,
+    "max_ms": 1.4963549328967929
+  },
+  "fd_after": 5,
+  "reconnect_versions": [
+    7,
+    7,
+    7
+  ],
+  "measurement_notes": [
+    "Three trials with alternating transport order; unchanged live production pet remains running.",
+    "getVersion fence establishes command processing / shared-memory consumption, not display presentation.",
+    "384x416 frames are padded production frames, not new artwork.",
+    "FD counts cover benchmark connections after format probes, not all initialization failure paths.",
+    "post-connect EOFGuard was enabled; the final checked-in script also adds a whole-process watchdog."
+  ]
+}

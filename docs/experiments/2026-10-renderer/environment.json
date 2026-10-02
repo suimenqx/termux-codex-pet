@@ -1,0 +1,43 @@
+{
+  "generated_utc": "2026-10-02T20:26:00.334593+00:00",
+  "source_revision": "ca2bc4d5859713626e2c8a345bcecd8b3ca57d84",
+  "device_model": "ALN-AL10",
+  "android_release": "12",
+  "android_sdk": 31,
+  "python": "3.14.6",
+  "termuxgui": "0.1.6",
+  "plugin_version_code": 7,
+  "global_Pillow_present": false,
+  "global_NumPy_present": false,
+  "isolated_dependencies": {
+    "Pillow": "12.3.0",
+    "numpy": "2.4.4",
+    "delivery": "Downloaded Termux binary packages extracted into private cache; native import/operation tested; no global install."
+  },
+  "baseline_tests": {
+    "count": 147,
+    "seconds": 84.813,
+    "result": "PASS"
+  },
+  "automatic_android_observation": {
+    "adb": "Executable fails dynamic linking: missing _ZNSt6__ndk113__hash_memoryEPKvm",
+    "dumpsys": "DUMP permission denied",
+    "screencap": "Produced zero-byte output, no image evidence",
+    "input": "No verified injection; human exercised test window"
+  },
+  "scope": [
+    "No production code, assets, hooks or persisted position changed.",
+    "Production daemon left running; GUI commands issued on disposable independent connections.",
+    "No reinstall required for documentation/probe-only changes.",
+    "Five unrelated user recording files preserved."
+  ],
+  "final_tests": {
+    "count": 153,
+    "seconds": 80.983,
+    "result": "PASS"
+  },
+  "focused_probe_tests": {
+    "count": 6,
+    "result": "PASS"
+  }
+}
