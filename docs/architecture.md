@@ -52,6 +52,8 @@ not fence Android screen presentation. Unknown plugin versions are rejected on
 the shared path. Size changes retire the entire connection before allocating
 another buffer. A shared failure closes both channels, mmap and FD, then the GUI
 worker opens a new PNG connection and remembers the failure for its lifetime.
+This includes failed event reads and movement writes, even for a static frame
+with no pending animation deadline.
 There is no active-connection `deleteBuffer`. Android ashmem capacity is queried
 with `ASHMEM_GET_SIZE`; regular shared files use `fstat`. Repeated ancillary copies
 from Android LocalSocket are discarded after adopting the first descriptor.
@@ -110,6 +112,12 @@ drawings and paw annotations. Rejected sixteen-frame sources remain in
 `2026-10-pack/`; no new drawing or gait acceptance is implied by this refactor.
 
 `assets/<id>/pet.json` owns frame references, independent canvas/display dimensions, clips, roles, transitions and count decorations. `pet_pack.py` validates paths, budgets, durations and finite next chains. Builtin execution is restricted to `robot_v1`. Akita references unchanged physical PNGs and an exported, pixel-identical face-only blink with recorded provenance.
+
+V1 deliberately supports only `display_dp: [64,64]`; other display declarations
+fail preflight instead of being ignored. Canvas width/height remain independent
+from that display size. Clip durations must fit a signed 64-bit nanosecond range.
+`image_contract.py` centralizes per-image RGBA allocation checks for packs,
+codec, frame values and mmap buffers, without image or native GUI imports.
 
 `PetRuntime` selects clip entries from visible activity. `ClipTimeline` uses integer nanosecond cumulative ends, binary search and arithmetic loop skipping; it never replays missed frames. Static/final holds have no deadline. Running→Ready entry applies only within the same pack; new activity interrupts immediately, and only Running reacts to count changes. Both live and offline schedules consume compiled clips; production tools load physical frame references through FrameSource/FrameComposer. Historical artwork exports and existing regression fixtures retain computed integer labels in `tools/historical_animation.py`; those labels are derived from the compiled clips and contain no authored playback tables.
 

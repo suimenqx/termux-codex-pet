@@ -5,7 +5,7 @@ import mmap
 import os
 import stat
 from .transport import Connection
-from ..image_codec import MAX_DECODE_BYTES
+from ..image_contract import rgba_size
 
 ASHMEM_GET_SIZE = 0x7704
 
@@ -19,9 +19,7 @@ class SharedFramebuffer:
         self.mem: mmap.mmap | None = None
         self.closed = False
         try:
-            if type(width) is not int or type(height) is not int or min(width, height) <= 0 or width * height * 4 > MAX_DECODE_BYTES:
-                raise ValueError('Invalid framebuffer dimensions')
-            self.size = width * height * 4
+            self.size = rgba_size(width, height)
             self.bid, self.fd = connection.request_fd({'method': 'addBuffer',
                                                       'params': {'w': width, 'h': height, 'format': 'ARGB888'}})
             info = os.fstat(self.fd)

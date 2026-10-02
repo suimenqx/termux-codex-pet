@@ -110,8 +110,15 @@ python tools/probe_shared_daemon.py --seconds 300
 
 前两个临时创建额外测试 overlay，后一个短时重启唯一正式 daemon 并在退出时
 恢复普通启动策略。记录分别是 `shared-production-serial.json`、
-`shared-recovery.json` 及实施记录中的人工反馈。不要和测试套件同时运行计时。
+`shared-recovery.json` 及实施记录中的人工反馈。审查后增加的事件 EOF 故障
+复验见 `shared-recovery-reviewed.json`，原两例记录保留。不要和测试套件同时运行计时。
 本地 FD/mmap 归零不替代 Android 窗口与 buffer 的资源观测。
+
+当前 35 帧（含派生眨眼）的无损 atlas 复验见
+[`lossless-atlas.json`](lossless-atlas.json) 和
+[接入建议](../../research/lossless-atlas-followup.md)。运行
+`python tools/probe_lossless_atlas.py --output "$HOME/.cache/codex-pet/lossless-atlas.json"`
+只生成并删除临时 atlas，不修改生产素材或默认传输策略。
 
 - 本机 JSON buffer 参数是 `ARGB888`；不能把协议文档的 `ARGB8888` 名称直接代入。探针隔离不同格式的连接，并保护 EOF；生产 binding 的 EOF 读取缺陷尚不因运行探针而修复。
 - GUI 耗时止于同连接的 `getversion()` 命令屏障。根据已核对版本的顺序处理，它可确认先前 staging 像素已被插件读取；不能测量 Android 实际上屏延迟。`python_cpu_ms` 只属于探针进程，未包括插件进程，也不是设备 CPU 或耗电。

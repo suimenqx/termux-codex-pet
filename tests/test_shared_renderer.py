@@ -1,5 +1,6 @@
 """Shared presentation and fresh PNG recovery at the real protocol/FD boundary."""
 import os
+import socket
 from pathlib import Path
 import tempfile
 import threading
@@ -13,6 +14,59 @@ from codex_pet import gui
 
 
 class SharedRendererTests(unittest.TestCase):
+    def test_event_eof_and_move_failure_also_disable_shared_until_restart(self):
+        for fault in ('event_eof', 'move_failure'):
+            with self.subTest(fault=fault), tempfile.TemporaryDirectory() as temp:
+                peers = []
+                first_ready, recovered = threading.Event(), threading.Event()
+
+                def connect():
+                    peer = GuiPeer()
+                    peers.append(peer)
+                    return peer.connection
+
+                def on_status(ok, error):
+                    if ok:
+                        (first_ready if len(peers) == 1 else recovered).set()
+
+                # Static Robot ensures the failure is in event/move handling,
+                # with no animation deadline accidentally testing present again.
+                worker = gui.GuiWorker(Path(temp) / 'config.json',
+                                       lambda: {'appearance': 'robot', 'state': 'idle'}, on_status, transport='shared')
+                with patch.object(gui, 'Connection', side_effect=connect):
+                    worker.start()
+                    held_main = None
+                    try:
+                        self.assertTrue(first_ready.wait(3))
+                        if fault == 'event_eof':
+                            peers[0].events.shutdown(socket.SHUT_WR)
+                        else:
+                            # Keep the peer alive while invalidating the worker's
+                            # write descriptor. Otherwise server EOF closes its
+                            # event channel before both touches can be delivered.
+                            held_main = peers[0].connection._main.dup()
+                            peers[0].connection._main.close()
+                            peers[0].emit('overlayTouch', {
+                                          'action': 'down', 'x': 720, 'y': 440})
+                            peers[0].emit('overlayTouch', {
+                                          'action': 'move', 'x': 780, 'y': 500})
+                        self.assertTrue(recovered.wait(3))
+                        self.assertEqual(
+                            worker.renderer_status.transport, 'png')
+                        self.assertTrue(worker.renderer_status.fallback_reason)
+                        self.assertEqual(len(peers), 2)
+                        self.assertTrue(peers[1].image_received.wait(1))
+                        self.assertFalse(
+                            any(row['method'] == 'addBuffer' for row in peers[1].messages))
+                        self.assertTrue(
+                            any(row['method'] == 'setImage' for row in peers[1].messages))
+                    finally:
+                        worker.stop()
+                        if held_main is not None:
+                            held_main.close()
+                        for peer in peers:
+                            peer.close()
+
     def test_present_fences_staging_and_deduplicates_only_success(self):
         for size in ((64, 64), (256, 256), (384, 416)):
             before = len(os.listdir('/proc/self/fd'))
@@ -107,6 +161,7 @@ class SharedRendererTests(unittest.TestCase):
                         worker.wake()
                     self.assertEqual(len(peers), 2)
                     self.assertTrue(peers[0].closed.is_set())
+                    self.assertTrue(peers[1].image_received.wait(1))
                     self.assertTrue(
                         any(row['method'] == 'setImage' for row in peers[1].messages))
                     self.assertFalse(

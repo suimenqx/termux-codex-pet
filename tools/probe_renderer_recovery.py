@@ -44,13 +44,15 @@ class FaultConnection(Connection):
 
 def probe():
     results = []
-    for fault in ('timeout', 'eof'):
+    for fault in ('timeout', 'eof', 'event_eof'):
         before = resources()
         connections = []
         ready = threading.Event()
+        initial = threading.Event()
 
         def connect():
-            c = FaultConnection(fault) if not connections else Connection()
+            c = FaultConnection(
+                fault) if not connections and fault != 'event_eof' else Connection()
             connections.append(c)
             return c
 
@@ -59,11 +61,24 @@ def probe():
             config.write_text('{"position":{"x":80,"y":120}}')
             policy = RendererPolicy(
                 RendererPolicy.installed().binding_version, True)
-            worker = gui.GuiWorker(config, lambda: {'appearance': 'akita', 'state': 'running', 'running_count': 2},
-                                   lambda ok, error: ready.set() if ok else None, policy=policy)
+
+            def status(ok, error):
+                if ok:
+                    (initial if fault == 'event_eof' and len(
+                        connections) == 1 else ready).set()
+
+            worker = gui.GuiWorker(config,
+                                   lambda: ({'appearance': 'robot', 'state': 'idle'} if fault == 'event_eof'
+                                            else {'appearance': 'akita', 'state': 'running', 'running_count': 2}),
+                                   status, policy=policy, transport='shared' if fault == 'event_eof' else 'auto')
             with patch.object(gui, 'Connection', side_effect=connect):
                 worker.start()
                 try:
+                    if fault == 'event_eof':
+                        if not initial.wait(10):
+                            raise TimeoutError(
+                                'Shared static frame did not become ready')
+                        connections[0]._event.shutdown(socket.SHUT_RD)
                     if not ready.wait(15):
                         raise TimeoutError(
                             'Real worker did not recover on PNG')
@@ -78,7 +93,7 @@ def probe():
                     worker.stop()
         result['after_stop'] = resources()
         results.append(result)
-    return {'method': 'Production worker/binding and real APK; a single synthetic fence fault on the first native connection. Timeout substitutes the known overlay getConfiguration no-reply path; EOF shuts down the local read side. Only the connection factory is injected. The normal installed daemon is unchanged.',
+    return {'method': 'Production worker/binding and real APK; a single synthetic fault on the first native connection. Timeout substitutes the known overlay getConfiguration no-reply path; fence EOF shuts down the main read side. Event EOF shuts down the event read side after a successful static shared Robot frame, so no animation submission can trigger recovery instead. Only the connection factory is injected. The normal installed daemon is unchanged.',
             'limits': 'Local FD/map observations only. Native Android resource cleanup still needs independent observation.',
             'cases': results}
 

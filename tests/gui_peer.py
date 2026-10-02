@@ -17,6 +17,7 @@ class GuiPeer:
         self.blits = []
         self.buffers = []
         self.closed = threading.Event()
+        self.image_received = threading.Event()
         self.thread = threading.Thread(target=self._serve, daemon=True)
         self.thread.start()
         self.connection = Connection.from_sockets(main, event, timeout=timeout)
@@ -58,6 +59,8 @@ class GuiPeer:
                     self._reply(len(self.messages))
                 elif method == 'getDimensions':
                     self._reply([192, 192])
+                elif method == 'setImage':
+                    self.image_received.set()
                 elif method == 'addBuffer':
                     shared = tempfile.TemporaryFile()
                     shared.truncate(
@@ -89,3 +92,7 @@ class GuiPeer:
         self.connection.close()
         self.thread.join(1)
         assert self.closed.is_set()
+
+    def emit(self, kind, value):
+        body = json.dumps({'type': kind, 'value': value}).encode()
+        self.events.sendall(len(body).to_bytes(4, 'big') + body)

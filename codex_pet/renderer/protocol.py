@@ -1,6 +1,7 @@
 """Backend-neutral rendering contract: immutable, tightly packed straight RGBA8."""
 from dataclasses import dataclass
 from typing import Protocol
+from ..image_contract import rgba_size
 
 
 @dataclass(frozen=True)
@@ -13,12 +14,12 @@ class RgbaFrame:
     alpha_mode: str = "straight"
 
     def __post_init__(self) -> None:
-        if (type(self.width) is not int or type(self.height) is not int
-                or min(self.width, self.height) <= 0 or not isinstance(self.pixels, bytes)
-                or self.width * self.height * 4 > 64 * 1024 * 1024
+        size = rgba_size(self.width, self.height)
+        if (not isinstance(self.pixels, bytes)
                 or self.color_space != "srgb" or self.alpha_mode != "straight"
-                or len(self.pixels) != self.width * self.height * 4):
-            raise ValueError('Frame requires positive dimensions and immutable packed RGBA bytes')
+                or len(self.pixels) != size):
+            raise ValueError(
+                'Frame requires positive dimensions and immutable packed RGBA bytes')
         hash(self.key)
 
 

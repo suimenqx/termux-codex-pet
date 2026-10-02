@@ -80,7 +80,7 @@
 
 ## 源图与导出契约
 
-生产数据以 [`pets.py`](../codex_pet/pets.py)、[`art.py`](../codex_pet/art.py)、[`animation.py`](../codex_pet/animation.py) 和 [`gui.py`](../codex_pet/gui.py) 为准。当前秋田犬交付 **256 × 256、8 bit/通道 RGBA、透明背景的独立 PNG 帧**，共享同一 64 dp 视图。新外观先确定自己的注册尺寸和渲染路径。
+生产数据以 [`pet.json`](../codex_pet/assets/akita/pet.json)、[`pet_pack.py`](../codex_pet/pet_pack.py)、[`frames.py`](../codex_pet/frames.py) 和 [`pet_runtime.py`](../codex_pet/pet_runtime.py) 为准；[`pets.py`](../codex_pet/pets.py) 只注册外观目录。当前秋田犬交付 **256 × 256、8 bit/通道 RGBA、透明背景的独立 PNG 帧**，共享同一 64 dp 视图。v1 预检只接受 `display_dp: [64,64]`，不静默忽略其他显示尺寸；新尺寸需先扩展显示合同并验收。
 
 - 生成前填写目标源图尺寸及网格。单格源分辨率至少等于生产分辨率；更高分辨率服务于绘制细节，不能保证模型比例或动画质量。若采用整数倍工作画布，记录该倍数的工具/制作依据，不把它设成所有素材的质量阈值。
 - 动作表的格子等大、正方形、无沟槽或边框，按行从左到右排列。实际宽高 `W,H` 与列行数 `c,r` 满足 `W×r = H×c`。生成文件的真实尺寸为准；几何满足时，导出器支持半像素等非整数格界。

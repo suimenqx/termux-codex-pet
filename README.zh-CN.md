@@ -72,7 +72,7 @@ codex-pet status
 
 ## 故障排查
 
-`codex-pet status` 同时显示真实 binding／插件版本、当前 renderer transport、选择原因、已记住的共享回退原因和最近连接错误。共享实现已接入，但默认启用仍等待 Android 侧资源验收；普通安装目前保持 PNG。共享路径失败会关闭旧连接，并通过全新 PNG 连接恢复。
+`codex-pet status` 同时显示真实 binding／插件版本、当前 renderer transport、选择原因、已记住的共享回退原因和最近连接错误。共享实现已接入，但默认启用仍等待 Android 侧资源验收；普通安装目前保持 PNG。共享帧提交、事件通道或拖动连接失败都会关闭旧连接，并通过全新 PNG 连接恢复；在 daemon 重启前不再尝试 shared。
 
 - **Pet 消失：**先运行 `codex-pet status`；如果已停止，运行 `codex-pet start`。下一个 Codex 事件也会尝试自动拉起 daemon。
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。

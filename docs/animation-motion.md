@@ -1,6 +1,6 @@
 # 动作、时间与流畅度规范
 
-先完成[模型和构图基准](animation-assets.md#角色模型与尺寸)，再填写[制作单](templates/pet-animation-brief.md)里的动作表。本文规定怎样安排姿势、补帧、检查循环和处理状态切换；具体帧数、逻辑映射和时长仍由 [`animation.py`](../codex_pet/animation.py) 管理。
+先完成[模型和构图基准](animation-assets.md#角色模型与尺寸)，再填写[制作单](templates/pet-animation-brief.md)里的动作表。本文规定怎样安排姿势、补帧、检查循环和处理状态切换；具体帧序、入口和时长由 [`pet.json`](../codex_pet/assets/akita/pet.json) 描述，并由 [`clip_timeline.py`](../codex_pet/clip_timeline.py) 执行。
 
 ## 动作服务于状态
 

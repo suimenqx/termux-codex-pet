@@ -1,0 +1,87 @@
+{
+  "method": "Production worker/binding and real APK; a single synthetic fault on the first native connection. Timeout substitutes the known overlay getConfiguration no-reply path; fence EOF shuts down the main read side. Event EOF shuts down the event read side after a successful static shared Robot frame, so no animation submission can trigger recovery instead. Only the connection factory is injected. The normal installed daemon is unchanged.",
+  "limits": "Local FD/map observations only. Native Android resource cleanup still needs independent observation.",
+  "cases": [
+    {
+      "fault": "timeout",
+      "connections": 2,
+      "status": {
+        "binding_version": "0.1.6",
+        "plugin_version": 7,
+        "transport": "png",
+        "reason": "shared disabled after failure",
+        "fallback_reason": "Shared transport failed: timed out",
+        "last_connection_error": "Shared transport failed: timed out"
+      },
+      "before": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 30864
+      },
+      "recovered": {
+        "fds": 8,
+        "ashmem_maps": 0,
+        "rss_kib": 37504
+      },
+      "after_stop": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 35908
+      }
+    },
+    {
+      "fault": "eof",
+      "connections": 2,
+      "status": {
+        "binding_version": "0.1.6",
+        "plugin_version": 7,
+        "transport": "png",
+        "reason": "shared disabled after failure",
+        "fallback_reason": "Shared transport failed: Termux:GUI closed the stream",
+        "last_connection_error": "Shared transport failed: Termux:GUI closed the stream"
+      },
+      "before": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 35924
+      },
+      "recovered": {
+        "fds": 8,
+        "ashmem_maps": 0,
+        "rss_kib": 37372
+      },
+      "after_stop": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 36028
+      }
+    },
+    {
+      "fault": "event_eof",
+      "connections": 2,
+      "status": {
+        "binding_version": "0.1.6",
+        "plugin_version": 7,
+        "transport": "png",
+        "reason": "shared disabled after failure",
+        "fallback_reason": "Termux:GUI closed the stream",
+        "last_connection_error": "Termux:GUI closed the stream"
+      },
+      "before": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 36028
+      },
+      "recovered": {
+        "fds": 8,
+        "ashmem_maps": 0,
+        "rss_kib": 36368
+      },
+      "after_stop": {
+        "fds": 4,
+        "ashmem_maps": 0,
+        "rss_kib": 36184
+      }
+    }
+  ]
+}

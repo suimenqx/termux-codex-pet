@@ -97,9 +97,10 @@ class CompiledPlaybackTests(unittest.TestCase):
                                'codex_pet/assets/robot/pet.json').read_text())
         variants = []
         for key, value in [('schema_version', 2), ('canvas_px', [0,64]),
-                           ('canvas_px',[100000,100000]), ('source', {'kind':'builtin','id':'eval'})]:
+                           ('canvas_px',[100000,100000]), ('display_dp',[96,48]),
+                           ('source', {'kind':'builtin','id':'eval'})]:
             row=copy.deepcopy(original); row[key]=value; variants.append(row)
-        for duration in (0,-1,True,1.5,None):
+        for duration in (0,-1,True,1.5,None,10**400):
             row=copy.deepcopy(original);row['clips']['running']['frames'][0]['duration_ms']=duration;variants.append(row)
         row=copy.deepcopy(original);row['roles']['ready']='missing';variants.append(row)
         row=copy.deepcopy(original);row['clips']['idle']['end']={'mode':'next','clip':'idle'};variants.append(row)

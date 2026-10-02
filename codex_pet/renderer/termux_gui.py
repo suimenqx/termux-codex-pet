@@ -11,9 +11,10 @@ from .protocol import RgbaFrame, TouchInput
 from .transport import Connection
 from .shared_buffer import SharedFramebuffer
 from .policy import RendererPolicy
+from ..image_contract import DISPLAY_DP
 
 LOG = logging.getLogger(__name__)
-PET_SIZE_DP = 64
+PET_SIZE_DP = DISPLAY_DP[0]
 DRAG_SLOP_DP = 6
 
 

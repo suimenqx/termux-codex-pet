@@ -89,6 +89,15 @@ class GuiWorker:
         self.read_wake.close()
         self.write_wake.close()
 
+    def _remember_shared_failure(self, error: Exception) -> None:
+        self.shared_failure = str(error)[:180]
+        self.renderer_status = replace(self.renderer_status,
+                                       fallback_reason=self.shared_failure,
+                                       last_connection_error=self.shared_failure)
+        LOG.warning(
+            'Discarding shared connection; switching to fresh PNG: %s', error)
+        self.on_status(False, self.shared_failure)
+
     def _run(self) -> None:
         failures = 0
         while not self.stopping:
@@ -111,20 +120,22 @@ class GuiWorker:
                 failures = 0
                 self.on_status(False, 'starting')
             except SharedFailure as exc:
-                self.shared_failure = str(exc)[:180]
-                self.renderer_status = replace(self.renderer_status,
-                                               fallback_reason=self.shared_failure,
-                                               last_connection_error=self.shared_failure)
                 failures = 0
-                LOG.warning(
-                    'Discarding shared connection; switching to fresh PNG: %s', exc)
-                self.on_status(False, self.shared_failure)
+                self._remember_shared_failure(exc)
             except Exception as exc:
-                failures += 1
-                self.renderer_status = replace(
-                    self.renderer_status, last_connection_error=str(exc)[:180])
-                LOG.exception("Termux:GUI connection or overlay failed")
-                self.on_status(False, str(exc)[:180])
+                if (self.ui is not None and self.ui.transport == 'shared'
+                        and connection is not None and connection.closed):
+                    # Event reads and moves use this connection too. Every
+                    # failed native transaction closes it; these failures must
+                    # remember the same fallback as a failed frame submission.
+                    failures = 0
+                    self._remember_shared_failure(exc)
+                else:
+                    failures += 1
+                    self.renderer_status = replace(
+                        self.renderer_status, last_connection_error=str(exc)[:180])
+                    LOG.exception("Termux:GUI connection or overlay failed")
+                    self.on_status(False, str(exc)[:180])
             finally:
                 if self.drag is not None:
                     self.drag.handle(TouchInput("cancel"))

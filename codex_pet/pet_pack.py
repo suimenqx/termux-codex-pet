@@ -7,10 +7,13 @@ import json
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Mapping
+from .image_contract import DISPLAY_DP, MAX_IMAGE_BYTES, rgba_size
 
 ROLES = frozenset(('idle', 'running', 'needs_input', 'ready', 'blocked'))
-MAX_DECODE_BYTES = 64 * 1024 * 1024
+# Aggregate pack preflight cap is a separate policy from per-image allocation.
+MAX_PACK_BYTES = 64 * 1024 * 1024
 MAX_MANIFEST_BYTES = 1024 * 1024
+MAX_CLIP_NS = (1 << 63) - 1
 
 
 @dataclass(frozen=True)
@@ -82,8 +85,9 @@ def compile_pack(manifest: Path, *, validate_images: bool = False) -> PetPack:
             raise ValueError('Invalid pet pack id')
         canvas = _dimensions(data.get('canvas_px'), 'canvas_px')
         display = _dimensions(data.get('display_dp'), 'display_dp')
-        if canvas[0] * canvas[1] * 4 > MAX_DECODE_BYTES:
-            raise ValueError('Canvas exceeds decode budget')
+        frame_bytes = rgba_size(*canvas)
+        if display != DISPLAY_DP:
+            raise ValueError('Unsupported display_dp; v1 requires 64x64 dp')
         if data.get('color_space', 'srgb') != 'srgb':
             raise ValueError('Only sRGB pet assets are supported')
         source = _mapping(data.get('source'), 'source')
@@ -115,8 +119,9 @@ def compile_pack(manifest: Path, *, validate_images: bool = False) -> PetPack:
                 if not path.is_file():
                     raise ValueError(f'Missing frame {ref}')
                 frames[ref] = FrameDefinition(file=path)
-        identities = {definition.file or (definition.pose, definition.variant) for definition in frames.values()}
-        if len(identities) * canvas[0] * canvas[1] * 4 > MAX_DECODE_BYTES:
+        identities = {definition.file or (
+            definition.pose, definition.variant) for definition in frames.values()}
+        if len(identities) * frame_bytes > MAX_PACK_BYTES:
             raise ValueError('Pet pack exceeds decoded asset budget')
         clips = {}
         for name, value in _mapping(data.get('clips'), 'clips').items():
@@ -138,18 +143,23 @@ def compile_pack(manifest: Path, *, validate_images: bool = False) -> PetPack:
                 duration = exposure.get('duration_ms')
                 if duration is None:
                     if mode != 'hold' or len(exposures) != 1:
-                        raise ValueError('Only a single-frame hold may omit duration')
+                        raise ValueError(
+                            'Only a single-frame hold may omit duration')
                     ns = None
                 else:
                     ns = _positive(duration, 'duration_ms') * 1_000_000
                     total += ns
+                    if total > MAX_CLIP_NS:
+                        raise ValueError(
+                            'Clip duration exceeds the supported nanosecond range')
                 references.append(ref)
                 durations.append(ns)
                 ends.append(total)
             target = end.get('clip') if mode == 'next' else None
             if mode == 'next' and not isinstance(target, str):
                 raise ValueError('next requires a clip reference')
-            clips[name] = Clip(name, tuple(references), tuple(durations), tuple(ends), mode, target)
+            clips[name] = Clip(name, tuple(references), tuple(
+                durations), tuple(ends), mode, target)
         for name in clips:
             seen = set()
             current = name
@@ -176,15 +186,17 @@ def compile_pack(manifest: Path, *, validate_images: bool = False) -> PetPack:
                     or not isinstance(target, str) or target not in clips or (a, b) in transitions):
                 raise ValueError('Invalid or duplicate transition')
             transitions[a, b] = target
-        decoration = _mapping(_mapping(data.get('decorations'), 'decorations').get('count'), 'count')
+        decoration = _mapping(
+            _mapping(data.get('decorations'), 'decorations').get('count'), 'count')
         style = decoration.get('style')
         if (style not in ('akita_count_v1', 'robot_count_v1')
                 or decoration.get('visible_above') != 1 or decoration.get('clamp') != 10):
             raise ValueError('Unsupported count decoration')
-        if style == 'robot_count_v1' and canvas != (64,64):
+        if style == 'robot_count_v1' and canvas != (64, 64):
             raise ValueError('robot_count_v1 requires a 64-square canvas')
         pack = PetPack(pack_id, hashlib.sha256(raw).hexdigest(), canvas, display,
-                       MappingProxyType(frames), MappingProxyType(clips), MappingProxyType(roles),
+                       MappingProxyType(frames), MappingProxyType(
+                           clips), MappingProxyType(roles),
                        MappingProxyType(transitions), style)
         if validate_images:
             _validate_images(pack)
@@ -201,7 +213,7 @@ def _validate_images(pack: PetPack) -> None:
         if path is None or path in checked:
             continue
         checked.add(path)
-        if path.stat().st_size > MAX_DECODE_BYTES:
+        if path.stat().st_size > MAX_IMAGE_BYTES:
             raise ValueError('Encoded image exceeds byte budget')
         encoded = path.read_bytes()
         width, height, pixels = decode_png(encoded)
@@ -220,6 +232,8 @@ def preflight(package: Path) -> None:
     from .image_codec import check_capability
     check_capability()
     for name in ('robot', 'akita'):
-        pack = compile_pack(package / 'assets' / name / 'pet.json', validate_images=True)
+        pack = compile_pack(package / 'assets' / name /
+                            'pet.json', validate_images=True)
         if pack.id != name:
-            raise ValueError('Pack id does not match its installed catalog entry')
+            raise ValueError(
+                'Pack id does not match its installed catalog entry')

@@ -6,19 +6,12 @@ profiles are rejected, not silently converted or stripped.
 from __future__ import annotations
 from io import BytesIO
 import struct
+from .image_contract import MAX_IMAGE_BYTES as MAX_DECODE_BYTES, rgba_size
 
-MAX_DECODE_BYTES = 64 * 1024 * 1024
 _CAPABILITY_PNG = bytes.fromhex(
     '89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489'
     '0000000d49444154789c63300aa8680000032d017bc223cb020000000049454e44ae426082')
 _SRGB_CHROMATICITY = (.3127, .3290, .64, .33, .30, .60, .15, .06)
-
-
-def _dimensions(width: int, height: int) -> None:
-    if (type(width) is not int or type(height) is not int or min(width, height) <= 0
-            or width * height * 4 > MAX_DECODE_BYTES):
-        raise ValueError(
-            'Image exceeds decode budget or has invalid dimensions')
 
 
 def _check_container(data: bytes) -> None:
@@ -45,7 +38,7 @@ def decode_png(data: bytes) -> tuple[int, int, bytearray]:
             if image.format != 'PNG':
                 raise ValueError('Expected PNG')
             width, height = image.size
-            _dimensions(width, height)
+            rgba_size(width, height)
             info = image.info
             if 'srgb' in info and info['srgb'] not in (0, 1, 2, 3):
                 raise ValueError('Invalid sRGB rendering intent')
@@ -69,7 +62,7 @@ def decode_png(data: bytes) -> tuple[int, int, bytearray]:
 
 def encode_png(width: int, height: int, pixels: bytes | bytearray) -> bytes:
     from PIL import Image
-    _dimensions(width, height)
+    rgba_size(width, height)
     if len(pixels) != width * height * 4:
         raise ValueError('Expected tightly packed RGBA8')
     output = BytesIO()
@@ -80,7 +73,7 @@ def encode_png(width: int, height: int, pixels: bytes | bytearray) -> bytes:
 
 def premultiply(width: int, height: int, pixels: bytes) -> bytes:
     from PIL import Image
-    _dimensions(width, height)
+    rgba_size(width, height)
     if len(pixels) != width * height * 4:
         raise ValueError('Expected tightly packed RGBA8')
     with Image.frombytes('RGBA', (width, height), pixels) as image:

@@ -194,3 +194,49 @@ and the full suite was rerun successfully. Release
 `20261002T231632Z-b8080171`, PID 11883, passed isolated status/state demonstration
 and recent-log checks with normal PNG policy. The source cleanup preserves all
 asset bytes; historical helper modules are excluded from the installed release.
+
+## Independent review and final software validation
+
+The [two-axis review](implementation-review.md) found two specification defects:
+event/move connection failure did not remember shared fallback, and unsupported
+display dimensions were accepted then ignored. Both are fixed. The static-frame
+protocol regression verifies event EOF and a failed movement descriptor recover
+on exactly one fresh PNG connection. The test retains a duplicate main descriptor
+while delivering touches so server teardown cannot race event injection; it also
+waits for the peer to receive PNG rather than treating asynchronous send completion
+as receipt. Unsupported display sizes and enormous clip durations fail preflight.
+Named drag-start data and one lightweight image allocation contract resolve the
+two standards design findings without changing production gestures.
+
+`shared-recovery-reviewed.json` exercises consumption timeout, main EOF and event
+EOF using the real worker, binding and APK. Event EOF follows a successful static
+shared frame, with no animation deadline to hide the event recovery path. All
+three cases establish exactly two connections and recover to PNG; after stop,
+each has four local FDs and zero ashmem mappings. The original two-case evidence
+is preserved. Android-side allocation cleanup remains unobserved.
+
+Final affected suites passed: shared renderer (6), compiled playback (6), touch
+(16), and Pillow contract (5). Full `unittest discover` passed **202 tests in
+114.260 s**. Mypy 1.18.2 checked **28 production modules** with
+`--ignore-missing-imports` because the third-party binding has no type stubs;
+this is not a claim that the binding itself was typechecked. `git diff --check`
+passed. Both independent reviewers inspected the fixes without new findings.
+
+Deployed release **`20261002T233539Z-b09de64a`**, PID **22643**, passed installer
+checks, status, isolated five-state `codex-pet test`, and recent-log inspection.
+GUI is ready, actual transport is PNG, and saved position **942,229** is preserved.
+No additional gesture acceptance is claimed for this deployment: existing human
+PNG/shared feedback plus unchanged-behavior gesture regressions are recorded
+above. The required native and longer stress gates remain deferred by the user's
+decision; #13–#15 and parent #1 remain open.
+
+## Follow-up: lossless WebP atlas
+
+The user's atlas question was checked against all 35 current production frames
+in an offline probe. Exact lossless WebP is 1,581,300 bytes versus 3,117,602 bytes
+of individual PNGs, with identical RGBA after slicing and an independent hidden
+RGB / all-alpha-values check. This experiment changes no production assets or
+transport policy. [Results and concrete integration points](lossless-atlas-followup.md)
+describe the source/compiler/codec/preflight work and distinguish compressed
+size, decoded payload and runtime memory. Full AtlasFrameSource migration remains
+optional follow-up work, outside parent #1's implementation scope.

@@ -10,19 +10,25 @@ class DragResult:
     commit: bool = False
 
 
+@dataclass(frozen=True)
+class _DragStart:
+    pointer: tuple[float, float]
+    origin: tuple[int, int]
+
+
 class DragController:
     def __init__(self, position: tuple[int, int], density: float) -> None:
         self.position = self.committed = position
         self.slop = 6 * density
-        self.down: tuple[float, float, int, int, int, int] | None = None
+        self.down: _DragStart | None = None
         self.anchor: tuple[float, float] | None = None
         self.dragged = False
 
     def _anchor(self) -> None:
         if self.down is not None and self.anchor is not None:
-            x, y, _, _, ox, oy = self.down
-            self.down = (x, y, max(0, round(x - self.anchor[0])),
-                         max(0, round(y - self.anchor[1])), ox, oy)
+            x, y = self.down.pointer
+            self.down = _DragStart(self.down.pointer,
+                                   (max(0, round(x - self.anchor[0])), max(0, round(y - self.anchor[1]))))
 
     def handle(self, event: TouchInput) -> DragResult:
         action, point = event.action, event.point
@@ -30,15 +36,16 @@ class DragController:
             self.anchor = point
             self._anchor()
         elif action == 'down' and point is not None and self.down is None:
-            self.down = (*point, *self.position, *self.position)
+            self.down = _DragStart(point, self.position)
             self.dragged = False
             self._anchor()
         elif action == 'move' and point is not None and self.down is not None:
-            dx, dy = point[0] - self.down[0], point[1] - self.down[1]
+            dx, dy = point[0] - self.down.pointer[0], point[1] - \
+                self.down.pointer[1]
             self.dragged |= dx * dx + dy * dy > self.slop * self.slop
             if self.dragged:
-                self.position = (max(0, self.down[2] + round(dx)),
-                                 max(0, self.down[3] + round(dy)))
+                self.position = (max(0, self.down.origin[0] + round(dx)),
+                                 max(0, self.down.origin[1] + round(dy)))
                 return DragResult(self.position)
         elif action in ('up', 'cancel', 'screen_off'):
             result = DragResult()

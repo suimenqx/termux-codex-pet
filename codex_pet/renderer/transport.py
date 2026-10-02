@@ -192,6 +192,10 @@ class Connection:
             raise ValueError('Invalid Termux:GUI plugin version')
         return value
 
+    @property
+    def closed(self) -> bool:
+        return self._main.fileno() < 0 or self._event.fileno() < 0
+
     def close(self) -> None:
         for stream in (self._main, self._event):
             stream.close()
