@@ -7,6 +7,10 @@ import unittest
 from unittest.mock import patch
 
 from codex_pet import gui
+from codex_pet.renderer import termux_gui as backend
+from codex_pet.frames import FrameSource, FrameComposer
+from codex_pet.pet_runtime import PetRuntime, PetVisual
+from codex_pet.image_codec import decode_png
 from codex_pet.animation import AnimationTimeline
 from codex_pet.art import icon
 from codex_pet.pets import APPEARANCES
@@ -76,97 +80,88 @@ class FakeView:
         return 192, 192
 
 
+
+def render(renderer, snapshot, frame=0):
+    runtime = PetRuntime(PetVisual.from_snapshot(snapshot), 0.0)
+    for _ in range(frame):
+        runtime.tick(runtime.deadline)
+    request = runtime.current()
+    source, composer = FrameSource(), FrameComposer()
+    renderer.present(composer.compose(source.frame(request.pack_id, request.revision, request.reference), request.count))
+
+
 class GuiBindingTests(unittest.TestCase):
     def test_hook_wakes_do_not_resend_unchanged_png_frames(self) -> None:
         connection = FakeConnection()
         with tempfile.TemporaryDirectory() as directory, \
-             patch.object(gui.tg, "LinearLayout", FakeView), \
-             patch.object(gui.tg, "ImageView", FakeView):
-            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+             patch.object(backend.tg, "LinearLayout", FakeView), \
+             patch.object(backend.tg, "ImageView", FakeView):
+            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
             snapshot = {"state": "running", "running_count": 1, "appearance": "akita"}
             for _ in range(50):
-                pet.render(snapshot, frame=0)
+                render(pet, snapshot, frame=0)
             self.assertEqual(len(pet.face.image_updates), 1)
-            pet.render(snapshot, frame=1)
+            render(pet, snapshot, frame=1)
             self.assertEqual(len(pet.face.image_updates), 2)
-            pet.render({**snapshot, "running_count": 2}, frame=1)
+            render(pet, {**snapshot, "running_count": 2}, frame=1)
             self.assertEqual(len(pet.face.image_updates), 3)
-            pet.render({**snapshot, "state": "ready"}, frame=0)
+            render(pet, {**snapshot, "state": "ready"}, frame=0)
             self.assertEqual(len(pet.face.image_updates), 4)
 
-    def test_running_count_changes_do_not_restart_other_state_animations(self) -> None:
-        snapshots = iter((
-            {"appearance": "akita", "state": "idle", "running_count": 4},
-            {"appearance": "akita", "state": "running", "running_count": 4},
-            {"appearance": "akita", "state": "running", "running_count": 5},
-        ))
-        rendered: list[tuple[str, int]] = []
-        worker = gui.GuiWorker(None, lambda: next(snapshots), lambda *_: None)
-        worker.ui = SimpleNamespace(render=lambda state, frame:
-                                    rendered.append((state["state"], frame)))
-        timeline = AnimationTimeline("akita", "idle", now=0.0, running_count=1)
-        timeline.advance(now=0.61)
-        try:
-            worker._refresh(timeline, now=0.7)
-            worker._refresh(timeline, now=1.0)
-            timeline.advance(now=1.09)
-            worker._refresh(timeline, now=1.1)
-        finally:
-            worker.stop()
-
-        self.assertEqual(rendered, [("idle", 1), ("running", 0), ("running", 0)])
-
-    def test_gui_renders_ready_entry_immediately_and_interrupts_it(self) -> None:
-        snapshot = {"appearance": "akita", "state": "ready", "running_count": 0}
+    def test_worker_preserves_count_reset_and_interrupts_ready_entry(self):
+        snapshot = {"appearance":"akita", "state":"running", "running_count":1}
         rendered = []
         worker = gui.GuiWorker(None, lambda: snapshot, lambda *_: None)
-        worker.ui = SimpleNamespace(render=lambda state, frame:
-                                    rendered.append((state["state"], frame)))
-        timeline = AnimationTimeline("akita", "running", now=0)
+        worker.ui = SimpleNamespace(present=lambda frame: rendered.append(frame.key[2]))
         try:
-            worker._refresh(timeline, now=1, advance=True)
-            worker._refresh(timeline, now=1.120001, advance=True)
-            worker._refresh(timeline, now=1.240001, advance=True)
-            snapshot["state"] = "needs_input"
-            worker._refresh(timeline, now=1.25, advance=True)
+            worker.refresh(0.0)
+            worker.refresh(.09)
+            snapshot['running_count'] = 2
+            worker.refresh(.1)
+            snapshot['state'] = 'ready'
+            worker.refresh(1.0)
+            worker.refresh(1.120001)
+            snapshot['state'] = 'needs_input'
+            worker.refresh(1.13)
         finally:
             worker.stop()
-        self.assertEqual(rendered, [("ready", 12), ("ready", 13), ("ready", 14), ("needs_input", 0)])
+        self.assertEqual(rendered, ['running/00', 'running/01', 'running/00',
+                                    'ready/05', 'ready/06', 'needs_input/00'])
 
     def test_only_one_overlay_and_no_text_views_are_created(self) -> None:
         FakeView.next_id = 1
         connection = FakeConnection()
         with tempfile.TemporaryDirectory() as directory, \
-             patch.object(gui.tg, "LinearLayout", FakeView), \
-             patch.object(gui.tg, "ImageView", FakeView), \
-             patch.object(gui.tg, "TextView", side_effect=AssertionError("text UI is not allowed")):
-            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+             patch.object(backend.tg, "LinearLayout", FakeView), \
+             patch.object(backend.tg, "ImageView", FakeView), \
+             patch.object(backend.tg, "TextView", side_effect=AssertionError("text UI is not allowed")):
+            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
 
         self.assertEqual(connection.next_aid, 2)
         self.assertTrue(pet.face.touch_enabled)
         self.assertIs(pet.face.activity, pet.pet)
-        self.assertEqual(pet.face.dimensions, [(gui.PET_SIZE_DP, gui.PET_SIZE_DP)])
+        self.assertEqual(pet.face.dimensions, [(backend.PET_SIZE_DP, backend.PET_SIZE_DP)])
 
     def test_each_activity_state_is_rendered_as_its_icon(self) -> None:
         FakeView.next_id = 1
         connection = FakeConnection()
         with tempfile.TemporaryDirectory() as directory, \
-             patch.object(gui.tg, "LinearLayout", FakeView), \
-             patch.object(gui.tg, "ImageView", FakeView), \
-             patch.object(gui.tg, "TextView", side_effect=AssertionError("text UI is not allowed")), \
-             patch.object(gui.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
-            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
+             patch.object(backend.tg, "LinearLayout", FakeView), \
+             patch.object(backend.tg, "ImageView", FakeView), \
+             patch.object(backend.tg, "TextView", side_effect=AssertionError("text UI is not allowed")), \
+             patch.object(backend.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
+            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
             for appearance in APPEARANCES:
                 for state in ("idle", "running", "needs_input", "ready", "blocked"):
-                    pet.render({"state": state, "running_count": 2,
+                    render(pet, {"state": state, "running_count": 2,
                                 "appearance": appearance.id, "project": "repo",
                                 "elapsed": 10, "message": "hidden detail"})
-                    self.assertEqual(pet.face.image,
-                                     icon(state, 0, 2, appearance.id))
-                    self.assertEqual(pet.image_size_px, appearance.image_size_px)
+                    self.assertEqual(decode_png(pet.face.image),
+                                     decode_png(icon(state, 0, 2, appearance.id)))
+                    self.assertEqual(pet.image_width, appearance.image_size_px)
             self.assertEqual(len(pet.face.image_updates), len(APPEARANCES) * 5)
-            pet.render({"state": "running", "running_count": 2, "appearance": "akita"})
-            self.assertEqual(pet.face.image, icon("running", 0, 2))
+            render(pet, {"state": "running", "running_count": 2, "appearance": "akita"})
+            self.assertEqual(decode_png(pet.face.image), decode_png(icon("running", 0, 2)))
             pet.close()
 
         self.assertEqual(connection.next_aid, 2)
@@ -175,16 +170,16 @@ class GuiBindingTests(unittest.TestCase):
         FakeView.next_id = 1
         connection = FakeConnection()
         with tempfile.TemporaryDirectory() as directory, \
-             patch.object(gui.tg, "LinearLayout", FakeView), \
-             patch.object(gui.tg, "ImageView", FakeView), \
-             patch.object(gui.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
-            pet = gui.OverlayUI(connection, Path(directory) / "config.json")
-            pet.render({"state": "running", "running_count": 1, "appearance": "akita"}, frame=3)
-            pet.render({"state": "running", "running_count": 1, "appearance": "akita"}, frame=4)
+             patch.object(backend.tg, "LinearLayout", FakeView), \
+             patch.object(backend.tg, "ImageView", FakeView), \
+             patch.object(backend.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
+            pet = backend.TermuxGuiRenderer(connection, Path(directory) / "config.json")
+            render(pet, {"state": "running", "running_count": 1, "appearance": "akita"}, frame=3)
+            render(pet, {"state": "running", "running_count": 1, "appearance": "akita"}, frame=4)
 
         self.assertEqual(
-            pet.face.image_updates,
-            [icon("running", 3, 1), icon("running", 4, 1)],
+            [decode_png(image) for image in pet.face.image_updates],
+            [decode_png(icon("running", 3, 1)), decode_png(icon("running", 4, 1))],
         )
 
 

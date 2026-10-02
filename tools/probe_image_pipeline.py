@@ -135,7 +135,8 @@ def main() -> None:
         },
         "checks": {}, "timings": {}, "raw_timings": {},
     }
-    libpng_version = art._LIBPNG.png_get_libpng_ver
+    from codex_pet import image_codec
+    libpng_version = image_codec._LIBPNG.png_get_libpng_ver
     libpng_version.argtypes = (ctypes.c_void_p,)
     libpng_version.restype = ctypes.c_char_p
     result["environment"]["libpng"] = libpng_version(None).decode()

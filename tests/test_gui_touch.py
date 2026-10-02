@@ -7,7 +7,7 @@ import unittest
 
 import termuxgui as tg
 
-from codex_pet.gui import OverlayUI
+from codex_pet.renderer.termux_gui import TermuxGuiRenderer as OverlayUI
 
 
 class PetView:
@@ -38,7 +38,7 @@ class GuiTouchTests(unittest.TestCase):
         self.ui.face = PetView(5)
         self.ui.x, self.ui.y = 700, 420
         self.ui.density = 3.0
-        self.ui.image_size_px = 256
+        self.ui.image_width = self.ui.image_height = 256
         self.ui.down = None
         self.ui.dragged = False
         self.ui.touch_count = 0

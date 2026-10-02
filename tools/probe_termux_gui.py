@@ -22,7 +22,7 @@ import time
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from codex_pet.art import _decode_rgba_png, _png, icon
-from codex_pet.gui import _overlay
+from codex_pet.renderer.termux_gui import _overlay
 import termuxgui as tg
 
 
