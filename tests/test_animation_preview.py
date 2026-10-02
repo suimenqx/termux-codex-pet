@@ -6,6 +6,7 @@ import unittest
 from codex_pet.animation import (
     AKITA_FRAME_COUNTS,
     AKITA_READY_LOOP_START,
+    AKITA_READY_LOOP_END,
     animation_interval,
 )
 from codex_pet.art import icon, _png
@@ -62,8 +63,8 @@ class AnimationPreviewTests(unittest.TestCase):
 
     def test_ready_preview_uses_the_production_loop_and_frame_delays(self) -> None:
         frames = _timeline("ready", cycles=2)
-        expected_indices = list(range(AKITA_FRAME_COUNTS["ready"]))
-        expected_indices.extend(range(AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS["ready"]))
+        expected_indices = list(range(AKITA_READY_LOOP_END + 1))
+        expected_indices.extend(range(AKITA_READY_LOOP_START, AKITA_READY_LOOP_END + 1))
 
         self.assertEqual([frame["frame"] for frame in frames], expected_indices)
         self.assertEqual(

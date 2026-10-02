@@ -116,6 +116,22 @@ class GuiBindingTests(unittest.TestCase):
 
         self.assertEqual(rendered, [("idle", 1), ("running", 0), ("running", 0)])
 
+    def test_gui_renders_ready_entry_immediately_and_interrupts_it(self) -> None:
+        snapshot = {"appearance": "akita", "state": "ready", "running_count": 0}
+        rendered = []
+        worker = gui.GuiWorker(None, lambda: snapshot, lambda *_: None)
+        worker.ui = SimpleNamespace(render=lambda state, frame:
+                                    rendered.append((state["state"], frame)))
+        timeline = AnimationTimeline("akita", "running", now=0)
+        try:
+            worker._refresh(timeline, now=1, advance=True)
+            worker._refresh(timeline, now=1.120001, advance=True)
+            snapshot["state"] = "needs_input"
+            worker._refresh(timeline, now=1.15, advance=True)
+        finally:
+            worker.stop()
+        self.assertEqual(rendered, [("ready", 12), ("ready", 13), ("needs_input", 0)])
+
     def test_only_one_overlay_and_no_text_views_are_created(self) -> None:
         FakeView.next_id = 1
         connection = FakeConnection()

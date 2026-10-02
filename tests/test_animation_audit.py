@@ -80,8 +80,8 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertTrue(fore_legs["passed"], fore_legs)
         self.assertTrue(fore_legs["all_paw_markers_on_visible_art"])
         self.assertIn("manual review required", fore_legs["gait_validation"])
-        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][2]["paw_source_px"], [201, 196])
-        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][3]["paw_source_px"], [172, 195])
+        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][2]["paw_source_px"], [210, 215])
+        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][3]["paw_source_px"], [201, 196])
         for name, leg in fore_legs["legs"].items():
             self.assertEqual(len(leg["positions"]), 8)
             self.assertGreaterEqual(leg["visible_poses"], 7)

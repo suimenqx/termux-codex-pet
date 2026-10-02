@@ -1,0 +1,32 @@
+{
+  "exports": [
+    {
+      "source": "running-source.png",
+      "original": "running-original.png",
+      "box": [
+        126,
+        174,
+        256,
+        242
+      ],
+      "feather": 6,
+      "output": "running/02.png"
+    },
+    {
+      "source": "settle-source.png",
+      "original": "settle-original.png",
+      "box": [
+        24,
+        174,
+        244,
+        244
+      ],
+      "feather": 6,
+      "output": "ready/05.png"
+    },
+    {
+      "source": "turn-source.png",
+      "output": "ready/06.png"
+    }
+  ]
+}

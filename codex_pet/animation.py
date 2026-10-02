@@ -9,15 +9,18 @@ from .pets import (
 )
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
-# Reach the near forepaw's forward extreme before folding it back. Keep the
-# accepted source drawings and cycle duration; source numbering is not timing.
-_AKITA_RUNNING_SEQUENCE = (0, 1, 3, 2, 4, 5, 6, 7)
+# Preserve hind-leg phases; repair the foreleg inside its drawing instead.
+_AKITA_RUNNING_SEQUENCE = tuple(range(8))
 _AKITA_READY_SEQUENCE = (
     ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
     ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
     ("idle", 7), ("idle", 0),
 )
 AKITA_READY_LOOP_START = 4
+AKITA_READY_LOOP_END = len(_AKITA_READY_SEQUENCE) - 1
+AKITA_READY_RUNNING_ENTRY_START = len(_AKITA_READY_SEQUENCE)
+# Contextual entry is outside the rest loop. It joins the normal entry at 0.
+_AKITA_READY_SEQUENCE += (("ready", 5), ("ready", 6))
 AKITA_FRAME_COUNTS = {
     "idle": 8,
     "running": len(_AKITA_RUNNING_SEQUENCE),
@@ -33,7 +36,8 @@ AKITA_FRAME_INTERVALS = {
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
     # The entry hop settles into subtle breathing and a slow blink.
-    "ready": (0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8),
+    "ready": (0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8,
+              0.12, 0.12),
     # Blocked is a brief reaction that settles and holds its final pose.
     "blocked": (0.12, 0.18, 0.18, 0.12),
 }
@@ -99,8 +103,11 @@ def advance_animation(appearance: str, state: str, frame: int) -> int:
         state = _akita_state(state)
         frame = max(0, int(frame))
         frame_count = AKITA_FRAME_COUNTS[state]
-        if state == "ready" and frame >= frame_count - 1:
-            return AKITA_READY_LOOP_START
+        if state == "ready":
+            if frame >= frame_count - 1:
+                return 0
+            if frame == AKITA_READY_LOOP_END:
+                return AKITA_READY_LOOP_START
         if state in AKITA_LOOP_STATES:
             return (frame + 1) % frame_count
         return min(frame + 1, frame_count)
@@ -116,7 +123,7 @@ def _cycle_bounds(appearance: str, state: str) -> tuple[int, int] | None:
     if profile == ANIMATION_PROFILE_AKITA:
         state = _akita_state(state)
         if state == "ready":
-            return AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS[state] - 1
+            return AKITA_READY_LOOP_START, AKITA_READY_LOOP_END
         if state in AKITA_LOOP_STATES:
             return 0, AKITA_FRAME_COUNTS[state] - 1
         return None
@@ -154,7 +161,13 @@ class AnimationTimeline:
         visual = (appearance, state, int(running_count) if state == "running" else 0)
         if visual == self.visual:
             return False
+        from_running = (self.appearance == appearance
+                        and appearance_for(appearance).animation_profile == ANIMATION_PROFILE_AKITA
+                        and self.state == "running" and state == "ready")
         self.reset(appearance, state, now, running_count)
+        if from_running:
+            self.frame = AKITA_READY_RUNNING_ENTRY_START
+            self._set_deadline(now)
         return True
 
     def _set_deadline(self, now: float) -> None:
@@ -189,14 +202,17 @@ class AnimationTimeline:
                 return self.frame
 
 
-def playback_frames(appearance: str, state: str, cycles: int = 1) -> tuple[PlaybackFrame, ...]:
+def playback_frames(appearance: str, state: str, cycles: int = 1,
+                    *, from_state: str | None = None) -> tuple[PlaybackFrame, ...]:
     """Build the same finite frame schedule used by the GUI for offline tools."""
     if cycles < 1:
         raise ValueError("cycles must be at least 1")
 
     appearance = _appearance_id(appearance)
     state = _state_id(appearance, state)
-    timeline = AnimationTimeline(appearance, state, now=0.0)
+    timeline = AnimationTimeline(appearance, from_state or state, now=0.0)
+    if from_state is not None:
+        timeline.sync(appearance, state, 0, now=0.0)
     cycle_bounds = _cycle_bounds(appearance, state)
     completed_cycles = 0
     scheduled: list[PlaybackFrame] = []

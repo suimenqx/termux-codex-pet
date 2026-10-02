@@ -21,9 +21,9 @@ PET_SIZE_DP = 64
 PREVIEW_DENSITY = 3
 
 
-def _timeline(state: str, cycles: int) -> list[dict[str, object]]:
+def _timeline(state: str, cycles: int, from_state: str | None = None) -> list[dict[str, object]]:
     result = []
-    for scheduled in playback_frames("akita", state, cycles):
+    for scheduled in playback_frames("akita", state, cycles, from_state=from_state):
         png = icon(state, scheduled.frame, appearance="akita")
         result.append({
             "frame": scheduled.frame,
@@ -65,8 +65,9 @@ def _candidate_timeline(manifest: Path, cycles: int = 1) -> list[dict[str, objec
 
 
 def _html(state: str, cycles: int,
-          candidate: list[dict[str, object]] | None = None) -> str:
-    timeline = _timeline(state, cycles) if candidate is None else candidate
+          candidate: list[dict[str, object]] | None = None,
+          from_state: str | None = None) -> str:
+    timeline = _timeline(state, cycles, from_state) if candidate is None else candidate
     if not timeline:
         raise ValueError("preview needs at least one frame")
     frames = json.dumps(timeline, separators=(",", ":"))
@@ -185,18 +186,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", choices=AKITA_STATES, default="ready")
     parser.add_argument("--cycles", type=int, default=2)
+    parser.add_argument("--from-state", choices=AKITA_STATES,
+                        help="include the production entry from this previous state")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--candidate", type=Path,
                         help="JSON frames list: file (relative to manifest), seconds")
     args = parser.parse_args()
     if args.cycles < 1:
         parser.error("--cycles must be at least 1")
+    if args.from_state and args.candidate:
+        parser.error("--from-state applies to production playback, not a candidate manifest")
 
     output = args.output or Path.home() / ".cache" / "codex-pet" / f"preview-{args.state}.html"
     output.parent.mkdir(parents=True, exist_ok=True)
     candidate = (_candidate_timeline(args.candidate, args.cycles)
                  if args.candidate is not None else None)
-    output.write_text(_html(args.state, args.cycles, candidate), encoding="utf-8")
+    output.write_text(_html(args.state, args.cycles, candidate, args.from_state), encoding="utf-8")
     print(output)
     return 0
 

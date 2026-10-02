@@ -39,7 +39,7 @@ codex-pet pet use akita
 codex-pet pet use robot
 ```
 
-Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 256 高清 PNG 帧：奶油白圆脸、明亮橘红额顶和浅色额心、短立耳、张嘴露舌的笑脸，以及紧凑的身体。待机时缓慢呼吸、偶尔眨眼，并以更明显但舒缓的幅度摆尾；运行时保留八张原画和每帧 80ms 的节奏（周期 640ms），调整两个相邻姿势的播放顺序以减少前腿反复回摆；需要输入时轻轻挥爪；就绪时直接轻轻蹲身蓄力，再开心跃起一次，之后缓慢呼吸、慢慢眨眼并轻轻摆尾；受阻时短暂歪头，然后停在思考姿势。经典机器人仍可切换，并保留原有动画。运行 `codex-pet pet list` 查看已支持形象和当前选择，用 `codex-pet pet use <id>` 切换到列表中的任一形象，例如 `codex-pet pet use robot`。选择与悬浮位置一起保存在 `~/.config/codex-pet/config.json`；daemon 正在运行时会立即切换。点击没有操作；如需移动，从 Pet 图标的任意位置拖动即可，移动约 6dp 后就会跟随手指。
+Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 256 高清 PNG 帧：奶油白圆脸、明亮橘红额顶和浅色额心、短立耳、张嘴露舌的笑脸，以及紧凑的身体。待机时缓慢呼吸、偶尔眨眼，并以更明显但舒缓的幅度摆尾；运行时保持八帧、每帧 80ms（周期 640ms），恢复后腿原始动作顺序，并局部修正前腿回摆，保留该帧其余原画像素；需要输入时轻轻挥爪；从奔跑进入就绪时先用 240ms 落稳、转身，再轻轻蹲身并开心跃起一次；其他状态进入就绪时直接从下蹲开始，之后缓慢呼吸、慢慢眨眼并轻轻摆尾；受阻时短暂歪头，然后停在思考姿势。经典机器人仍可切换，并保留原有动画。运行 `codex-pet pet list` 查看已支持形象和当前选择，用 `codex-pet pet use <id>` 切换到列表中的任一形象，例如 `codex-pet pet use robot`。选择与悬浮位置一起保存在 `~/.config/codex-pet/config.json`；daemon 正在运行时会立即切换。点击没有操作；如需移动，从 Pet 图标的任意位置拖动即可，移动约 6dp 后就会跟随手指。
 
 [宠物图片与动画制作规范](docs/animation-assets.md)包含角色尺度与定位、动作时间与补帧、agent 生成提示词、制作单模板和验收方法，也说明了现有素材与审计工具的适用边界。
 
@@ -83,7 +83,7 @@ codex-pet status
 
 在源码目录运行 `python tools/review_recording.py 录屏.mp4`，生成总览和原始帧时间表。加上 `--crop x,y,width,height` 和可重复的 `--window 名称:开始秒:结束秒`，生成宠物局部原速/慢放、逐帧页面和带时间标注的联系表。结果默认放在 `~/.cache/codex-pet/recordings/`，保留原视频，不上传。完整步骤、坐标说明和下一次录屏的对照方式见[可复用录屏流程](docs/recording-review.md)。
 
-[本轮动画调整](docs/artwork/akita/2026-10-video-review/brief.md)只改变播放顺序和 Ready 进入节奏。局部生成稿因改变神态未接入；侧面转正面的过渡仍缺专门画稿，实际观感待新录屏确认。
+[本轮动画调整](docs/artwork/akita/2026-10-local-motion/brief.md)锁定原头脸、躯干和后腿像素，只导入生成的前腿修图区域；为 Running→Ready 新增两张落稳转身姿势。新事件随时打断过渡，不延迟状态更新。可运行 `python tools/preview_animation.py --state ready --from-state running` 预览这条进入路径；实际观感仍待新录屏确认。
 
 ## 卸载
 

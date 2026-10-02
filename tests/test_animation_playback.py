@@ -4,6 +4,7 @@ from codex_pet.animation import (
     AKITA_FRAME_COUNTS,
     AKITA_FRAME_INTERVALS,
     AKITA_READY_LOOP_START,
+    AKITA_READY_LOOP_END,
     AnimationTimeline,
     akita_artwork_frame,
     animation_interval,
@@ -98,10 +99,10 @@ class PlaybackScheduleTests(unittest.TestCase):
         self.assertEqual([item.frame for item in frames], list(range(8)) * 2)
         self.assertEqual([item.duration_seconds for item in frames], [0.08] * 16)
 
-    def test_running_reaches_before_retracting_without_changing_the_cycle(self) -> None:
+    def test_running_preserves_hindleg_order_and_cycle_after_local_repair(self) -> None:
         frames = playback_frames("akita", "running")
         physical = [akita_artwork_frame("running", step.frame)[1] for step in frames]
-        self.assertEqual(physical, [0, 1, 3, 2, 4, 5, 6, 7])
+        self.assertEqual(physical, list(range(8)))
         self.assertEqual(sorted(physical), list(range(8)))
         self.assertAlmostEqual(sum(step.duration_seconds for step in frames), .64)
 
@@ -112,8 +113,8 @@ class PlaybackScheduleTests(unittest.TestCase):
                 timeline.advance(position * .08 + .001)
                 self.assertTrue(timeline.sync("akita", "ready", 0, now=1))
                 self.assertEqual(timeline.state, "ready")
-                self.assertEqual(akita_artwork_frame("ready", timeline.frame), ("ready", 4))
-                self.assertAlmostEqual(timeline.deadline, 1.16)
+                self.assertEqual(akita_artwork_frame("ready", timeline.frame), ("ready", 5))
+                self.assertAlmostEqual(timeline.deadline, 1.12)
                 # A new needs-input event never waits for the completion hop.
                 self.assertTrue(timeline.sync("akita", "needs_input", 0, now=1.05))
                 self.assertEqual(timeline.frame, 0)
@@ -121,8 +122,8 @@ class PlaybackScheduleTests(unittest.TestCase):
 
     def test_ready_schedule_hops_once_then_repeats_only_the_rest_loop(self) -> None:
         frames = playback_frames("akita", "ready", cycles=2)
-        expected = list(range(AKITA_FRAME_COUNTS["ready"]))
-        expected.extend(range(AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS["ready"]))
+        expected = list(range(AKITA_READY_LOOP_END + 1))
+        expected.extend(range(AKITA_READY_LOOP_START, AKITA_READY_LOOP_END + 1))
 
         self.assertEqual([item.frame for item in frames], expected)
         self.assertEqual(
@@ -133,7 +134,7 @@ class PlaybackScheduleTests(unittest.TestCase):
         self.assertEqual(ready_artwork[9:11], [("idle", 6), ("idle", 7)])
         self.assertTrue(all(
             asset_state in ("idle", "blink")
-            for asset_state, _ in ready_artwork[AKITA_READY_LOOP_START:AKITA_FRAME_COUNTS["ready"]]
+            for asset_state, _ in ready_artwork[AKITA_READY_LOOP_START:AKITA_READY_LOOP_END + 1]
         ))
         self.assertEqual(
             ready_artwork[:4],
@@ -144,7 +145,7 @@ class PlaybackScheduleTests(unittest.TestCase):
     def test_ready_entry_and_loop_keep_their_established_durations(self) -> None:
         self.assertEqual(animation_interval("akita", "ready", 6), 0.20)
         cycle = sum(AKITA_FRAME_INTERVALS["ready"][frame]
-                    for frame in range(AKITA_READY_LOOP_START, AKITA_FRAME_COUNTS["ready"]))
+                    for frame in range(AKITA_READY_LOOP_START, AKITA_READY_LOOP_END + 1))
         self.assertGreaterEqual(cycle, 3.5)
         hop = [AKITA_FRAME_INTERVALS["ready"][frame]
                for frame in range(AKITA_READY_LOOP_START)]

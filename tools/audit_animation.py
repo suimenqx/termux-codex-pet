@@ -34,9 +34,9 @@ CHEST_SOURCE_BOX = (45, 120, 165, 220)
 MIN_TAIL_CHANGED_PIXELS = 500
 MIN_TAIL_CENTROID_DELTA_DP = 1.0
 MIN_TAIL_EDGE_SWEEP_DP = 1.5
-# Landmarks are tied to the restored, fingerprinted visual baseline.
+# Landmarks follow the current physical drawings; the baseline remains archived.
 _RUNNING_MANIFEST = json.loads((
-    ROOT / "docs/artwork/akita/accepted-running.json"
+    ROOT / "docs/artwork/akita/current-running.json"
 ).read_text())
 RUNNING_GAIT_PHASES = tuple(item["phase"] for item in _RUNNING_MANIFEST["frames"])
 RUNNING_PAW_POINTS = {
@@ -211,10 +211,14 @@ def _alpha_bounds(rgba: bytes, size: int,
 
 def _tail_metrics(state: str, frames: tuple[RenderedFrame, ...], size: int,
                   density: float) -> dict[str, object] | None:
-    steps = _tail_pose_frames(state)
-    if steps is None or max(steps) >= len(frames):
+    poses = _tail_pose_frames(state)
+    if poses is None:
         return None
-    high, low = (frames[step] for step in steps)
+    # Contextual entry changes exposure positions, not logical pose identities.
+    high = next((frame for frame in frames if frame.frame == poses[0]), None)
+    low = next((frame for frame in frames if frame.frame == poses[1]), None)
+    if high is None or low is None:
+        return None
     tail_box = _scaled_box(TAIL_SOURCE_BOX, size)
     chest_box = _scaled_box(CHEST_SOURCE_BOX, size)
     changed, mean_delta = _changed_pixels(high.rgba, low.rgba, size, tail_box)
@@ -494,7 +498,7 @@ def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
         if state == "running":
             marker_radius = max(2, round(size / AKITA_SIZE * 6))
             for name, points in RUNNING_PAW_POINTS.items():
-                point = points[frame.frame]
+                point = points[akita_artwork_frame("running", frame.frame)[1]]
                 if point is None:
                     continue
                 marker_x = cell_x + round(point[0] * size / AKITA_SIZE)
@@ -507,7 +511,8 @@ def _contact_sheet(frames: tuple[RenderedFrame, ...], size: int,
 
 
 def render_audit(state: str, cycles: int = 1,
-                 density: float = PREVIEW_DENSITY) -> RenderAudit:
+                 density: float = PREVIEW_DENSITY,
+                 *, from_state: str | None = None) -> RenderAudit:
     """Render the production RGBA sequence at overlay size and report its motion."""
     if state not in AKITA_STATES:
         raise ValueError(f"unknown Akita state: {state}")
@@ -522,7 +527,7 @@ def render_audit(state: str, cycles: int = 1,
 
     scale_cache: dict[int, bytes] = {}
     rendered: list[RenderedFrame] = []
-    for step, scheduled in enumerate(playback_frames("akita", state, cycles)):
+    for step, scheduled in enumerate(playback_frames("akita", state, cycles, from_state=from_state)):
         frame = scheduled.frame
         pixels = scale_cache.get(frame)
         if pixels is None:
@@ -549,6 +554,7 @@ def render_audit(state: str, cycles: int = 1,
     report: dict[str, object] = {
         "renderer": "rgba_icon with premultiplied bilinear downsampling",
         "state": state,
+        "from_state": from_state,
         "display_size_dp": PET_SIZE_DP,
         "density": density,
         "display_size_px": display_size,
@@ -599,6 +605,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", choices=AKITA_STATES, default="ready")
     parser.add_argument("--cycles", type=int, default=2)
+    parser.add_argument("--from-state", choices=AKITA_STATES)
     parser.add_argument("--density", type=float, default=PREVIEW_DENSITY,
                         help="device density multiplier; default matches the overlay's 3x fallback")
     parser.add_argument("--output", type=Path,
@@ -609,7 +616,7 @@ def main() -> int:
     if not math.isfinite(args.density) or args.density <= 0:
         parser.error("--density must be greater than 0")
 
-    result = render_audit(args.state, args.cycles, args.density)
+    result = render_audit(args.state, args.cycles, args.density, from_state=args.from_state)
     manifest = write_audit(result, args.output)
     tail = result.report["tail_motion"]
     hind_legs = result.report["hind_leg_motion"]
