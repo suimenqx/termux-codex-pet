@@ -9,16 +9,18 @@ from .pets import (
 )
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
+# Reach the near forepaw's forward extreme before folding it back. Keep the
+# accepted source drawings and cycle duration; source numbering is not timing.
+_AKITA_RUNNING_SEQUENCE = (0, 1, 3, 2, 4, 5, 6, 7)
 _AKITA_READY_SEQUENCE = (
-    ("ready", 0), ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
+    ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
     ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
     ("idle", 7), ("idle", 0),
 )
-AKITA_READY_LOOP_START = 5
+AKITA_READY_LOOP_START = 4
 AKITA_FRAME_COUNTS = {
     "idle": 8,
-    # Restore the approved artwork together with its original timing.
-    "running": 8,
+    "running": len(_AKITA_RUNNING_SEQUENCE),
     "needs_input": 4,
     "ready": len(_AKITA_READY_SEQUENCE),
     "blocked": 4,
@@ -31,7 +33,7 @@ AKITA_FRAME_INTERVALS = {
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
     # The entry hop settles into subtle breathing and a slow blink.
-    "ready": (0.32, 0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8),
+    "ready": (0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8),
     # Blocked is a brief reaction that settles and holds its final pose.
     "blocked": (0.12, 0.18, 0.18, 0.12),
 }
@@ -64,7 +66,11 @@ def akita_artwork_frame(state: str, frame: int) -> tuple[str, int]:
     """Resolve one logical Akita frame to the artwork used for that pose."""
     state = _akita_state(state)
     frame = max(0, min(int(frame), AKITA_FRAME_COUNTS[state] - 1))
-    return _AKITA_READY_SEQUENCE[frame] if state == "ready" else (state, frame)
+    if state == "ready":
+        return _AKITA_READY_SEQUENCE[frame]
+    if state == "running":
+        return state, _AKITA_RUNNING_SEQUENCE[frame]
+    return state, frame
 
 
 def animation_interval(appearance: str, state: str, frame: int) -> float | None:

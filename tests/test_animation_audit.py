@@ -27,11 +27,11 @@ class AnimationAuditTests(unittest.TestCase):
         )
         self.assertTrue(all(len(frame.rgba) == 192 * 192 * 4
                             for frame in result.frames))
-        self.assertEqual(result.report["duration_seconds"], 10.02)
+        self.assertEqual(result.report["duration_seconds"], 9.7)
 
         width, height = struct.unpack_from(">II", result.contact_sheet, 16)
         self.assertEqual(width, 828)
-        self.assertEqual(height, 1344)
+        self.assertEqual(height, 1122)
 
     def test_tail_motion_survives_display_scaling_while_chest_stays_still(self) -> None:
         result = render_audit("ready", cycles=1, density=3)
@@ -80,6 +80,8 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertTrue(fore_legs["passed"], fore_legs)
         self.assertTrue(fore_legs["all_paw_markers_on_visible_art"])
         self.assertIn("manual review required", fore_legs["gait_validation"])
+        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][2]["paw_source_px"], [201, 196])
+        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][3]["paw_source_px"], [172, 195])
         for name, leg in fore_legs["legs"].items():
             self.assertEqual(len(leg["positions"]), 8)
             self.assertGreaterEqual(leg["visible_poses"], 7)

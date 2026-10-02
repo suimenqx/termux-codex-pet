@@ -308,9 +308,11 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
                  else MIN_FORE_FOOT_Y_RANGE_DP)
     minimum_path = (MIN_HIND_FOOT_PATH_DP if kind == "hind"
                     else MIN_FORE_FOOT_PATH_DP)
+    # Annotations describe physical drawings, not their playback positions.
+    source_indices = [akita_artwork_frame("running", frame.frame)[1] for frame in cycle]
     for side in ("near", "far"):
         name = f"{kind}_{side}"
-        points = RUNNING_PAW_POINTS[name]
+        points = [RUNNING_PAW_POINTS[name][index] for index in source_indices]
         leg_minimum_x = (MIN_FAR_FORE_FOOT_X_RANGE_DP
                          if name == "fore_far" else minimum_x)
         leg_minimum_y = (MIN_FAR_FORE_FOOT_Y_RANGE_DP
@@ -322,7 +324,7 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
         for frame_index, point in enumerate(points):
             if point is None:
                 positions.append({"frame": frame_index,
-                                  "phase": RUNNING_GAIT_PHASES[frame_index],
+                                  "phase": RUNNING_GAIT_PHASES[source_indices[frame_index]],
                                   "visible": False})
                 relative.append(None)
                 continue
@@ -339,7 +341,7 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
             relative.append((offset_x, offset_y))
             positions.append({
                 "frame": frame_index,
-                "phase": RUNNING_GAIT_PHASES[frame_index],
+                "phase": RUNNING_GAIT_PHASES[source_indices[frame_index]],
                 "visible": True,
                 "paw_source_px": list(point),
                 "hip_source_px": [round(anchor[0], 2), round(anchor[1], 2)],
