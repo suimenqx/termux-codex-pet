@@ -1,6 +1,7 @@
 """Frame loading and decoration, independent of native windows and sessions."""
 from functools import lru_cache
 from . import art
+from .pet_pack import bundled_pack
 from .image_codec import decode_png, encode_png
 from .renderer.protocol import RgbaFrame
 
@@ -12,7 +13,8 @@ class FrameSource:
         if pack == 'akita':
             image = art._ready_blink_icon() if index == 'blink' else art._akita_asset(pose, int(index))
         elif pack == 'robot':
-            image = art._robot_icon(pose, int(index))
+            definition = bundled_pack(pack).frames[reference]
+            image = art._robot_icon(definition.pose, definition.variant)
         else:
             raise ValueError('Unknown frame source')
         width, height, pixels = decode_png(image)

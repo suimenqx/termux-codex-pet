@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from typing import Any
 from .animation import AnimationTimeline, akita_artwork_frame
 from .pets import appearance_for
+from .pet_pack import bundled_pack
+from .clip_timeline import ClipTimeline
 
 
 @dataclass(frozen=True)
@@ -30,20 +32,29 @@ class PetRuntime:
     def __init__(self, visual: PetVisual, now: float) -> None:
         self.visual = visual
         self.timeline = AnimationTimeline(visual.appearance, visual.state, now, visual.count)
+        self.compiled = (ClipTimeline(bundled_pack('robot'), visual.state, now)
+                         if visual.appearance == 'robot' else None)
 
     def sync(self, visual: PetVisual, now: float) -> bool:
         self.visual = visual
-        return self.timeline.sync(visual.appearance, visual.state, visual.count, now)
+        changed = self.timeline.sync(visual.appearance, visual.state, visual.count, now)
+        if changed:
+            self.compiled = (ClipTimeline(bundled_pack('robot'), visual.state, now)
+                             if visual.appearance == 'robot' else None)
+        return changed
 
     def tick(self, now: float) -> None:
-        self.timeline.advance(now)
+        if self.compiled is not None:
+            self.compiled.advance(now)
+        else:
+            self.timeline.advance(now)
 
     @property
     def deadline(self) -> float | None:
-        return self.timeline.deadline
+        return self.compiled.deadline if self.compiled else self.timeline.deadline
 
     def timeout(self, now: float) -> float | None:
-        return self.timeline.timeout(now)
+        return self.compiled.timeout(now) if self.compiled else self.timeline.timeout(now)
 
     def current(self) -> FrameRequest:
         timeline = self.timeline
@@ -53,4 +64,5 @@ class PetRuntime:
         else:
             reference = f'{timeline.state}/{timeline.frame:02}'
         count = max(0, min(self.visual.count, 10)) if timeline.state == 'running' else 0
-        return FrameRequest(timeline.appearance, 'legacy-v1', reference, count if count > 1 else 0)
+        return FrameRequest(timeline.appearance, self.compiled.pack.revision if self.compiled else 'legacy-v1',
+                            self.compiled.reference if self.compiled else reference, count if count > 1 else 0)

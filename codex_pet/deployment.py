@@ -152,6 +152,8 @@ def deploy(source: Path, home: Path | None = None) -> Path:
     staging = Path(tempfile.mkdtemp(prefix=".stage-", dir=releases_dir))
     try:
         _copy_runtime(source, staging)
+        from .pet_pack import preflight
+        preflight(staging / "codex_pet")
         os.replace(staging, release_dir)
     except BaseException:
         shutil.rmtree(staging, ignore_errors=True)
@@ -191,6 +193,7 @@ def rollback(home: Path | None = None) -> Path:
         raise FileNotFoundError("No previous Codex Pet runtime release is available")
     if _managed_release(app_dir, current_target) is None:
         raise RuntimeError("Current Codex Pet runtime link is not managed")
+    assert previous_target is not None
     _replace_link(app_dir, CURRENT, previous_target)
     _replace_link(app_dir, PREVIOUS, current_target)
     return previous_release

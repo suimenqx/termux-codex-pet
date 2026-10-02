@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "robot",
+  "canvas_px": [
+    64,
+    64
+  ],
+  "display_dp": [
+    64,
+    64
+  ],
+  "source": {
+    "kind": "builtin",
+    "id": "robot_v1"
+  },
+  "frames": {
+    "idle/00": {
+      "pose": "idle",
+      "variant": 0
+    },
+    "running/00": {
+      "pose": "running",
+      "variant": 0
+    },
+    "running/01": {
+      "pose": "running",
+      "variant": 1
+    },
+    "needs_input/00": {
+      "pose": "needs_input",
+      "variant": 0
+    },
+    "needs_input/01": {
+      "pose": "needs_input",
+      "variant": 1
+    },
+    "ready/00": {
+      "pose": "ready",
+      "variant": 0
+    },
+    "blocked/00": {
+      "pose": "blocked",
+      "variant": 0
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  },
+  "transitions": [],
+  "clips": {
+    "idle": {
+      "frames": [
+        {
+          "frame": "idle/00",
+          "duration_ms": null
+        }
+      ],
+      "end": {
+        "mode": "hold"
+      }
+    },
+    "running": {
+      "frames": [
+        {
+          "frame": "running/00",
+          "duration_ms": 2000
+        },
+        {
+          "frame": "running/01",
+          "duration_ms": 2000
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "needs_input": {
+      "frames": [
+        {
+          "frame": "needs_input/00",
+          "duration_ms": 1400
+        },
+        {
+          "frame": "needs_input/01",
+          "duration_ms": 1400
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "ready": {
+      "frames": [
+        {
+          "frame": "ready/00",
+          "duration_ms": null
+        }
+      ],
+      "end": {
+        "mode": "hold"
+      }
+    },
+    "blocked": {
+      "frames": [
+        {
+          "frame": "blocked/00",
+          "duration_ms": null
+        }
+      ],
+      "end": {
+        "mode": "hold"
+      }
+    }
+  },
+  "decorations": {
+    "count": {
+      "style": "robot_count_v1",
+      "visible_above": 1,
+      "clamp": 10
+    }
+  }
+}

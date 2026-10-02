@@ -209,6 +209,12 @@ def playback_frames(appearance: str, state: str, cycles: int = 1,
         raise ValueError("cycles must be at least 1")
 
     appearance = _appearance_id(appearance)
+    if appearance == 'robot':
+        from .pet_pack import bundled_pack
+        from .clip_timeline import schedule
+        pack = bundled_pack(appearance)
+        return tuple(PlaybackFrame(pack.frames[step.reference].variant, step.duration_seconds)
+                     for step in schedule(pack, state, cycles, from_state=from_state))
     state = _state_id(appearance, state)
     timeline = AnimationTimeline(appearance, from_state or state, now=0.0)
     if from_state is not None:

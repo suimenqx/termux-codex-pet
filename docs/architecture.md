@@ -68,3 +68,7 @@ For screenshot-free visual and motion checks, run `python tools/audit_animation.
 The overlay keeps the same 64 dp viewport across states, so equal 256 px frame dimensions do not guarantee equal apparent mascot size. The [pet image and animation standards](animation-assets.md) route authoring work through model and scale calibration, pose and timing plans, reference-based generation, and acceptance. The [acceptance guide](animation-acceptance.md) distinguishes the existing tools' production-frame checks from candidate review and device evidence; their current paw coordinates and motion thresholds apply to specific existing artwork.
 
 For gait rationale, pose planning, and paw-track audit workflow, see [the dog gait animation guide](animation-gait.md).
+
+## Compiled packs (migration in progress)
+
+Robot uses `assets/robot/pet.json`, validated by `pet_pack.py`; builtin execution is restricted to `robot_v1`. `ClipTimeline` uses integer nanosecond cumulative ends and arithmetic loop skipping. Static holds have no deadline. The live runtime and offline Robot playback consume the same compiled clips. Deployment validates the staged pack before replacing `current`; the private release contains all required assets. Akita remains on its existing compatibility path until its complete manifest is migrated.

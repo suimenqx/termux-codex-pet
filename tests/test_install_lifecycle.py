@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -18,8 +19,10 @@ class InstallLifecycleTests(unittest.TestCase):
         self.prefix = self.root / "prefix"
         (self.prefix / "bin").mkdir(parents=True)
         self.source = self.root / "checkout"
+        shutil.copytree(Path(__file__).resolve().parents[1] / "codex_pet/assets",
+                        self.source / "codex_pet/assets")
         (self.source / "bin").mkdir(parents=True)
-        (self.source / "codex_pet").mkdir()
+        (self.source / "codex_pet").mkdir(exist_ok=True)
         for name in deployment.ENTRYPOINTS:
             (self.source / "bin" / name).write_text(f"source {name}\n")
         (self.source / "codex_pet" / "__init__.py").write_text("")

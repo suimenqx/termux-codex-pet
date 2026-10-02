@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
+import json
 
 from codex_pet.deployment import deploy, remove_installation, rollback
 
@@ -14,8 +16,10 @@ class DeploymentTests(unittest.TestCase):
         self.home = self.root / "termux-home"
         self.home.mkdir()
         self.source = self.root / "editable-checkout"
+        shutil.copytree(Path(__file__).resolve().parents[1] / "codex_pet/assets",
+                        self.source / "codex_pet/assets")
         (self.source / "bin").mkdir(parents=True)
-        (self.source / "codex_pet" / "assets").mkdir(parents=True)
+        (self.source / "codex_pet" / "assets").mkdir(parents=True, exist_ok=True)
         (self.source / "bin" / "codex-pet").write_text("cli source\n", encoding="utf-8")
         (self.source / "bin" / "codex-pet-event").write_text("hook source\n", encoding="utf-8")
         (self.source / "codex_pet" / "__init__.py").write_text("", encoding="utf-8")
@@ -66,6 +70,15 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(rolled_back, first)
         self.assertEqual((app_dir / "current").resolve(), first)
         self.assertEqual((app_dir / "previous").resolve(), second)
+
+    def test_invalid_pet_pack_cannot_replace_the_active_release(self):
+        first = deploy(self.source, self.home)
+        pack = self.source / 'codex_pet/assets/robot/pet.json'
+        pack.parent.mkdir(parents=True, exist_ok=True)
+        pack.write_text(json.dumps({'schema_version':99}))
+        with self.assertRaises(ValueError):
+            deploy(self.source, self.home)
+        self.assertEqual((self.home / '.local/share/codex-pet/current').resolve(), first)
 
     def test_deploy_migrates_legacy_source_symlinks_without_backing_them_up(self) -> None:
         local_bin = self.home / ".local/bin"

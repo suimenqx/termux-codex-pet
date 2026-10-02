@@ -31,3 +31,9 @@ Frame-pipeline and artwork (14) tests pass, GUI tests (25) pass, eight affected 
 Native event normalization now produces immutable `TouchInput`; a pure `DragController` handles anchors, 6 dp slop, cancellation and commits. The GUI owner performs movement and persistence. Non-square source and measured view axes scale independently; measurement has a 1.5 second budget. Screen-off and targeted cancellation restore the saved position.
 
 Validation: full suite 169 tests passed (150.031 s); two additional focused cancellation/screen-off cases passed with all 16 touch tests. Targeted type checks passed. Deployed release `20261002T214948Z-7d8f47f7`; isolated five-state device smoke returned idle with zero sessions and GUI ready. Production tap, edge drag, secondary-finger and screen-off gestures are pending the requested human check; earlier probe acceptance does not substitute for this.
+
+## T07 / #8 — Robot compiled pack
+
+Robot now uses a data-only manifest and a validated builtin whitelist. Live playback and offline Robot schedules share compiled clips; integer nanoseconds and arithmetic loop skipping replace elapsed-frame catch-up for Robot. Installation validates the staged manifest before activation; invalid packs leave the active release intact. PNG decode allocation is capped at 64 MiB.
+
+Validation: 540 Robot paths match the pre-refactor pixel/exposure fingerprints in `tests/fixtures/playback-baseline.json`. Exact deadlines, static holds, invalid manifests and 1 h/24 h/large resume checks pass. Full suite: 175 tests passed (90.298 s), plus the newly added independent baseline regression passed. Six affected modules pass mypy. Release `20261002T215908Z-e51f2c5f`, PID 6785, passed separate isolated Akita and Robot state demonstrations; Robot was restored to the prior Akita selection afterwards. No new GUI errors. Akita compatibility remains for the next ticket.

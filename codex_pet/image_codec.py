@@ -59,6 +59,8 @@ def decode_png(image: bytes) -> tuple[int, int, bytearray]:
         if not _LIBPNG.png_image_begin_read_from_memory(pointer, source, len(image)):
             raise ValueError(decoded.message.decode("utf-8", "replace"))
         width, height = int(decoded.width), int(decoded.height)
+        if width <= 0 or height <= 0 or width * height * 4 > 64 * 1024 * 1024:
+            raise ValueError("Image exceeds decode budget")
         decoded.format = 3  # PNG_FORMAT_RGBA
         pixels = bytearray(width * height * 4)
         output = (ctypes.c_char * len(pixels)).from_buffer(pixels)
