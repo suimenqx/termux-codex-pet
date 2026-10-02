@@ -9,7 +9,7 @@ import time
 import traceback
 
 from .runtime import LOG, directories, notification, send_event
-from .state import STATES, direct_event, event_from_hook
+from .adapters.codex import STATES, direct_event, event_from_hook
 
 
 def _log_hook_error(exc: BaseException) -> None:

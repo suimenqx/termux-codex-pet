@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from codex_pet import daemon
-from codex_pet.state import direct_event
+from codex_pet.adapters.codex import direct_event
 
 
 class FakeGui:

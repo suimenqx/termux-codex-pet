@@ -15,3 +15,7 @@ Validation: full suite 163 tests passed (79.760 s); after adding the concurrent-
 Deployment: private release 20261002T212744Z-7ae73e44, plugin version 7, daemon PID 26593. An isolated full device demonstration completed Idle → Running → Needs input → Ready → Blocked and returned to Idle with zero sessions and GUI ready. The current owned Codex session was restored with its turn ID afterwards. No new GUI error log entries. PNG transport remains active; physical gestures are reserved for the dedicated production gesture ticket.
 
 P1–P5 are still in progress; no overall completion claim.
+
+## P1a — semantic event migration
+
+#5 separates Codex/legacy IPC normalization from the session model. Added entrypoint regression for hook-independent turn_end/activity and malformed event fields. State (7), hook/config (5), daemon (10) and targeted type checks (7 modules) pass. Device installation and isolated state demonstration pass; full stage result follows below.

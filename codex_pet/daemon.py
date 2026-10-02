@@ -18,7 +18,8 @@ from .gui import GuiWorker
 from .pets import APPEARANCE_BY_ID
 from .preferences import save_appearance, selected_appearance
 from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, directories, notification
-from .state import SessionStore, direct_event
+from .state import SessionStore
+from .adapters.codex import direct_event
 
 LOGGING = logging.getLogger(__name__)
 

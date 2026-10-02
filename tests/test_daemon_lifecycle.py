@@ -2,7 +2,7 @@
 
 import unittest
 
-from codex_pet.state import event_from_hook
+from codex_pet.adapters.codex import event_from_hook
 from test_daemon_notifications import isolated_daemon
 
 
@@ -13,6 +13,21 @@ def hook(instance, name, turn_id="turn-1"):
 
 
 class DaemonLifecycleTests(unittest.TestCase):
+    def test_malformed_event_values_do_not_escape_the_ipc_boundary(self):
+        with isolated_daemon() as instance:
+            for event in ({"state": []}, {"state": "running", "kind": []},
+                          {"state": "ready", "kind": "activity"}):
+                self.assertFalse(instance.process({"action": "event", "event": event})["ok"])
+
+    def test_semantic_turn_end_rejects_late_activity_without_codex_hook_names(self):
+        with isolated_daemon() as instance:
+            for kind, state in (("turn_start", "running"), ("turn_end", "ready"),
+                                ("activity", "running")):
+                result = instance.process({"action": "event", "event": {
+                    "kind": kind, "state": state, "session_id": "semantic", "turn_id": "one"}})
+            self.assertFalse(result["applied"])
+            self.assertEqual(instance.status()["state"], "ready")
+
     def test_stop_adopts_turn_id_after_a_session_was_restored_without_it(self):
         with isolated_daemon() as instance:
             instance.process({"action": "event", "event": {

@@ -2,7 +2,8 @@
 
 import unittest
 
-from codex_pet.state import SessionStore, direct_event, event_from_hook
+from codex_pet.state import SessionStore
+from codex_pet.adapters.codex import direct_event, event_from_hook
 
 
 def event(state: str, session_id: str, turn_id: str = "", message: str = "",

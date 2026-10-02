@@ -13,7 +13,7 @@ from .preferences import save_appearance, selected_appearance
 from .runtime import (
     CONFIG, LOG, SOCKET, _daemon_lock_held, request, send_event, start_daemon,
 )
-from .state import direct_event
+from .adapters.codex import direct_event
 
 
 def _status() -> dict[str, Any] | None:

@@ -10,7 +10,7 @@ import sys
 import tomllib
 
 from .runtime import HOME
-from .state import HOOK_STATES
+from .adapters.codex import HOOK_STATES
 
 CODEX = HOME / ".codex"
 TOML = CODEX / "config.toml"

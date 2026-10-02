@@ -3,83 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import os
 import time
 from typing import Any
 
-# User-facing activity states follow the four states documented for Codex Pets.
-# ``idle`` means there is no active Pet activity; ``end`` is an internal event.
-HOOK_STATES = {
-    "SessionStart": "idle",
-    "UserPromptSubmit": "running",
-    "PermissionRequest": "needs_input",
-    "PostToolUse": "running",
-    "Stop": "ready",
-    "Interrupt": "idle",
-    "SessionEnd": "end",
-}
-STATES = {"idle", "running", "needs_input", "ready", "blocked", "end"}
 PRIORITY = {"needs_input": 5, "blocked": 4, "ready": 3, "running": 2, "idle": 1}
-
-
-def clean_text(value: Any, limit: int = 160) -> str:
-    if not isinstance(value, str):
-        return ""
-    return " ".join(value.split())[:limit]
-
-
-def event_from_hook(raw: Any) -> dict[str, Any] | None:
-    if not isinstance(raw, dict):
-        return None
-    name = raw.get("hook_event_name")
-    state = HOOK_STATES.get(name)
-    if state is None:
-        return None
-    # Compaction is an in-turn lifecycle event. It must not make a live thread
-    # look idle while Codex prepares the continuation request.
-    if name == "SessionStart" and raw.get("source") == "compact":
-        return None
-    cwd = raw.get("cwd") if isinstance(raw.get("cwd"), str) else ""
-    project = (os.path.basename(os.path.normpath(cwd)) or "Codex") if cwd else "Codex"
-    if state == "ready":
-        message = clean_text(raw.get("last_assistant_message"), 140)
-    elif state == "needs_input":
-        tool_input = raw.get("tool_input")
-        message = clean_text(tool_input.get("description") if isinstance(tool_input, dict) else None, 120)
-    else:
-        message = ""
-    return {
-        "state": state,
-        "session_id": clean_text(raw.get("session_id"), 120) or "default",
-        "turn_id": clean_text(raw.get("turn_id"), 120),
-        "cwd": cwd[:500],
-        "project": project[:60],
-        "message": message,
-        "starts_turn": name == "UserPromptSubmit",
-        "hook_event_name": name,
-        "timestamp": time.time(),
-    }
-
-
-def direct_event(raw: Any) -> dict[str, Any] | None:
-    if not isinstance(raw, dict) or raw.get("state") not in STATES:
-        return None
-    cwd = raw.get("cwd") if isinstance(raw.get("cwd"), str) else ""
-    hook_name = clean_text(raw.get("hook_event_name"), 40)
-    if HOOK_STATES.get(hook_name) != raw["state"]:
-        hook_name = ""
-    return {
-        "state": raw["state"],
-        "session_id": clean_text(raw.get("session_id"), 120) or "default",
-        "turn_id": clean_text(raw.get("turn_id"), 120),
-        "cwd": cwd[:500],
-        "project": clean_text(raw.get("project"), 60)
-        or ((os.path.basename(os.path.normpath(cwd)) or "Codex") if cwd else "Codex"),
-        "message": clean_text(raw.get("message"), 140),
-        "starts_turn": raw.get("starts_turn") is True,
-        "hook_event_name": hook_name,
-        "timestamp": time.time(),
-    }
 
 
 @dataclass
@@ -112,15 +39,14 @@ class SessionStore:
         # a manual state restore). Adopt the first observed ID, including Stop.
         turn_changed = bool(previous and previous.turn_id and turn_id
                             and previous.turn_id != turn_id)
-        if turn_changed and not event.get("starts_turn"):
+        if turn_changed and event["kind"] != "turn_start":
             return False
 
-        hook_name = event.get("hook_event_name", "")
-        if (previous and previous.turn_finished and not event.get("starts_turn")
-                and hook_name in ("PostToolUse", "PermissionRequest")):
+        if (previous and previous.turn_finished and event["kind"] != "turn_start"
+                and event["kind"] == "activity"):
             return False
 
-        new_turn = turn_changed or event.get("starts_turn") is True
+        new_turn = turn_changed or event["kind"] == "turn_start"
         started = now if state == "running" and (
             previous is None or previous.state != "running" or new_turn
         ) else (previous.started_at if previous else now)
@@ -131,7 +57,7 @@ class SessionStore:
             turn_id=turn_id if new_turn else turn_id or (previous.turn_id if previous else ""),
             changed_at=now,
             started_at=started,
-            turn_finished=hook_name in ("Stop", "Interrupt"),
+            turn_finished=event["kind"] == "turn_end",
         )
         return True
 
