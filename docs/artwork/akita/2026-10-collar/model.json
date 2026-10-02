@@ -1,0 +1,566 @@
+{
+  "canonical": "originals/running/00.png",
+  "material": "plain matte blue strap",
+  "clasp": "back of neck, concealed by fur in current views",
+  "sampling_note": "Interior blue pixel near each band centroid; diagnostic samples, not flat-fill paint values or universal tolerances. Width/occlusion reviewed visually against canonical.",
+  "frames": {
+    "blocked/00.png": {
+      "sample_xy": [
+        133,
+        154
+      ],
+      "sample_rgba": [
+        24,
+        88,
+        157,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        117,
+        146,
+        160,
+        160
+      ]
+    },
+    "blocked/01.png": {
+      "sample_xy": [
+        116,
+        158
+      ],
+      "sample_rgba": [
+        15,
+        72,
+        132,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        99,
+        149,
+        146,
+        164
+      ]
+    },
+    "blocked/02.png": {
+      "sample_xy": [
+        132,
+        147
+      ],
+      "sample_rgba": [
+        22,
+        86,
+        156,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        117,
+        139,
+        159,
+        153
+      ]
+    },
+    "blocked/03.png": {
+      "sample_xy": [
+        118,
+        148
+      ],
+      "sample_rgba": [
+        22,
+        87,
+        156,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        103,
+        139,
+        146,
+        153
+      ]
+    },
+    "idle/00.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/01.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/02.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/03.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/04.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/05.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/06.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "idle/07.png": {
+      "sample_xy": [
+        91,
+        157
+      ],
+      "sample_rgba": [
+        14,
+        64,
+        138,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        56,
+        148,
+        129,
+        163
+      ]
+    },
+    "needs_input/00.png": {
+      "sample_xy": [
+        131,
+        138
+      ],
+      "sample_rgba": [
+        17,
+        83,
+        164,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        98,
+        123,
+        166,
+        146
+      ]
+    },
+    "needs_input/01.png": {
+      "sample_xy": [
+        127,
+        139
+      ],
+      "sample_rgba": [
+        16,
+        82,
+        161,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        93,
+        123,
+        164,
+        148
+      ]
+    },
+    "needs_input/02.png": {
+      "sample_xy": [
+        129,
+        139
+      ],
+      "sample_rgba": [
+        19,
+        84,
+        161,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        96,
+        122,
+        164,
+        149
+      ]
+    },
+    "needs_input/03.png": {
+      "sample_xy": [
+        132,
+        141
+      ],
+      "sample_rgba": [
+        20,
+        86,
+        164,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        99,
+        127,
+        167,
+        149
+      ]
+    },
+    "ready/00.png": {
+      "sample_xy": [
+        112,
+        165
+      ],
+      "sample_rgba": [
+        5,
+        66,
+        162,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        83,
+        157,
+        143,
+        171
+      ]
+    },
+    "ready/01.png": {
+      "sample_xy": [
+        108,
+        154
+      ],
+      "sample_rgba": [
+        2,
+        73,
+        165,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        80,
+        145,
+        138,
+        160
+      ]
+    },
+    "ready/02.png": {
+      "sample_xy": [
+        111,
+        142
+      ],
+      "sample_rgba": [
+        1,
+        85,
+        181,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        85,
+        133,
+        141,
+        148
+      ]
+    },
+    "ready/03.png": {
+      "sample_xy": [
+        108,
+        161
+      ],
+      "sample_rgba": [
+        1,
+        71,
+        164,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        80,
+        153,
+        139,
+        168
+      ]
+    },
+    "ready/04.png": {
+      "sample_xy": [
+        114,
+        195
+      ],
+      "sample_rgba": [
+        4,
+        69,
+        171,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        84,
+        186,
+        145,
+        202
+      ]
+    },
+    "ready/05.png": {
+      "sample_xy": [
+        170,
+        159
+      ],
+      "sample_rgba": [
+        3,
+        56,
+        127,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        145,
+        151,
+        194,
+        165
+      ]
+    },
+    "ready/06.png": {
+      "sample_xy": [
+        157,
+        157
+      ],
+      "sample_rgba": [
+        2,
+        50,
+        119,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        132,
+        147,
+        181,
+        163
+      ]
+    },
+    "running/00.png": {
+      "sample_xy": [
+        170,
+        159
+      ],
+      "sample_rgba": [
+        3,
+        56,
+        127,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        145,
+        151,
+        194,
+        165
+      ]
+    },
+    "running/01.png": {
+      "sample_xy": [
+        179,
+        159
+      ],
+      "sample_rgba": [
+        1,
+        60,
+        134,
+        254
+      ],
+      "visible_blue_bbox_xyxy": [
+        153,
+        151,
+        203,
+        165
+      ]
+    },
+    "running/02.png": {
+      "sample_xy": [
+        179,
+        163
+      ],
+      "sample_rgba": [
+        1,
+        70,
+        150,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        154,
+        154,
+        204,
+        169
+      ]
+    },
+    "running/03.png": {
+      "sample_xy": [
+        177,
+        159
+      ],
+      "sample_rgba": [
+        0,
+        67,
+        150,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        154,
+        151,
+        200,
+        165
+      ]
+    },
+    "running/04.png": {
+      "sample_xy": [
+        179,
+        157
+      ],
+      "sample_rgba": [
+        2,
+        68,
+        149,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        154,
+        148,
+        203,
+        163
+      ]
+    },
+    "running/05.png": {
+      "sample_xy": [
+        181,
+        156
+      ],
+      "sample_rgba": [
+        2,
+        71,
+        152,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        157,
+        148,
+        204,
+        161
+      ]
+    },
+    "running/06.png": {
+      "sample_xy": [
+        177,
+        155
+      ],
+      "sample_rgba": [
+        3,
+        59,
+        127,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        153,
+        148,
+        201,
+        161
+      ]
+    },
+    "running/07.png": {
+      "sample_xy": [
+        173,
+        155
+      ],
+      "sample_rgba": [
+        3,
+        66,
+        144,
+        253
+      ],
+      "visible_blue_bbox_xyxy": [
+        149,
+        147,
+        196,
+        161
+      ]
+    }
+  }
+}

@@ -90,3 +90,9 @@ done
 局部生成的素材可通过显式编辑区域合入固定原图；必须保留原图、生成源稿、区域/羽化配方，并逐像素验证区域外没有变化。本次可复现工具为 `tools/prepare_motion_repairs.py`，配方和哈希见 `artwork/akita/2026-10-local-motion/`。这是静态导出，不是用时间混合制造中间帧。
 
 Ready 的普通预览不包括奔跑结束专用过渡。审查该路径使用 `preview_animation.py --state ready --from-state running` 和 `audit_animation.py --state ready --from-state running`。同时检查非奔跑来源不播放侧身进入、重复Ready不重启、任何新状态都能立即打断；进入帧不得混入休息循环。
+
+### 项圈修复的复现与检查
+
+`tools/prepare_motion_repairs.py` 同时支持单张源图和明确的等格图表；配方的 `grid: [列, 行, 帧数]` 与零起点 `cell` 指定来源，省略时表示单张正方形图。所有画格仍沿用 `split_sheet` 整画布采样，`box` 为生产画布上的局部导入范围，`feather` 仅在范围内做空间接缝融合，不参与时间补帧。项圈等位于既有轮廓内的编辑可设置 `preserve_alpha: true`，逐像素保留原图透明度。
+
+固定项圈配方见 `artwork/akita/2026-10-collar/export.json`。不得使用该目录的 `ready-rejected-sheet.png`：它有背景和格内定位偏差，仅保存为失败证据。生产就绪修复来自逐张生成稿。`model.json` 覆盖全部 31 张物理图的颜色采样，回归测试另检查所有逻辑位置及眨眼合成；颜色点测试只用于防止遗漏配件或恢复旧色，完整款式与带宽仍需看图。

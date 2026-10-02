@@ -78,6 +78,7 @@ python tools/prepare_sprite_frames.py source-sheet.png "$artwork_stage/frames" \
 输入图及用途：{identity_reference} 固定身份和画风；
 {layout_reference} 固定画布、镜头尺度和构图基准；{other_view} 说明同一模型的结构。
 角色身份：{脸部结构、毛色分区、耳尾、配件、描边、光照和色彩规则}。
+固定配件：{主参照、带宽/材质、颜色取样、扣件位置及遮挡}；除明确设计要求外，不按状态改色或增删。
 投影与镜头：{projection_and_camera}。源画布目标：{source_canvas}。
 依据附图的标注保持 {结构点与模型尺度关系}，构图原点为 {origin_uv}；
 中性支撑基线为 {ground_v}。姿态为 {neutral_pose}。

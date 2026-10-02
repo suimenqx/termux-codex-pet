@@ -1,0 +1,325 @@
+{
+  "exports": [
+    {
+      "source": "blocked-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 0,
+      "original": "originals/blocked/00.png",
+      "box": [
+        113,
+        142,
+        164,
+        164
+      ],
+      "feather": 3,
+      "output": "blocked/00.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "blocked-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 1,
+      "original": "originals/blocked/01.png",
+      "box": [
+        95,
+        145,
+        150,
+        168
+      ],
+      "feather": 3,
+      "output": "blocked/01.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "blocked-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 2,
+      "original": "originals/blocked/02.png",
+      "box": [
+        113,
+        135,
+        163,
+        157
+      ],
+      "feather": 3,
+      "output": "blocked/02.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "blocked-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 3,
+      "original": "originals/blocked/03.png",
+      "box": [
+        99,
+        135,
+        150,
+        157
+      ],
+      "feather": 3,
+      "output": "blocked/03.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/00.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/00.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/01.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/01.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/02.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/02.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/03.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/03.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/04.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/04.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/05.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/05.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/06.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/06.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "idle-source.png",
+      "original": "originals/idle/07.png",
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ],
+      "feather": 3,
+      "output": "idle/07.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "needs_input-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 0,
+      "original": "originals/needs_input/00.png",
+      "box": [
+        94,
+        119,
+        170,
+        150
+      ],
+      "feather": 3,
+      "output": "needs_input/00.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "needs_input-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 1,
+      "original": "originals/needs_input/01.png",
+      "box": [
+        89,
+        119,
+        168,
+        152
+      ],
+      "feather": 3,
+      "output": "needs_input/01.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "needs_input-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 2,
+      "original": "originals/needs_input/02.png",
+      "box": [
+        92,
+        118,
+        168,
+        153
+      ],
+      "feather": 3,
+      "output": "needs_input/02.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "needs_input-source.png",
+      "grid": [
+        2,
+        2,
+        4
+      ],
+      "cell": 3,
+      "original": "originals/needs_input/03.png",
+      "box": [
+        95,
+        123,
+        171,
+        153
+      ],
+      "feather": 3,
+      "output": "needs_input/03.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "ready-00-source.png",
+      "original": "originals/ready/00.png",
+      "box": [
+        75,
+        149,
+        159,
+        179
+      ],
+      "feather": 6,
+      "output": "ready/00.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "ready-01-source.png",
+      "original": "originals/ready/01.png",
+      "box": [
+        72,
+        137,
+        154,
+        168
+      ],
+      "feather": 6,
+      "output": "ready/01.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "ready-02-source.png",
+      "original": "originals/ready/02.png",
+      "box": [
+        77,
+        125,
+        157,
+        156
+      ],
+      "feather": 6,
+      "output": "ready/02.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "ready-03-source.png",
+      "original": "originals/ready/03.png",
+      "box": [
+        72,
+        145,
+        155,
+        176
+      ],
+      "feather": 6,
+      "output": "ready/03.png",
+      "preserve_alpha": true
+    },
+    {
+      "source": "ready-04-source.png",
+      "original": "originals/ready/04.png",
+      "box": [
+        76,
+        178,
+        164,
+        210
+      ],
+      "feather": 6,
+      "output": "ready/04.png",
+      "preserve_alpha": true
+    }
+  ]
+}

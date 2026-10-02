@@ -1,0 +1,385 @@
+{
+  "tool": "built-in imagegen",
+  "model_id": "not provided",
+  "sha256": {
+    "frames/blocked/00.png": "7c980dc611d074362924ad7bb9b792681119a95eb1cf81d05873404d0f92748f",
+    "frames/blocked/01.png": "85646eaecffb86d8a0fc3b9bd56a2d14f07ecd41ab9c98dd93c38cb3c4e7471c",
+    "frames/blocked/02.png": "df14d5222fff17d4c437e87e773ffcfbcf269667cdb05e34d2269df09d99289d",
+    "frames/blocked/03.png": "8b1275157e70b77c8aa38a62f08c5f7b2c8e20159bb264d039b860d60de87c61",
+    "frames/idle/00.png": "bc373fbcfb792b53b6dfe0a20fcf720c0a06e8bfd007fe1239d674292399fba4",
+    "frames/idle/01.png": "4c23f7a6887936ef1f69ea4f39e4c6c2ddefdd789152259257ba73fe23f2a10a",
+    "frames/idle/02.png": "07e57b213fef293704e6103b189d1afe266992103765f56673e629ca47aef5f0",
+    "frames/idle/03.png": "2eb96817128be37ed27701baa3e10fb23f2386b3561ed0f7cd73553a6ad15344",
+    "frames/idle/04.png": "16eb619b8066636cfbcd4e65b183b9974dd2787e9bc15043f66d636e4e1db46d",
+    "frames/idle/05.png": "2929572dc08f916011f99b6b1762dc7f38aadfddeb356a17202905a62652f49b",
+    "frames/idle/06.png": "22cb93d78cfbc0071653eaa13fcf77d5fb5242e0946d7ed03344517a04b15e7e",
+    "frames/idle/07.png": "2f5b9dd4237c7691e0aadc8a00645aa40c66334e64483f6d7c09980f9e8a47e5",
+    "frames/needs_input/00.png": "495327d6756f2398fbe277b1fe194f3f756539bd5cda86cb68890ce6688ecd98",
+    "frames/needs_input/01.png": "1307d27087179f3651f9877a5d99bb309edbde94fd6bca9d679a59c1fcc83f39",
+    "frames/needs_input/02.png": "e9c34c35c14ecc4bd0c526619a7803ee56c98cbc654144107d2a13e504245589",
+    "frames/needs_input/03.png": "ee0c02c77d7d87b6c987f78fa5466a2e7d119c7e979e2f35807a24e3e8788a4d",
+    "frames/ready/00.png": "a6fb89e93ae92015df478b19e98a3b732522e090ebaa5d1cf863661d8bb2fe71",
+    "frames/ready/01.png": "1dbae007dbc5e096f4805eb1386cb1d6049aaecb5a16f8d058bad336942a5367",
+    "frames/ready/02.png": "da2e5c3ef984754da7df3a1595d989f58f563c066cd12d0ede0b56a9d29fad18",
+    "frames/ready/03.png": "7df27e72ab2d4aedcb65cd038f29694b134dc250d4281385819d88c86e9b36dd",
+    "frames/ready/04.png": "52b219904ef82a4aab0098adbd168a9ccb1d9dfe45c7e6634b8e09280c3c7cb9",
+    "idle.png": "bc373fbcfb792b53b6dfe0a20fcf720c0a06e8bfd007fe1239d674292399fba4",
+    "needs_input.png": "495327d6756f2398fbe277b1fe194f3f756539bd5cda86cb68890ce6688ecd98",
+    "ready.png": "a6fb89e93ae92015df478b19e98a3b732522e090ebaa5d1cf863661d8bb2fe71",
+    "blocked.png": "7c980dc611d074362924ad7bb9b792681119a95eb1cf81d05873404d0f92748f"
+  },
+  "sources": {
+    "idle-source.png": {
+      "sha256": "4ff275dca957c35fa84bc1cf6a8e42c7da8744e50bbc48adaa2032fe48e842e8",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "needs_input-source.png": {
+      "sha256": "0052dc18ed1eee683ec8c9f3d43fb3e5ac32bb4cdca9ce57c9307d3316680e80",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "blocked-source.png": {
+      "sha256": "78a3e40357a56b2cace0d4aa5850161325be23c6fa52f1b0ec8767a707211093",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "ready-00-source.png": {
+      "sha256": "8fbd29867e11744547c4a176cc956a76f51f283711f42f788bf9b0245da15946",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "ready-01-source.png": {
+      "sha256": "bf505d611a41a2e4a13e63eb29e9273f820b9de439f504bebe6b0b258c3461a7",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "ready-02-source.png": {
+      "sha256": "30296c18a386ca14d609b1fb0eb125fe4b830f53dc795faf1893364013b6ba57",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "ready-04-source.png": {
+      "sha256": "fed01bf15a3ce31afb3d5e3c204ecab2894591064049790f453b9c36846bff07",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    },
+    "ready-03-source.png": {
+      "sha256": "7f8dd5c1f354c7b8692d901d663f138dd02910fba520d00303d459f0e62ef79b",
+      "size": [
+        1254,
+        1254
+      ],
+      "depth": 8,
+      "color_type": 6,
+      "has_transparency": true
+    }
+  },
+  "pixel_protection": [
+    {
+      "output": "blocked/00.png",
+      "inside_changed_pixels": 1003,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        113,
+        142,
+        164,
+        164
+      ]
+    },
+    {
+      "output": "blocked/01.png",
+      "inside_changed_pixels": 1150,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        95,
+        145,
+        150,
+        168
+      ]
+    },
+    {
+      "output": "blocked/02.png",
+      "inside_changed_pixels": 993,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        113,
+        135,
+        163,
+        157
+      ]
+    },
+    {
+      "output": "blocked/03.png",
+      "inside_changed_pixels": 1032,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        99,
+        135,
+        150,
+        157
+      ]
+    },
+    {
+      "output": "idle/00.png",
+      "inside_changed_pixels": 2981,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/01.png",
+      "inside_changed_pixels": 2994,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/02.png",
+      "inside_changed_pixels": 2981,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/03.png",
+      "inside_changed_pixels": 2977,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/04.png",
+      "inside_changed_pixels": 2982,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/05.png",
+      "inside_changed_pixels": 2986,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/06.png",
+      "inside_changed_pixels": 2981,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "idle/07.png",
+      "inside_changed_pixels": 2981,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        44,
+        140,
+        150,
+        169
+      ]
+    },
+    {
+      "output": "needs_input/00.png",
+      "inside_changed_pixels": 2171,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        94,
+        119,
+        170,
+        150
+      ]
+    },
+    {
+      "output": "needs_input/01.png",
+      "inside_changed_pixels": 2445,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        89,
+        119,
+        168,
+        152
+      ]
+    },
+    {
+      "output": "needs_input/02.png",
+      "inside_changed_pixels": 2495,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        92,
+        118,
+        168,
+        153
+      ]
+    },
+    {
+      "output": "needs_input/03.png",
+      "inside_changed_pixels": 2120,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        95,
+        123,
+        171,
+        153
+      ]
+    },
+    {
+      "output": "ready/00.png",
+      "inside_changed_pixels": 2354,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        75,
+        149,
+        159,
+        179
+      ]
+    },
+    {
+      "output": "ready/01.png",
+      "inside_changed_pixels": 2365,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        72,
+        137,
+        154,
+        168
+      ]
+    },
+    {
+      "output": "ready/02.png",
+      "inside_changed_pixels": 2328,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        77,
+        125,
+        157,
+        156
+      ]
+    },
+    {
+      "output": "ready/03.png",
+      "inside_changed_pixels": 2398,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        72,
+        145,
+        155,
+        176
+      ]
+    },
+    {
+      "output": "ready/04.png",
+      "inside_changed_pixels": 2643,
+      "outside_changed_pixels": 0,
+      "alpha_changed_pixels": 0,
+      "box": [
+        76,
+        178,
+        164,
+        210
+      ]
+    }
+  ],
+  "export_command": "python tools/prepare_motion_repairs.py docs/artwork/akita/2026-10-collar/export.json NEW_EMPTY_DIRECTORY",
+  "visual_acceptance": "Static candidate review complete; live device recording pending.",
+  "rejected": {
+    "file": "ready-rejected-sheet.png",
+    "sha256": "045744456587ca7d49ed48a4c55cd9875ca74cba94113fbb1efe7f294ee318e5",
+    "reason": "Opaque background and cell pose displacement; replaced by individual generations.",
+    "artifact_id": "exec-3d72421d-f831-4548-a699-58d5c3252d84"
+  },
+  "generated_artifact_ids": {
+    "idle-source.png": "exec-a49b26d3-7064-46fc-947d-d57652fe7d2f",
+    "needs_input-source.png": "exec-2c370444-63cd-4759-9f20-0d91ec6fb2ea",
+    "blocked-source.png": "exec-d2552629-614f-4f94-ab4e-fa604f66fa43",
+    "ready-00-source.png": "exec-6e3eb78c-3a11-425e-96d8-0360fbe9994a",
+    "ready-01-source.png": "exec-d376a5f8-2d28-48cd-9cfd-41aed2d888c5",
+    "ready-02-source.png": "exec-79c24bc2-1ac0-4ea8-bc1a-4056e1f8ee49",
+    "ready-03-source.png": "exec-e62ea67e-265d-4152-8013-bff86bd36d05",
+    "ready-04-source.png": "exec-347e5719-7a55-4854-866e-c512b5c746c6"
+  }
+}

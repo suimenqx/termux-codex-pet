@@ -1,0 +1,21 @@
+{
+  "automated_tests": 136,
+  "full_suite_seconds": 118.73,
+  "demo_returncode": 0,
+  "sampled_states": [
+    "blocked",
+    "idle",
+    "needs_input",
+    "ready",
+    "running"
+  ],
+  "max_session_count_during_demo": 1,
+  "isolation": "Only this known running thread temporarily ended; restored with original turn ID in finally. No other session reconstructed from aggregate status.",
+  "ready_after_five_seconds": "ready",
+  "gui_ready": true,
+  "runtime_release": "/data/data/com.termux/files/home/.local/share/codex-pet/releases/20261002T013304Z-2f8daf9c",
+  "runtime_files_matching": 51,
+  "new_log_errors": 0,
+  "visual_acceptance": "pending user observation or recording",
+  "touch_verification": "not repeated; touch code unchanged"
+}

@@ -1,0 +1,1488 @@
+{
+  "idle": {
+    "renderer": "rgba_icon with premultiplied bilinear downsampling",
+    "state": "idle",
+    "from_state": null,
+    "display_size_dp": 64,
+    "density": 3.0,
+    "display_size_px": 192,
+    "frame_count": 16,
+    "duration_seconds": 6.48,
+    "transitions": [
+      {
+        "from_step": 0,
+        "to_step": 1,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 1,
+        "to_step": 2,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 6264,
+        "mean_absolute_channel_delta": 6.477
+      },
+      {
+        "from_step": 2,
+        "to_step": 3,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 6117,
+        "mean_absolute_channel_delta": 6.331
+      },
+      {
+        "from_step": 3,
+        "to_step": 4,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 4521,
+        "mean_absolute_channel_delta": 4.512
+      },
+      {
+        "from_step": 4,
+        "to_step": 5,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 4520,
+        "mean_absolute_channel_delta": 3.886
+      },
+      {
+        "from_step": 5,
+        "to_step": 6,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 4296,
+        "mean_absolute_channel_delta": 4.505
+      },
+      {
+        "from_step": 6,
+        "to_step": 7,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 1232,
+        "mean_absolute_channel_delta": 2.474
+      },
+      {
+        "from_step": 7,
+        "to_step": 8,
+        "from_frame": 7,
+        "to_frame": 0,
+        "changed_pixels_at_display_size": 958,
+        "mean_absolute_channel_delta": 1.258
+      },
+      {
+        "from_step": 8,
+        "to_step": 9,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 9,
+        "to_step": 10,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 6264,
+        "mean_absolute_channel_delta": 6.477
+      },
+      {
+        "from_step": 10,
+        "to_step": 11,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 6117,
+        "mean_absolute_channel_delta": 6.331
+      },
+      {
+        "from_step": 11,
+        "to_step": 12,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 4521,
+        "mean_absolute_channel_delta": 4.512
+      },
+      {
+        "from_step": 12,
+        "to_step": 13,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 4520,
+        "mean_absolute_channel_delta": 3.886
+      },
+      {
+        "from_step": 13,
+        "to_step": 14,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 4296,
+        "mean_absolute_channel_delta": 4.505
+      },
+      {
+        "from_step": 14,
+        "to_step": 15,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 1232,
+        "mean_absolute_channel_delta": 2.474
+      }
+    ],
+    "tail_motion": {
+      "high_step": 6,
+      "low_step": 7,
+      "changed_pixels_at_display_size": 943,
+      "mean_absolute_channel_delta": 23.607,
+      "alpha_centroid_delta_dp": 1.332,
+      "outer_tail_edge_sweep_dp": 2.0,
+      "chest_changed_pixels_at_display_size": 0,
+      "minimum_changed_pixels": 500,
+      "minimum_centroid_delta_dp": 1.0,
+      "minimum_edge_sweep_dp": 1.5,
+      "passed": true
+    },
+    "hind_leg_motion": null,
+    "fore_leg_motion": null,
+    "contact_sheet": "review/idle.png"
+  },
+  "running": {
+    "renderer": "rgba_icon with premultiplied bilinear downsampling",
+    "state": "running",
+    "from_state": null,
+    "display_size_dp": 64,
+    "density": 3.0,
+    "display_size_px": 192,
+    "frame_count": 16,
+    "duration_seconds": 1.28,
+    "transitions": [
+      {
+        "from_step": 0,
+        "to_step": 1,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 15789,
+        "mean_absolute_channel_delta": 30.051
+      },
+      {
+        "from_step": 1,
+        "to_step": 2,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 9891,
+        "mean_absolute_channel_delta": 14.839
+      },
+      {
+        "from_step": 2,
+        "to_step": 3,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 12257,
+        "mean_absolute_channel_delta": 21.741
+      },
+      {
+        "from_step": 3,
+        "to_step": 4,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 13569,
+        "mean_absolute_channel_delta": 25.28
+      },
+      {
+        "from_step": 4,
+        "to_step": 5,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 12512,
+        "mean_absolute_channel_delta": 23.049
+      },
+      {
+        "from_step": 5,
+        "to_step": 6,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 12625,
+        "mean_absolute_channel_delta": 18.128
+      },
+      {
+        "from_step": 6,
+        "to_step": 7,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 13060,
+        "mean_absolute_channel_delta": 20.76
+      },
+      {
+        "from_step": 7,
+        "to_step": 8,
+        "from_frame": 7,
+        "to_frame": 0,
+        "changed_pixels_at_display_size": 13361,
+        "mean_absolute_channel_delta": 20.474
+      },
+      {
+        "from_step": 8,
+        "to_step": 9,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 15789,
+        "mean_absolute_channel_delta": 30.051
+      },
+      {
+        "from_step": 9,
+        "to_step": 10,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 9891,
+        "mean_absolute_channel_delta": 14.839
+      },
+      {
+        "from_step": 10,
+        "to_step": 11,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 12257,
+        "mean_absolute_channel_delta": 21.741
+      },
+      {
+        "from_step": 11,
+        "to_step": 12,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 13569,
+        "mean_absolute_channel_delta": 25.28
+      },
+      {
+        "from_step": 12,
+        "to_step": 13,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 12512,
+        "mean_absolute_channel_delta": 23.049
+      },
+      {
+        "from_step": 13,
+        "to_step": 14,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 12625,
+        "mean_absolute_channel_delta": 18.128
+      },
+      {
+        "from_step": 14,
+        "to_step": 15,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 13060,
+        "mean_absolute_channel_delta": 20.76
+      }
+    ],
+    "tail_motion": null,
+    "hind_leg_motion": {
+      "measurement": "annotated paw centers relative to the orange hip centroid",
+      "landmark_colors": {
+        "hind_near": "#ff48c2",
+        "hind_far": "#30daf5"
+      },
+      "phases": [
+        "compression",
+        "rear_support",
+        "hind_drive",
+        "suspension",
+        "fore_contact",
+        "fore_support",
+        "recovery_tuck",
+        "loop_transfer"
+      ],
+      "mean_pair_separation_dp": 12.31,
+      "minimum_pair_separation_dp": 6.0,
+      "separated_poses": 6,
+      "minimum_separated_poses": 0,
+      "opposed_transitions": 4,
+      "minimum_opposed_transitions": 2,
+      "pair_coordination_passed": true,
+      "all_paw_markers_on_visible_art": true,
+      "passed": true,
+      "pass_scope": "visible landmark sampling only; not gait or aesthetic acceptance",
+      "legacy_eight_pose_range_passed": true,
+      "gait_validation": "manual review required; ranges and phase labels are not contact evidence",
+      "legs": {
+        "hind_near": {
+          "color": "#ff48c2",
+          "horizontal_range_dp": 14.39,
+          "vertical_range_dp": 11.83,
+          "cycle_path_length_dp": 45.07,
+          "minimum_horizontal_range_dp": 8.0,
+          "minimum_vertical_range_dp": 4.0,
+          "minimum_cycle_path_length_dp": 24.0,
+          "visible_poses": 8,
+          "positions": [
+            {
+              "frame": 0,
+              "phase": "compression",
+              "visible": true,
+              "paw_source_px": [
+                81,
+                214
+              ],
+              "hip_source_px": [
+                95.68,
+                147.68
+              ],
+              "relative_to_hip_dp": [
+                -3.67,
+                16.58
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 238.4
+            },
+            {
+              "frame": 1,
+              "phase": "rear_support",
+              "visible": true,
+              "paw_source_px": [
+                29,
+                175
+              ],
+              "hip_source_px": [
+                97.06,
+                147.08
+              ],
+              "relative_to_hip_dp": [
+                -17.01,
+                6.98
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 232.2
+            },
+            {
+              "frame": 2,
+              "phase": "hind_drive",
+              "visible": true,
+              "paw_source_px": [
+                27,
+                178
+              ],
+              "hip_source_px": [
+                96.98,
+                147.45
+              ],
+              "relative_to_hip_dp": [
+                -17.5,
+                7.64
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 224.4
+            },
+            {
+              "frame": 3,
+              "phase": "suspension",
+              "visible": true,
+              "paw_source_px": [
+                27,
+                166
+              ],
+              "hip_source_px": [
+                96.93,
+                147.0
+              ],
+              "relative_to_hip_dp": [
+                -17.48,
+                4.75
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 224.3
+            },
+            {
+              "frame": 4,
+              "phase": "fore_contact",
+              "visible": true,
+              "paw_source_px": [
+                34,
+                172
+              ],
+              "hip_source_px": [
+                97.06,
+                146.4
+              ],
+              "relative_to_hip_dp": [
+                -15.77,
+                6.4
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 215.6
+            },
+            {
+              "frame": 5,
+              "phase": "fore_support",
+              "visible": true,
+              "paw_source_px": [
+                80,
+                204
+              ],
+              "hip_source_px": [
+                96.95,
+                146.41
+              ],
+              "relative_to_hip_dp": [
+                -4.24,
+                14.4
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 243.6
+            },
+            {
+              "frame": 6,
+              "phase": "recovery_tuck",
+              "visible": true,
+              "paw_source_px": [
+                67,
+                209
+              ],
+              "hip_source_px": [
+                96.91,
+                146.43
+              ],
+              "relative_to_hip_dp": [
+                -7.48,
+                15.64
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 230.4
+            },
+            {
+              "frame": 7,
+              "phase": "loop_transfer",
+              "visible": true,
+              "paw_source_px": [
+                84,
+                212
+              ],
+              "hip_source_px": [
+                96.43,
+                146.76
+              ],
+              "relative_to_hip_dp": [
+                -3.11,
+                16.31
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 238.0
+            }
+          ],
+          "passed": true
+        },
+        "hind_far": {
+          "color": "#30daf5",
+          "horizontal_range_dp": 10.75,
+          "vertical_range_dp": 6.83,
+          "cycle_path_length_dp": 38.83,
+          "minimum_horizontal_range_dp": 8.0,
+          "minimum_vertical_range_dp": 4.0,
+          "minimum_cycle_path_length_dp": 24.0,
+          "visible_poses": 8,
+          "positions": [
+            {
+              "frame": 0,
+              "phase": "compression",
+              "visible": true,
+              "paw_source_px": [
+                110,
+                208
+              ],
+              "hip_source_px": [
+                95.68,
+                147.68
+              ],
+              "relative_to_hip_dp": [
+                3.58,
+                15.08
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 137.9
+            },
+            {
+              "frame": 1,
+              "phase": "rear_support",
+              "visible": true,
+              "paw_source_px": [
+                98,
+                215
+              ],
+              "hip_source_px": [
+                97.06,
+                147.08
+              ],
+              "relative_to_hip_dp": [
+                0.24,
+                16.98
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 170.1
+            },
+            {
+              "frame": 2,
+              "phase": "hind_drive",
+              "visible": true,
+              "paw_source_px": [
+                113,
+                212
+              ],
+              "hip_source_px": [
+                96.98,
+                147.45
+              ],
+              "relative_to_hip_dp": [
+                4.0,
+                16.14
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 175.6
+            },
+            {
+              "frame": 3,
+              "phase": "suspension",
+              "visible": true,
+              "paw_source_px": [
+                73,
+                189
+              ],
+              "hip_source_px": [
+                96.93,
+                147.0
+              ],
+              "relative_to_hip_dp": [
+                -5.98,
+                10.5
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 124.4
+            },
+            {
+              "frame": 4,
+              "phase": "fore_contact",
+              "visible": true,
+              "paw_source_px": [
+                84,
+                187
+              ],
+              "hip_source_px": [
+                97.06,
+                146.4
+              ],
+              "relative_to_hip_dp": [
+                -3.27,
+                10.15
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 121.6
+            },
+            {
+              "frame": 5,
+              "phase": "fore_support",
+              "visible": true,
+              "paw_source_px": [
+                102,
+                208
+              ],
+              "hip_source_px": [
+                96.95,
+                146.41
+              ],
+              "relative_to_hip_dp": [
+                1.26,
+                15.4
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 91.3
+            },
+            {
+              "frame": 6,
+              "phase": "recovery_tuck",
+              "visible": true,
+              "paw_source_px": [
+                116,
+                206
+              ],
+              "hip_source_px": [
+                96.91,
+                146.43
+              ],
+              "relative_to_hip_dp": [
+                4.77,
+                14.89
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 155.7
+            },
+            {
+              "frame": 7,
+              "phase": "loop_transfer",
+              "visible": true,
+              "paw_source_px": [
+                101,
+                211
+              ],
+              "hip_source_px": [
+                96.43,
+                146.76
+              ],
+              "relative_to_hip_dp": [
+                1.14,
+                16.06
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 143.3
+            }
+          ],
+          "passed": true
+        }
+      }
+    },
+    "fore_leg_motion": {
+      "measurement": "annotated paw centers relative to the orange hip centroid",
+      "landmark_colors": {
+        "fore_near": "#9dff4e",
+        "fore_far": "#ffbb43"
+      },
+      "phases": [
+        "compression",
+        "rear_support",
+        "hind_drive",
+        "suspension",
+        "fore_contact",
+        "fore_support",
+        "recovery_tuck",
+        "loop_transfer"
+      ],
+      "mean_pair_separation_dp": 10.6,
+      "minimum_pair_separation_dp": 8.0,
+      "separated_poses": 7,
+      "minimum_separated_poses": 5,
+      "opposed_transitions": 3,
+      "minimum_opposed_transitions": 3,
+      "pair_coordination_passed": true,
+      "all_paw_markers_on_visible_art": true,
+      "passed": true,
+      "pass_scope": "visible landmark sampling only; not gait or aesthetic acceptance",
+      "legacy_eight_pose_range_passed": true,
+      "gait_validation": "manual review required; ranges and phase labels are not contact evidence",
+      "legs": {
+        "fore_near": {
+          "color": "#9dff4e",
+          "horizontal_range_dp": 12.42,
+          "vertical_range_dp": 6.58,
+          "cycle_path_length_dp": 42.72,
+          "minimum_horizontal_range_dp": 6.0,
+          "minimum_vertical_range_dp": 4.0,
+          "minimum_cycle_path_length_dp": 20.0,
+          "visible_poses": 8,
+          "positions": [
+            {
+              "frame": 0,
+              "phase": "compression",
+              "visible": true,
+              "paw_source_px": [
+                159,
+                214
+              ],
+              "hip_source_px": [
+                95.68,
+                147.68
+              ],
+              "relative_to_hip_dp": [
+                15.83,
+                16.58
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 234.1
+            },
+            {
+              "frame": 1,
+              "phase": "rear_support",
+              "visible": true,
+              "paw_source_px": [
+                194,
+                202
+              ],
+              "hip_source_px": [
+                97.06,
+                147.08
+              ],
+              "relative_to_hip_dp": [
+                24.24,
+                13.73
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 236.2
+            },
+            {
+              "frame": 2,
+              "phase": "hind_drive",
+              "visible": true,
+              "paw_source_px": [
+                210,
+                215
+              ],
+              "hip_source_px": [
+                96.98,
+                147.45
+              ],
+              "relative_to_hip_dp": [
+                28.25,
+                16.89
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 239.8
+            },
+            {
+              "frame": 3,
+              "phase": "suspension",
+              "visible": true,
+              "paw_source_px": [
+                201,
+                196
+              ],
+              "hip_source_px": [
+                96.93,
+                147.0
+              ],
+              "relative_to_hip_dp": [
+                26.02,
+                12.25
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 234.3
+            },
+            {
+              "frame": 4,
+              "phase": "fore_contact",
+              "visible": true,
+              "paw_source_px": [
+                170,
+                208
+              ],
+              "hip_source_px": [
+                97.06,
+                146.4
+              ],
+              "relative_to_hip_dp": [
+                18.23,
+                15.4
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 234.6
+            },
+            {
+              "frame": 5,
+              "phase": "fore_support",
+              "visible": true,
+              "paw_source_px": [
+                179,
+                208
+              ],
+              "hip_source_px": [
+                96.95,
+                146.41
+              ],
+              "relative_to_hip_dp": [
+                20.51,
+                15.4
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 229.6
+            },
+            {
+              "frame": 6,
+              "phase": "recovery_tuck",
+              "visible": true,
+              "paw_source_px": [
+                172,
+                205
+              ],
+              "hip_source_px": [
+                96.91,
+                146.43
+              ],
+              "relative_to_hip_dp": [
+                18.77,
+                14.64
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 231.1
+            },
+            {
+              "frame": 7,
+              "phase": "loop_transfer",
+              "visible": true,
+              "paw_source_px": [
+                166,
+                188
+              ],
+              "hip_source_px": [
+                96.43,
+                146.76
+              ],
+              "relative_to_hip_dp": [
+                17.39,
+                10.31
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 230.1
+            }
+          ],
+          "passed": true
+        },
+        "fore_far": {
+          "color": "#ffbb43",
+          "horizontal_range_dp": 6.65,
+          "vertical_range_dp": 4.89,
+          "cycle_path_length_dp": 24.81,
+          "minimum_horizontal_range_dp": 4.0,
+          "minimum_vertical_range_dp": 3.0,
+          "minimum_cycle_path_length_dp": 16.0,
+          "visible_poses": 7,
+          "positions": [
+            {
+              "frame": 0,
+              "phase": "compression",
+              "visible": true,
+              "paw_source_px": [
+                200,
+                193
+              ],
+              "hip_source_px": [
+                95.68,
+                147.68
+              ],
+              "relative_to_hip_dp": [
+                26.08,
+                11.33
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 230.3
+            },
+            {
+              "frame": 1,
+              "phase": "rear_support",
+              "visible": false
+            },
+            {
+              "frame": 2,
+              "phase": "hind_drive",
+              "visible": true,
+              "paw_source_px": [
+                226,
+                194
+              ],
+              "hip_source_px": [
+                96.98,
+                147.45
+              ],
+              "relative_to_hip_dp": [
+                32.25,
+                11.64
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 192.5
+            },
+            {
+              "frame": 3,
+              "phase": "suspension",
+              "visible": true,
+              "paw_source_px": [
+                218,
+                174
+              ],
+              "hip_source_px": [
+                96.93,
+                147.0
+              ],
+              "relative_to_hip_dp": [
+                30.27,
+                6.75
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 231.6
+            },
+            {
+              "frame": 4,
+              "phase": "fore_contact",
+              "visible": true,
+              "paw_source_px": [
+                228,
+                174
+              ],
+              "hip_source_px": [
+                97.06,
+                146.4
+              ],
+              "relative_to_hip_dp": [
+                32.73,
+                6.9
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 229.7
+            },
+            {
+              "frame": 5,
+              "phase": "fore_support",
+              "visible": true,
+              "paw_source_px": [
+                215,
+                186
+              ],
+              "hip_source_px": [
+                96.95,
+                146.41
+              ],
+              "relative_to_hip_dp": [
+                29.51,
+                9.9
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 221.8
+            },
+            {
+              "frame": 6,
+              "phase": "recovery_tuck",
+              "visible": true,
+              "paw_source_px": [
+                211,
+                179
+              ],
+              "hip_source_px": [
+                96.91,
+                146.43
+              ],
+              "relative_to_hip_dp": [
+                28.52,
+                8.14
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 214.4
+            },
+            {
+              "frame": 7,
+              "phase": "loop_transfer",
+              "visible": true,
+              "paw_source_px": [
+                206,
+                191
+              ],
+              "hip_source_px": [
+                96.43,
+                146.76
+              ],
+              "relative_to_hip_dp": [
+                27.39,
+                11.06
+              ],
+              "opaque_coverage": 1.0,
+              "mean_blue_channel": 225.3
+            }
+          ],
+          "passed": true
+        }
+      }
+    },
+    "contact_sheet": "review/running.png"
+  },
+  "needs_input": {
+    "renderer": "rgba_icon with premultiplied bilinear downsampling",
+    "state": "needs_input",
+    "from_state": null,
+    "display_size_dp": 64,
+    "density": 3.0,
+    "display_size_px": 192,
+    "frame_count": 8,
+    "duration_seconds": 2.82,
+    "transitions": [
+      {
+        "from_step": 0,
+        "to_step": 1,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 10690,
+        "mean_absolute_channel_delta": 15.371
+      },
+      {
+        "from_step": 1,
+        "to_step": 2,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 10139,
+        "mean_absolute_channel_delta": 13.003
+      },
+      {
+        "from_step": 2,
+        "to_step": 3,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 11232,
+        "mean_absolute_channel_delta": 17.572
+      },
+      {
+        "from_step": 3,
+        "to_step": 4,
+        "from_frame": 3,
+        "to_frame": 0,
+        "changed_pixels_at_display_size": 9503,
+        "mean_absolute_channel_delta": 10.11
+      },
+      {
+        "from_step": 4,
+        "to_step": 5,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 10690,
+        "mean_absolute_channel_delta": 15.371
+      },
+      {
+        "from_step": 5,
+        "to_step": 6,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 10139,
+        "mean_absolute_channel_delta": 13.003
+      },
+      {
+        "from_step": 6,
+        "to_step": 7,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 11232,
+        "mean_absolute_channel_delta": 17.572
+      }
+    ],
+    "tail_motion": null,
+    "hind_leg_motion": null,
+    "fore_leg_motion": null,
+    "contact_sheet": "review/needs_input.png"
+  },
+  "ready": {
+    "renderer": "rgba_icon with premultiplied bilinear downsampling",
+    "state": "ready",
+    "from_state": null,
+    "display_size_dp": 64,
+    "density": 3.0,
+    "display_size_px": 192,
+    "frame_count": 20,
+    "duration_seconds": 9.7,
+    "transitions": [
+      {
+        "from_step": 0,
+        "to_step": 1,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 17104,
+        "mean_absolute_channel_delta": 47.08
+      },
+      {
+        "from_step": 1,
+        "to_step": 2,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 16169,
+        "mean_absolute_channel_delta": 39.383
+      },
+      {
+        "from_step": 2,
+        "to_step": 3,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 16850,
+        "mean_absolute_channel_delta": 42.982
+      },
+      {
+        "from_step": 3,
+        "to_step": 4,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 17722,
+        "mean_absolute_channel_delta": 36.097
+      },
+      {
+        "from_step": 4,
+        "to_step": 5,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 5,
+        "to_step": 6,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 6,
+        "to_step": 7,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 7,
+        "to_step": 8,
+        "from_frame": 7,
+        "to_frame": 8,
+        "changed_pixels_at_display_size": 4781,
+        "mean_absolute_channel_delta": 4.584
+      },
+      {
+        "from_step": 8,
+        "to_step": 9,
+        "from_frame": 8,
+        "to_frame": 9,
+        "changed_pixels_at_display_size": 5191,
+        "mean_absolute_channel_delta": 5.797
+      },
+      {
+        "from_step": 9,
+        "to_step": 10,
+        "from_frame": 9,
+        "to_frame": 10,
+        "changed_pixels_at_display_size": 1232,
+        "mean_absolute_channel_delta": 2.474
+      },
+      {
+        "from_step": 10,
+        "to_step": 11,
+        "from_frame": 10,
+        "to_frame": 11,
+        "changed_pixels_at_display_size": 958,
+        "mean_absolute_channel_delta": 1.258
+      },
+      {
+        "from_step": 11,
+        "to_step": 12,
+        "from_frame": 11,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 12,
+        "to_step": 13,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 13,
+        "to_step": 14,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 14,
+        "to_step": 15,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 15,
+        "to_step": 16,
+        "from_frame": 7,
+        "to_frame": 8,
+        "changed_pixels_at_display_size": 4781,
+        "mean_absolute_channel_delta": 4.584
+      },
+      {
+        "from_step": 16,
+        "to_step": 17,
+        "from_frame": 8,
+        "to_frame": 9,
+        "changed_pixels_at_display_size": 5191,
+        "mean_absolute_channel_delta": 5.797
+      },
+      {
+        "from_step": 17,
+        "to_step": 18,
+        "from_frame": 9,
+        "to_frame": 10,
+        "changed_pixels_at_display_size": 1232,
+        "mean_absolute_channel_delta": 2.474
+      },
+      {
+        "from_step": 18,
+        "to_step": 19,
+        "from_frame": 10,
+        "to_frame": 11,
+        "changed_pixels_at_display_size": 958,
+        "mean_absolute_channel_delta": 1.258
+      }
+    ],
+    "tail_motion": {
+      "high_step": 9,
+      "low_step": 10,
+      "changed_pixels_at_display_size": 943,
+      "mean_absolute_channel_delta": 23.607,
+      "alpha_centroid_delta_dp": 1.332,
+      "outer_tail_edge_sweep_dp": 2.0,
+      "chest_changed_pixels_at_display_size": 0,
+      "minimum_changed_pixels": 500,
+      "minimum_centroid_delta_dp": 1.0,
+      "minimum_edge_sweep_dp": 1.5,
+      "passed": true
+    },
+    "hind_leg_motion": null,
+    "fore_leg_motion": null,
+    "contact_sheet": "review/ready.png"
+  },
+  "blocked": {
+    "renderer": "rgba_icon with premultiplied bilinear downsampling",
+    "state": "blocked",
+    "from_state": null,
+    "display_size_dp": 64,
+    "density": 3.0,
+    "display_size_px": 192,
+    "frame_count": 5,
+    "duration_seconds": 1.4,
+    "transitions": [
+      {
+        "from_step": 0,
+        "to_step": 1,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 14586,
+        "mean_absolute_channel_delta": 32.553
+      },
+      {
+        "from_step": 1,
+        "to_step": 2,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 15242,
+        "mean_absolute_channel_delta": 35.916
+      },
+      {
+        "from_step": 2,
+        "to_step": 3,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 14090,
+        "mean_absolute_channel_delta": 29.515
+      },
+      {
+        "from_step": 3,
+        "to_step": 4,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 0,
+        "mean_absolute_channel_delta": 0.0
+      }
+    ],
+    "tail_motion": null,
+    "hind_leg_motion": null,
+    "fore_leg_motion": null,
+    "contact_sheet": "review/blocked.png"
+  },
+  "stopping": {
+    "renderer": "rgba_icon with premultiplied bilinear downsampling",
+    "state": "ready",
+    "from_state": "running",
+    "display_size_dp": 64,
+    "density": 3.0,
+    "display_size_px": 192,
+    "frame_count": 22,
+    "duration_seconds": 9.94,
+    "transitions": [
+      {
+        "from_step": 0,
+        "to_step": 1,
+        "from_frame": 12,
+        "to_frame": 13,
+        "changed_pixels_at_display_size": 14320,
+        "mean_absolute_channel_delta": 28.743
+      },
+      {
+        "from_step": 1,
+        "to_step": 2,
+        "from_frame": 13,
+        "to_frame": 0,
+        "changed_pixels_at_display_size": 16428,
+        "mean_absolute_channel_delta": 44.122
+      },
+      {
+        "from_step": 2,
+        "to_step": 3,
+        "from_frame": 0,
+        "to_frame": 1,
+        "changed_pixels_at_display_size": 17104,
+        "mean_absolute_channel_delta": 47.08
+      },
+      {
+        "from_step": 3,
+        "to_step": 4,
+        "from_frame": 1,
+        "to_frame": 2,
+        "changed_pixels_at_display_size": 16169,
+        "mean_absolute_channel_delta": 39.383
+      },
+      {
+        "from_step": 4,
+        "to_step": 5,
+        "from_frame": 2,
+        "to_frame": 3,
+        "changed_pixels_at_display_size": 16850,
+        "mean_absolute_channel_delta": 42.982
+      },
+      {
+        "from_step": 5,
+        "to_step": 6,
+        "from_frame": 3,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 17722,
+        "mean_absolute_channel_delta": 36.097
+      },
+      {
+        "from_step": 6,
+        "to_step": 7,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 7,
+        "to_step": 8,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 8,
+        "to_step": 9,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 9,
+        "to_step": 10,
+        "from_frame": 7,
+        "to_frame": 8,
+        "changed_pixels_at_display_size": 4781,
+        "mean_absolute_channel_delta": 4.584
+      },
+      {
+        "from_step": 10,
+        "to_step": 11,
+        "from_frame": 8,
+        "to_frame": 9,
+        "changed_pixels_at_display_size": 5191,
+        "mean_absolute_channel_delta": 5.797
+      },
+      {
+        "from_step": 11,
+        "to_step": 12,
+        "from_frame": 9,
+        "to_frame": 10,
+        "changed_pixels_at_display_size": 1232,
+        "mean_absolute_channel_delta": 2.474
+      },
+      {
+        "from_step": 12,
+        "to_step": 13,
+        "from_frame": 10,
+        "to_frame": 11,
+        "changed_pixels_at_display_size": 958,
+        "mean_absolute_channel_delta": 1.258
+      },
+      {
+        "from_step": 13,
+        "to_step": 14,
+        "from_frame": 11,
+        "to_frame": 4,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 14,
+        "to_step": 15,
+        "from_frame": 4,
+        "to_frame": 5,
+        "changed_pixels_at_display_size": 6378,
+        "mean_absolute_channel_delta": 6.2
+      },
+      {
+        "from_step": 15,
+        "to_step": 16,
+        "from_frame": 5,
+        "to_frame": 6,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 16,
+        "to_step": 17,
+        "from_frame": 6,
+        "to_frame": 7,
+        "changed_pixels_at_display_size": 1754,
+        "mean_absolute_channel_delta": 1.861
+      },
+      {
+        "from_step": 17,
+        "to_step": 18,
+        "from_frame": 7,
+        "to_frame": 8,
+        "changed_pixels_at_display_size": 4781,
+        "mean_absolute_channel_delta": 4.584
+      },
+      {
+        "from_step": 18,
+        "to_step": 19,
+        "from_frame": 8,
+        "to_frame": 9,
+        "changed_pixels_at_display_size": 5191,
+        "mean_absolute_channel_delta": 5.797
+      },
+      {
+        "from_step": 19,
+        "to_step": 20,
+        "from_frame": 9,
+        "to_frame": 10,
+        "changed_pixels_at_display_size": 1232,
+        "mean_absolute_channel_delta": 2.474
+      },
+      {
+        "from_step": 20,
+        "to_step": 21,
+        "from_frame": 10,
+        "to_frame": 11,
+        "changed_pixels_at_display_size": 958,
+        "mean_absolute_channel_delta": 1.258
+      }
+    ],
+    "tail_motion": {
+      "high_step": 11,
+      "low_step": 12,
+      "changed_pixels_at_display_size": 943,
+      "mean_absolute_channel_delta": 23.607,
+      "alpha_centroid_delta_dp": 1.332,
+      "outer_tail_edge_sweep_dp": 2.0,
+      "chest_changed_pixels_at_display_size": 0,
+      "minimum_changed_pixels": 500,
+      "minimum_centroid_delta_dp": 1.0,
+      "minimum_edge_sweep_dp": 1.5,
+      "passed": true
+    },
+    "hind_leg_motion": null,
+    "fore_leg_motion": null,
+    "contact_sheet": "review/stopping.png"
+  }
+}

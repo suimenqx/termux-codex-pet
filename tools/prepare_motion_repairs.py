@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export the reviewed generated limb patches while locking original pixels."""
+"""Export reviewed generated patches while locking original pixels."""
 
 from __future__ import annotations
 
@@ -17,11 +17,13 @@ from tools.prepare_sprite_frames import split_sheet
 
 
 def replace_region(original: bytes, replacement: bytes,
-                   box: tuple[int, int, int, int], feather: int = 6) -> bytes:
+                   box: tuple[int, int, int, int], feather: int = 6,
+                   *, preserve_alpha: bool = False) -> bytes:
     """Import a generated patch; blend only inside its explicit edit boundary.
 
     This is an offline spatial seam, never a temporal blend of animation poses.
     All decoded pixels outside the rectangle remain exactly the original.
+    Accessory repairs can preserve alpha to retain the original transparency.
     """
     width, height, before = _decode_rgba_png(original)
     rw, rh, after = _decode_rgba_png(replacement)
@@ -43,7 +45,7 @@ def replace_region(original: bytes, replacement: bytes,
             alpha = old_alpha + new_alpha
             for c in range(3):
                 result[i + c] = round((before[i + c] * old_alpha + after[i + c] * new_alpha) / alpha) if alpha else 0
-            result[i + 3] = round(alpha)
+            result[i + 3] = before[i + 3] if preserve_alpha else round(alpha)
     return _png(width, height, result)
 
 
@@ -52,16 +54,26 @@ def export(manifest: Path, output: Path) -> None:
         raise ValueError("choose a new output directory")
     recipe = json.loads(manifest.read_text())
     frames = []
+    sources = {}
     for item in recipe["exports"]:
         name = Path(item["output"])
         if name.is_absolute() or ".." in name.parts or name.suffix != ".png":
             raise ValueError("output names must be relative PNG paths inside the export")
         if any(name == previous for previous, _ in frames):
             raise ValueError("duplicate export name")
-        candidate = split_sheet((manifest.parent / item["source"]).read_bytes(), 1, 1, 1)[0]
+        grid = tuple(item.get("grid", (1, 1, 1)))
+        source_key = (item["source"], grid)
+        if source_key not in sources:
+            sources[source_key] = split_sheet(
+                (manifest.parent / item["source"]).read_bytes(), *grid)
+        cell = item.get("cell", 0)
+        if not isinstance(cell, int) or not 0 <= cell < len(sources[source_key]):
+            raise ValueError("cell must identify an exported source frame")
+        candidate = sources[source_key][cell]
         if "original" in item:
             candidate = replace_region((manifest.parent / item["original"]).read_bytes(),
-                                       candidate, tuple(item["box"]), item["feather"])
+                                       candidate, tuple(item["box"]), item["feather"],
+                                       preserve_alpha=item.get("preserve_alpha", False))
         frames.append((name, candidate))
     output.mkdir(parents=True)
     for name, png in frames:
