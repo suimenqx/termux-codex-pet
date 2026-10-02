@@ -88,6 +88,20 @@ class ProtocolTests(unittest.TestCase):
                         connection.request_fd({'method': 'addBuffer'})
                     self.assertEqual(len(os.listdir('/proc/self/fd')), before - 2)
 
+    def test_native_repeated_descriptor_on_each_write_is_owned_once(self):
+        with tempfile.TemporaryFile() as shared:
+            shared.truncate(16)
+            connection,peer,_=self.connection()
+            before=len(os.listdir('/proc/self/fd'))
+            for part in (b'\0',b'\0',b'\0',b'\1',b'7'):
+                peer.sendmsg([part],[(socket.SOL_SOCKET,socket.SCM_RIGHTS,array.array('i',[shared.fileno()]))])
+            bid,fd=connection.request_fd({'method':'addBuffer'})
+            try:
+                self.assertEqual((bid,os.fstat(fd).st_size),(7,16))
+                self.assertEqual(len(os.listdir('/proc/self/fd')),before+1)
+            finally:os.close(fd)
+            self.assertEqual(len(os.listdir('/proc/self/fd')),before)
+
     def test_event_stream_eof_is_bounded_and_fresh_connection_works(self):
         connection, _, events = self.connection()
         events.close()

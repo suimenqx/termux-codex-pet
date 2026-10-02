@@ -43,6 +43,9 @@ class FakeConnection:
     def send_msg(self, message: dict) -> None:
         self.messages.append(message)
 
+    def close(self):
+        pass
+
 
 class FakeView:
     next_id = 1

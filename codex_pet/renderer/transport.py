@@ -103,7 +103,11 @@ class Connection:
         data = bytearray()
         while len(data) < length:
             _budget(stream, deadline)
-            if fds is None:
+            # Android LocalSocket can repeat its configured outbound FD on
+            # every write (four header bytes plus body). After adopting the
+            # first handle, recv discards later ancillary copies in the kernel.
+            # Multiple handles in that first ancillary message remain invalid.
+            if fds is None or fds:
                 part = stream.recv(min(length - len(data), 65536))
             else:
                 part, ancillary, flags, _ = stream.recvmsg(

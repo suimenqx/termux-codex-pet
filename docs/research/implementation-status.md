@@ -71,3 +71,41 @@ One 32 MiB GUI-owned cache now covers decoded pixels, derived badges and PNG enc
 Validation: all 1080 baseline paths still match; zero/512 KiB/32 MiB paths pass. GUI tests: 30; full suite: 189 passed (103.655 s); whole-package mypy: 27 modules. Serial fresh-process observations in `cache-production.json`: 1011 preparations, maximum managed payload 33,554,425 bytes under a 33,554,432 byte budget, 558 evictions, Python-visible peak RSS 62,148 KiB and 28,116 KiB after cache clear. Cold idle 87.349 ms, first badged Running 24.914 ms, repeat hits 0.042/0.027 ms; these are device observations, not latency guarantees or total native memory.
 
 Deployed release `20261002T223338Z-edb9220c`, PID 23982; isolated full-state demonstration and logs pass. Production remains PNG.
+
+## T12 / #13 — shared ownership and fresh PNG recovery
+
+The internal shared renderer now owns exactly one framebuffer per connection,
+prepares cached Pillow RGBa bytes, blits and refreshes, and waits for the verified
+APK-7 consumption response before advancing its last-frame key. Dimensions
+changes retire the connection; shared failure is sticky within the worker and
+recovers through a fresh PNG connection. Production default is still PNG.
+
+Actual production-path probing exposed two details absent from regular-file
+fixtures: Android LocalSocket re-attaches the same outbound descriptor to each
+header/body write, and Android 12 ashmem is a character device with zero stat
+size. The transport now adopts the first ancillary handle and lets plain recv
+discard subsequent copies. Multiple handles in the first ancillary message
+remain invalid. The buffer checks ashmem capacity via ioctl before mmap.
+
+Five renderer tests exercise real socketpairs/shared-file FDs, premultiplied
+pixels, duplicate frames, unknown APK versions, EOF/timeout, allocation and
+read-only mmap failures, canvas changes, idempotent close and worker recovery.
+Protocol regressions also cover repeated Android descriptor delivery. The
+production renderer completed two alternating rounds for 64×64, 256×256 and
+384×416. Every case returned local FD count to 4 and ashmem maps to 0 after close;
+shared live state held one map. `shared-production.json` records raw samples;
+last cases overlapped the full suite, so performance needs a serial rerun before
+rollout. These local observations do not establish native cleanup.
+
+Native-resource acceptance is pending a wireless ADB connection. The installed
+adb executable works when its per-command LD_LIBRARY_PATH selects Termux's own
+libraries; the inherited Codex library path had shadowed libc++. No global
+environment was changed. Ordinary Termux cannot inspect the plugin's proc files
+or Android windows. The user has been asked for wireless pairing details; no
+native no-leak or default-rollout claim is made while this remains unobserved.
+
+Full suite: 195 tests passed (97.558 s); whole-package mypy: 28 modules.
+Release `20261002T225618Z-b00703ff`, PID 4085, passed the isolated five-state
+device demonstration with PNG, returned to zero sessions, and logged no new GUI
+errors. This is an implementation checkpoint; #13 remains open for the required
+Android-side resource observation, and #14 remains gated.
