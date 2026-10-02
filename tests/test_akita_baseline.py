@@ -11,6 +11,7 @@ class AkitaBaselineTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         baseline = json.loads((root / 'docs/artwork/akita/accepted-baseline.json').read_text())
         assets = root / 'codex_pet/assets/akita'
+        derived = json.loads((root / 'docs/artwork/akita/2026-10-pack/derived-blink.json').read_text())
         actual = {
             path.relative_to(assets).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in assets.rglob('*.png')
@@ -31,7 +32,7 @@ class AkitaBaselineTests(unittest.TestCase):
             'frames/ready/06.png', 'frames/ready/07.png',
         })
         self.assertEqual(actual, {**baseline['sha256'], **changes, **collars['sha256'],
-                                  **continuity['sha256']})
+                                  **continuity['sha256'], 'derived/ready-blink.png': derived['png_sha256']})
         original = root / 'docs/artwork/akita/2026-10-local-motion/running-original.png'
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), baseline['sha256']['frames/running/02.png'])
 

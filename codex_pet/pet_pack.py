@@ -213,8 +213,7 @@ def bundled_pack(pack_id: str) -> PetPack:
 
 
 def preflight(package: Path) -> None:
-    # Akita joins this list when its complete manifest and derived blink land.
-    for name in ('robot',):
+    for name in ('robot', 'akita'):
         pack = compile_pack(package / 'assets' / name / 'pet.json', validate_images=True)
         if pack.id != name:
             raise ValueError('Pack id does not match its installed catalog entry')

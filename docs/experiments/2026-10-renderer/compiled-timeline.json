@@ -1,0 +1,47 @@
+{
+  "note": "Single observations on ALN-AL10; not an absolute timing guarantee",
+  "observations": [
+    {
+      "state": "running",
+      "jump_seconds": 3600,
+      "advance_ns": 12500,
+      "frame": "running/00",
+      "deadline": 3600.04
+    },
+    {
+      "state": "running",
+      "jump_seconds": 86400,
+      "advance_ns": 5729,
+      "frame": "running/00",
+      "deadline": 86400.04
+    },
+    {
+      "state": "ready",
+      "jump_seconds": 3600,
+      "advance_ns": 9375,
+      "frame": "idle/06",
+      "deadline": 3600.26
+    },
+    {
+      "state": "ready",
+      "jump_seconds": 86400,
+      "advance_ns": 4688,
+      "frame": "idle/07",
+      "deadline": 86400.38
+    },
+    {
+      "state": "blocked",
+      "jump_seconds": 3600,
+      "advance_ns": 2604,
+      "frame": "blocked/03",
+      "deadline": null
+    },
+    {
+      "state": "blocked",
+      "jump_seconds": 86400,
+      "advance_ns": 2084,
+      "frame": "blocked/03",
+      "deadline": null
+    }
+  ]
+}

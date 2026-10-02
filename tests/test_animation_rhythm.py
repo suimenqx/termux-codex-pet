@@ -75,7 +75,11 @@ class AnimationRhythmTests(unittest.TestCase):
             paths.add(file.as_posix())
             for path in [PACKAGE / item['file'], production / file]:
                 self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), item['sha256'])
-        self.assertEqual(paths, {p.relative_to(production).as_posix() for p in production.rglob('*.png')})
+        derived = json.loads((ROOT / 'docs/artwork/akita/2026-10-pack/derived-blink.json').read_text())
+        blink = production / 'derived/ready-blink.png'
+        self.assertEqual(hashlib.sha256(blink.read_bytes()).hexdigest(), derived['png_sha256'])
+        self.assertEqual(paths | {'derived/ready-blink.png'},
+                         {p.relative_to(production).as_posix() for p in production.rglob('*.png')})
 
     def test_generation_inputs_and_prompts_remain_available(self):
         records = json.loads((PACKAGE / 'generation-inputs.json').read_text())

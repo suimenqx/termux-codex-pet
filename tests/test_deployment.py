@@ -80,6 +80,17 @@ class DeploymentTests(unittest.TestCase):
             deploy(self.source, self.home)
         self.assertEqual((self.home / '.local/share/codex-pet/current').resolve(), first)
 
+    def test_missing_or_corrupt_derived_frame_preserves_current(self):
+        first = deploy(self.source, self.home)
+        blink = self.source / 'codex_pet/assets/akita/derived/ready-blink.png'
+        blink.unlink()
+        for data in (None, b'broken PNG'):
+            if data is not None:
+                blink.write_bytes(data)
+            with self.assertRaises(ValueError):
+                deploy(self.source, self.home)
+            self.assertEqual((self.home / '.local/share/codex-pet/current').resolve(), first)
+
     def test_deploy_migrates_legacy_source_symlinks_without_backing_them_up(self) -> None:
         local_bin = self.home / ".local/bin"
         local_bin.mkdir(parents=True)

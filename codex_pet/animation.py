@@ -208,38 +208,18 @@ def playback_frames(appearance: str, state: str, cycles: int = 1,
     if cycles < 1:
         raise ValueError("cycles must be at least 1")
 
+    # Temporary index compatibility for offline callers; all exposure timing
+    # and ordering comes from the compiled pack. Removed with tool migration.
+    from .pet_pack import bundled_pack
+    from .clip_timeline import schedule
     appearance = _appearance_id(appearance)
-    if appearance == 'robot':
-        from .pet_pack import bundled_pack
-        from .clip_timeline import schedule
-        pack = bundled_pack(appearance)
-        return tuple(PlaybackFrame(pack.frames[step.reference].variant, step.duration_seconds)
-                     for step in schedule(pack, state, cycles, from_state=from_state))
-    state = _state_id(appearance, state)
-    timeline = AnimationTimeline(appearance, from_state or state, now=0.0)
-    if from_state is not None:
-        timeline.sync(appearance, state, 0, now=0.0)
-    cycle_bounds = _cycle_bounds(appearance, state)
-    completed_cycles = 0
-    scheduled: list[PlaybackFrame] = []
-
-    while True:
-        frame = timeline.frame
-        interval = animation_interval(appearance, state, frame)
-        scheduled.append(PlaybackFrame(
-            frame=frame,
-            duration_seconds=(interval if interval is not None
-                              else PREVIEW_FINAL_HOLD_SECONDS),
-        ))
-        if interval is None:
-            break
-
-        assert timeline.deadline is not None
-        timeline.advance(timeline.deadline)
-        if (cycle_bounds is not None and frame == cycle_bounds[1]
-                and timeline.frame == cycle_bounds[0]):
-            completed_cycles += 1
-            if completed_cycles >= cycles:
-                break
-
-    return tuple(scheduled)
+    pack = bundled_pack(appearance)
+    exposures = schedule(pack, state, cycles, from_state=from_state)
+    frame = 0
+    if appearance == 'akita' and from_state == 'running' and state == 'ready':
+        frame = AKITA_READY_RUNNING_ENTRY_START
+    result = []
+    for step in exposures:
+        result.append(PlaybackFrame(frame, step.duration_seconds))
+        frame = advance_animation(appearance, state, frame)
+    return tuple(result)

@@ -1,0 +1,17 @@
+{
+  "baseline_commit": "c7edbfa125e20599d1ae3500f822201e4aba8cfc",
+  "operation": "copy RGBA rectangle, no blending, scaling or recentering",
+  "rectangle_xyxy": [
+    58,
+    54,
+    198,
+    116
+  ],
+  "sources": {
+    "codex_pet/assets/akita/frames/idle/00.png": "bc373fbcfb792b53b6dfe0a20fcf720c0a06e8bfd007fe1239d674292399fba4",
+    "codex_pet/assets/akita/frames/idle/02.png": "07e57b213fef293704e6103b189d1afe266992103765f56673e629ca47aef5f0"
+  },
+  "result_file": "codex_pet/assets/akita/derived/ready-blink.png",
+  "png_sha256": "545f5e4fe075962bb006363811f421e80100c6ca5e40072892ff046e0241eceb",
+  "rgba_sha256": "f3cd1517fc3e3a444ba04fd6e5374ae725ffc5f109081bb40352cd1523938c24"
+}

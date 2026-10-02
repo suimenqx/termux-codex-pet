@@ -42,8 +42,6 @@ class CompiledPlaybackTests(unittest.TestCase):
         source, composer = FrameSource(), FrameComposer()
         for key, expected in baseline['cases'].items():
             pet, state, old, cycles, count = key.split('|')
-            if pet != 'robot':
-                continue
             with self.subTest(path=key):
                 pack = bundled_pack(pet)
                 pixels = []
@@ -54,6 +52,45 @@ class CompiledPlaybackTests(unittest.TestCase):
                 self.assertEqual(len(pixels), expected['exposures'])
                 self.assertEqual(hashlib.sha256(json.dumps(pixels,separators=(',',':')).encode()).hexdigest(),
                                  expected['sha256'])
+
+    def test_akita_transitions_interruptions_counts_and_cross_pet(self):
+        runtime = PetRuntime(PetVisual('akita', 'running', 1), 0)
+        self.assertTrue(runtime.sync(PetVisual('akita','ready'),1))
+        for offset, reference, deadline in [(0,'ready/05',1.12),(.12,'ready/06',1.24),
+                                             (.24,'ready/07',1.36),(.36,'ready/04',1.52),
+                                             (1.3,'idle/01',3.1)]:
+            runtime.tick(1+offset)
+            self.assertEqual(runtime.current().reference,reference)
+            self.assertAlmostEqual(runtime.deadline,deadline)
+        self.assertFalse(runtime.sync(PetVisual('akita','ready',5),2.4))
+        self.assertTrue(runtime.sync(PetVisual('akita','needs_input'),2.4))
+        self.assertEqual(runtime.current().reference,'needs_input/00')
+        runtime.sync(PetVisual('robot','running'),3)
+        runtime.sync(PetVisual('akita','ready'),4)
+        self.assertEqual(runtime.current().reference,'ready/04')
+        runtime.sync(PetVisual('akita','running',1),5)
+        runtime.tick(5.2)
+        self.assertTrue(runtime.sync(PetVisual('akita','running',2),5.2))
+        self.assertEqual(runtime.current().reference,'running/00')
+        self.assertAlmostEqual(runtime.deadline,5.24)
+
+    def test_akita_long_resume_and_hold_have_bounded_work(self):
+        running = PetRuntime(PetVisual('akita','running'),0)
+        ready = PetRuntime(PetVisual('akita','running'),0)
+        ready.sync(PetVisual('akita','ready'),0)
+        blocked = PetRuntime(PetVisual('akita','blocked'),0)
+        started = time.perf_counter()
+        for now,reference,delta in [(3600,'idle/06',.26),(86400,'idle/07',.38)]:
+            running.tick(now)
+            self.assertEqual(running.current().reference,'running/00')
+            self.assertAlmostEqual(running.deadline,now+.04)
+            ready.tick(now)
+            self.assertEqual(ready.current().reference,reference)
+            self.assertAlmostEqual(ready.deadline,now+delta)
+            blocked.tick(now)
+            self.assertEqual(blocked.current().reference,'blocked/03')
+            self.assertIsNone(blocked.deadline)
+        self.assertLess(time.perf_counter()-started,.1)
 
     def test_invalid_manifests_are_rejected_before_pixel_loading(self):
         original = json.loads((Path(__file__).resolve().parents[1] /

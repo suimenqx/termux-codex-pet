@@ -69,6 +69,10 @@ The overlay keeps the same 64 dp viewport across states, so equal 256 px frame d
 
 For gait rationale, pose planning, and paw-track audit workflow, see [the dog gait animation guide](animation-gait.md).
 
-## Compiled packs (migration in progress)
+## Compiled pet packs
 
-Robot uses `assets/robot/pet.json`, validated by `pet_pack.py`; builtin execution is restricted to `robot_v1`. `ClipTimeline` uses integer nanosecond cumulative ends and arithmetic loop skipping. Static holds have no deadline. The live runtime and offline Robot playback consume the same compiled clips. Deployment validates the staged pack before replacing `current`; the private release contains all required assets. Akita remains on its existing compatibility path until its complete manifest is migrated.
+`assets/<id>/pet.json` owns frame references, independent canvas/display dimensions, clips, roles, transitions and count decorations. `pet_pack.py` validates paths, budgets, durations and finite next chains. Builtin execution is restricted to `robot_v1`. Akita references unchanged physical PNGs and an exported, pixel-identical face-only blink with recorded provenance.
+
+`PetRuntime` selects clip entries from visible activity. `ClipTimeline` uses integer nanosecond cumulative ends, binary search and arithmetic loop skipping; it never replays missed frames. Static/final holds have no deadline. Running→Ready entry applies only within the same pack; new activity interrupts immediately, and only Running reacts to count changes. Both live and offline schedules consume compiled clips; old offline index adapters remain until tool migration.
+
+Deployment validates both staged manifests and decodes their referenced images before replacing `current`; the private release contains all required assets. Invalid assets preserve the previous installation.
