@@ -58,6 +58,15 @@ from Android LocalSocket are discarded after adopting the first descriptor.
 `tools/probe_production_renderer.py` exercises the actual renderer for three
 canvases; native-resource and human acceptance still gate default rollout.
 
+`renderer.policy.RendererPolicy` chooses from backend version and frame canvas,
+without examining pet IDs or business states. Its rollout gate is currently
+closed. An injected acceptance policy permits only binding 0.1.6, plugin 7 and
+256×256; unknown versions and other canvases keep PNG. A transport change retires
+the old connection even when it was PNG. The worker publishes immutable
+`RendererStatus` independently of the window, retaining the latest connection
+error and sticky fallback reason after recovery. IPC/ordinary CLI read that
+snapshot without importing image or GUI modules into the CLI process.
+
 `TermuxGuiRenderer` keeps one 64 dp `ImageView` in one native overlay. There are no text views, detail cards, speech tails, or secondary overlays. `codex-pet pet list` exposes the appearance catalog; `codex-pet pet use <id>` persists a selection and updates a running daemon. `art.icon()` resolves the appearance's registered art profile and returns the PNG frame sent to the `ImageView`; `art.rgba_icon()` exposes straight-alpha Akita pixels for offline rendering and animation audits. Pillow owns PNG conversion and validates the sRGB/straight-alpha contract before badge composition. Android's PNG decoder premultiplies the alpha before drawing. Do not send `rgba_icon()` directly to Termux:GUI's raw shared bitmap buffer, which copies bytes without premultiplying them. `self.x`/`self.y` are the mascot's logical screen position; the overlay moves only during a drag. The overlay belongs to the GUI worker thread.
 
 Termux:GUI emits an overlay-wide touch event with absolute screen coordinates for every touch in the overlay window. Use it as the drag gesture source so recognition does not depend on the ordering of events from separate paths. A tap has no action; dragging can start anywhere on the 64 dp icon after 6 dp of movement. The saved starting position plus the screen-coordinate delta keeps the original grab point under the finger. The targeted View touch event is optional and only refines the grab anchor near screen edges; its nested `pointers` report source-image pixels, so scale those coordinates to the 64 dp view before applying them. Releasing saves the new position; a cancelled gesture restores its start. `TermuxGuiRenderer.input()` normalizes and scopes native events, using measured view width and height independently. `DragController` owns gesture state without native APIs or files; `GuiWorker` applies moves and persists only committed releases. An early targeted anchor is retained until overlay down. Cancel, screen-off, and connection loss restore the last committed position; secondary pointer transitions are ignored. A tap never changes the logical position.

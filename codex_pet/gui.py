@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 import select
 import socket
@@ -20,6 +20,7 @@ from .renderer.protocol import TouchInput
 from .preferences import read_config, save_position
 from .renderer.termux_gui import TermuxGuiRenderer, RebuildRenderer, SharedFailure
 from .renderer.transport import Connection
+from .renderer.policy import RendererPolicy, RendererStatus
 
 LOG = logging.getLogger(__name__)
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
@@ -35,8 +36,12 @@ class OverlayStatus:
 
 class GuiWorker:
     def __init__(self, config_path: Path, snapshot: Callable[[], dict[str, Any]],
-                 on_status: Callable[[bool, str], None], *, transport: str = "png") -> None:
+                 on_status: Callable[[bool, str], None], *, transport: str = "auto",
+                 policy: RendererPolicy | None = None) -> None:
         self.transport = transport
+        self.policy = policy if policy is not None else RendererPolicy.installed()
+        self.renderer_status = RendererStatus(
+            binding_version=self.policy.binding_version)
         self.shared_failure = ""
         self.config_path = config_path
         self.snapshot = snapshot
@@ -96,7 +101,8 @@ class GuiWorker:
                 except (KeyError, TypeError, ValueError):
                     position = (700, 420)
                 self.ui = TermuxGuiRenderer(connection, position, cache=self.cache,
-                                            transport='png' if self.shared_failure else self.transport)
+                                            transport='png' if self.shared_failure else self.transport,
+                                            policy=self.policy)
                 self.drag = DragController(position, self.ui.density)
                 self._publish_overlay()
                 failures = 0
@@ -106,12 +112,17 @@ class GuiWorker:
                 self.on_status(False, 'starting')
             except SharedFailure as exc:
                 self.shared_failure = str(exc)[:180]
+                self.renderer_status = replace(self.renderer_status,
+                                               fallback_reason=self.shared_failure,
+                                               last_connection_error=self.shared_failure)
                 failures = 0
                 LOG.warning(
                     'Discarding shared connection; switching to fresh PNG: %s', exc)
                 self.on_status(False, self.shared_failure)
             except Exception as exc:
                 failures += 1
+                self.renderer_status = replace(
+                    self.renderer_status, last_connection_error=str(exc)[:180])
                 LOG.exception("Termux:GUI connection or overlay failed")
                 self.on_status(False, str(exc)[:180])
             finally:
@@ -141,6 +152,14 @@ class GuiWorker:
     def _loop(self, connection: Connection) -> None:
         assert self.ui is not None
         self.refresh(time.monotonic())
+        self.renderer_status = RendererStatus(
+            self.policy.binding_version, self.ui.plugin_version, self.ui.transport,
+            'shared disabled after failure' if self.shared_failure else self.ui.policy_reason,
+            self.shared_failure, self.renderer_status.last_connection_error)
+        LOG.info('Renderer binding=%s plugin=%s transport=%s reason=%s fallback=%s',
+                 self.renderer_status.binding_version, self.renderer_status.plugin_version,
+                 self.renderer_status.transport, self.renderer_status.reason,
+                 self.renderer_status.fallback_reason)
         self.on_status(True, "")
         assert self.runtime is not None
         while not self.stopping:

@@ -188,5 +188,13 @@ def main() -> None:
                   f"pet={result.get('appearance', DEFAULT_APPEARANCE)}; "
                   f"project={result['project']}; sessions={result['session_count']}; "
                   f"running={running_count}")
+            renderer = result.get('renderer')
+            if isinstance(renderer, dict):
+                print(f"Renderer={renderer.get('transport')}; binding={renderer.get('binding_version')}; "
+                      f"plugin={renderer.get('plugin_version')}; reason={renderer.get('reason')}")
+                if renderer.get('fallback_reason'):
+                    print(f"Renderer fallback: {renderer['fallback_reason']}")
+                if renderer.get('last_connection_error'):
+                    print(f"Last GUI connection error: {renderer['last_connection_error']}")
             code = 0
     raise SystemExit(code)

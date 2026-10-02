@@ -47,6 +47,9 @@ class FakeConnection:
         pass
 
 
+    def getversion(self):
+        return 7
+
 class FakeView:
     next_id = 1
 

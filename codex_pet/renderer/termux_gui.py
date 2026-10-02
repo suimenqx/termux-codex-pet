@@ -10,6 +10,7 @@ from ..frame_cache import FrameCache
 from .protocol import RgbaFrame, TouchInput
 from .transport import Connection
 from .shared_buffer import SharedFramebuffer
+from .policy import RendererPolicy
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
@@ -59,11 +60,15 @@ def _first_pointer(value: Any) -> tuple[float, float] | None:
 
 class TermuxGuiRenderer:
     def __init__(self, connection: Connection, position: tuple[int, int] = (700, 420),
-                 *, cache: FrameCache | None = None, transport: str = "png") -> None:
-        if transport not in ('png', 'shared'):
+                 *, cache: FrameCache | None = None, transport: str = "auto",
+                 policy: RendererPolicy | None = None) -> None:
+        if transport not in ('auto', 'png', 'shared'):
             raise ValueError('Unknown renderer transport')
         self.c = connection
-        self.transport = transport
+        self.requested_transport = transport
+        self.transport = 'pending'
+        self.policy = policy if policy is not None else RendererPolicy.installed()
+        self.policy_reason = 'starting'
         self.closed = False
         self._buffer: SharedFramebuffer | None = None
         self._attached = False
@@ -112,6 +117,16 @@ class TermuxGuiRenderer:
     def present(self, frame: RgbaFrame) -> None:
         if self.closed:
             raise RuntimeError('Renderer is closed')
+        if self.plugin_version is None:
+            self.plugin_version = self.c.getversion()
+        selected, reason = self.policy.choose(
+            (frame.width, frame.height), self.plugin_version)
+        if self.requested_transport != 'auto':
+            selected, reason = self.requested_transport, 'explicit internal selection'
+        if self.transport not in ('pending', selected):
+            self.close()
+            raise RebuildRenderer('Renderer transport changed')
+        self.transport, self.policy_reason = selected, reason
         if self._buffer is not None and self._buffer.dimensions != (frame.width, frame.height):
             self.close()
             raise RebuildRenderer('Framebuffer dimensions changed')
@@ -133,11 +148,9 @@ class TermuxGuiRenderer:
         self.last_key = frame.key
 
     def _present_shared(self, frame: RgbaFrame) -> None:
-        if self.plugin_version is None:
-            self.plugin_version = self.c.getversion()
-            if self.plugin_version != 7:
-                raise ValueError(
-                    'No verified staging-consumption fence for this plugin version')
+        if self.plugin_version != 7:
+            raise ValueError(
+                'No verified staging-consumption fence for this plugin version')
         if self._buffer is None:
             self._buffer = SharedFramebuffer(self.c, frame.width, frame.height)
         pixels = self.cache.get(('premult', frame.key))

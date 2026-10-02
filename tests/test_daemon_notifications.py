@@ -7,10 +7,12 @@ from unittest.mock import patch
 
 from codex_pet import daemon
 from codex_pet.adapters.codex import direct_event
+from codex_pet.renderer.policy import RendererStatus
 
 
 class FakeGui:
     overlay_status = None
+    renderer_status = RendererStatus()
 
     def wake(self) -> None:
         pass

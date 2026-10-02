@@ -87,6 +87,8 @@ codex-pet status
 
 ## 卸载
 
+`codex-pet status` 同时显示真实 binding／插件版本、当前 renderer transport、选择原因、已记住的共享回退原因和最近连接错误。共享实现已接入，但默认启用仍等待真机验收；普通安装目前保持 PNG。共享路径失败会关闭旧连接，并通过全新 PNG 连接恢复。
+
 ```sh
 cd ~/codex-pet
 bash ./uninstall.sh

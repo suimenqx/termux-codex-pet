@@ -20,12 +20,13 @@ from .preferences import save_appearance, selected_appearance
 from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, directories, notification
 from .state import SessionStore
 from .adapters.codex import direct_event
+from .renderer.policy import RendererPolicy
 
 LOGGING = logging.getLogger(__name__)
 
 
 class Daemon:
-    def __init__(self) -> None:
+    def __init__(self, *, renderer_policy: RendererPolicy | None = None) -> None:
         self.sessions = SessionStore()
         self.lock = threading.RLock()
         self.gui_ready = False
@@ -37,7 +38,7 @@ class Daemon:
         self.last_notification: tuple[str, str, str] | None = None
         self.signal_read, self.signal_write = socket.socketpair()
         self.signal_write.setblocking(False)
-        self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status)
+        self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status, policy=renderer_policy)
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
@@ -76,7 +77,7 @@ class Daemon:
             overlay_status = self.gui.overlay_status
             overlay = asdict(overlay_status) if overlay_status is not None else None
             return {"ok": True, "pid": os.getpid(), "gui_ready": self.gui_ready,
-                    "overlay": overlay,
+                    "overlay": overlay, "renderer": asdict(self.gui.renderer_status),
                     "gui_error": self.gui_error, **state}
 
     def process(self, payload: Any) -> dict[str, Any]:
@@ -192,12 +193,12 @@ class Daemon:
             pass
 
 
-def main() -> None:
+def main(*, renderer_policy: RendererPolicy | None = None) -> None:
     directories()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
                         handlers=[RotatingFileHandler(LOG, maxBytes=512_000, backupCount=2)])
     try:
-        Daemon().run()
+        Daemon(renderer_policy=renderer_policy).run()
     except Exception:
         LOGGING.exception("Daemon crashed")
         raise

@@ -109,3 +109,25 @@ Release `20261002T225618Z-b00703ff`, PID 4085, passed the isolated five-state
 device demonstration with PNG, returned to zero sessions, and logged no new GUI
 errors. This is an implementation checkpoint; #13 remains open for the required
 Android-side resource observation, and #14 remains gated.
+
+## T13 / #14 — diagnostics and gated capability selection
+
+The backend policy now selects by actual binding/plugin version and canvas,
+without pet IDs or business state. Its normal rollout gate remains closed.
+An internal acceptance injection permits 256×256 with binding 0.1.6 / plugin 7;
+64×64, other canvases and unknown versions remain PNG. Policy changes retire the
+entire prior connection. Status/logs publish immutable version, transport,
+selection reason, remembered fallback and latest connection error snapshots.
+
+Full suite: 198 tests passed (97.434 s); whole-package mypy: 29 modules. Tests
+cover unknown capability conservatism, PNG-to-shared rebuilding, and diagnosis
+after shared timeout/fresh PNG recovery. Release `20261002T230150Z-07a245ec`
+reported the expected normal PNG policy. `tools/probe_shared_daemon.py` then ran
+that installed production daemon with the internal shared capability injection;
+PID 5833 reported shared and passed the isolated five-state demonstration with
+zero remaining sessions and no connection errors. The tool preserves the normal
+release policy and restores normal startup after its finite acceptance window.
+
+Shared production edges/gestures/lock/rotation/background human verification has
+been requested during that window. Native Android resource observation is still
+pending ADB pairing. No default rollout approval or completion of #14 is claimed.
