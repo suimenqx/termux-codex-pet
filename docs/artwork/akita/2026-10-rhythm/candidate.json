@@ -1,0 +1,198 @@
+{
+  "status": "rejected-for-production: incomplete rear-leg recovery and support paths",
+  "cycle_ms": 640,
+  "coordinate_frame": "fixed 256px canvas; independently marked visible cream-paw samples, not calibrated joint centers or sole contacts",
+  "annotation_uncertainty": "approximate painted-paw centers, several pixels; occluded hind_far in01 is null; rear near/far identities remain a visual review risk",
+  "device_acceptance": "not deployed; new recording cannot assess these candidate files",
+  "frames": [
+    {
+      "file": "candidate/running/00.png",
+      "seconds": 0.08,
+      "design_phase": "hind_near_support",
+      "paw_centers": {
+        "hind_near": [
+          77,
+          224
+        ],
+        "hind_far": [
+          29,
+          195
+        ],
+        "fore_near": [
+          200,
+          214
+        ],
+        "fore_far": [
+          220,
+          204
+        ]
+      },
+      "sha256": "983f3a2d5b741906aed0001a83e4c0737be631c7f44810575774a78195b30991"
+    },
+    {
+      "file": "candidate/running/01.png",
+      "seconds": 0.08,
+      "design_phase": "hind_to_fore_transfer",
+      "paw_centers": {
+        "hind_near": [
+          62,
+          211
+        ],
+        "hind_far": null,
+        "fore_near": [
+          200,
+          216
+        ],
+        "fore_far": [
+          163,
+          212
+        ]
+      },
+      "sha256": "c0749b258b272296ffcf5e286c6bb062b3427bf1361b50209b3d84e4d7928dd2"
+    },
+    {
+      "file": "candidate/running/02.png",
+      "seconds": 0.08,
+      "design_phase": "fore_acceptance",
+      "paw_centers": {
+        "hind_near": [
+          41,
+          190
+        ],
+        "hind_far": [
+          105,
+          201
+        ],
+        "fore_near": [
+          207,
+          227
+        ],
+        "fore_far": [
+          159,
+          219
+        ]
+      },
+      "sha256": "3339a072291253464a2e63036886045d3b5931126fa688fb34be92b969b5504f"
+    },
+    {
+      "file": "candidate/running/03.png",
+      "seconds": 0.08,
+      "design_phase": "fore_support",
+      "paw_centers": {
+        "hind_near": [
+          64,
+          190
+        ],
+        "hind_far": [
+          111,
+          197
+        ],
+        "fore_near": [
+          181,
+          224
+        ],
+        "fore_far": [
+          139,
+          214
+        ]
+      },
+      "sha256": "6ca3b2356593677e3500fd2225d7eb9d2c4a28474aef09adc92da512306fc048"
+    },
+    {
+      "file": "candidate/running/04.png",
+      "seconds": 0.08,
+      "design_phase": "fore_release",
+      "paw_centers": {
+        "hind_near": [
+          96,
+          200
+        ],
+        "hind_far": [
+          122,
+          198
+        ],
+        "fore_near": [
+          155,
+          226
+        ],
+        "fore_far": [
+          184,
+          189
+        ]
+      },
+      "sha256": "d56d455f4ee5a5ce92573833142079564cd8d89a4f1fe38c30eb6c057c8e9ff4"
+    },
+    {
+      "file": "candidate/running/05.png",
+      "seconds": 0.08,
+      "design_phase": "aerial_to_hind_far",
+      "paw_centers": {
+        "hind_near": [
+          101,
+          203
+        ],
+        "hind_far": [
+          109,
+          217
+        ],
+        "fore_near": [
+          171,
+          204
+        ],
+        "fore_far": [
+          200,
+          192
+        ]
+      },
+      "sha256": "02bf1cec8c7655c6531800a437ccd7a9bc3ca2753e48308195ecf9889fa454b8"
+    },
+    {
+      "file": "candidate/running/06.png",
+      "seconds": 0.08,
+      "design_phase": "hind_far_support",
+      "paw_centers": {
+        "hind_near": [
+          98,
+          211
+        ],
+        "hind_far": [
+          124,
+          201
+        ],
+        "fore_near": [
+          176,
+          201
+        ],
+        "fore_far": [
+          211,
+          200
+        ]
+      },
+      "sha256": "add1c2268d744ea12adf0b1c2881294060d0930c8b022cdc5b5d7a99fff75587"
+    },
+    {
+      "file": "candidate/running/07.png",
+      "seconds": 0.08,
+      "design_phase": "hind_pair_transfer",
+      "paw_centers": {
+        "hind_near": [
+          98,
+          214
+        ],
+        "hind_far": [
+          45,
+          202
+        ],
+        "fore_near": [
+          190,
+          201
+        ],
+        "fore_far": [
+          216,
+          198
+        ]
+      },
+      "sha256": "ded7e16755baea5ad962837576c239266f060c48d112852848bc5976fd299d8b"
+    }
+  ]
+}

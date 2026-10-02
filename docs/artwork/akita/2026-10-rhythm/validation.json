@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-02",
+  "base_commit": "47aa9645b3655ca6b361ee3dea4a50e10a3de915",
+  "candidate_visual_acceptance": false,
+  "production_deployed": false,
+  "production_art_changes": 0,
+  "production_timing_changes": 0,
+  "generation_calls": 15,
+  "candidate_frames": 8,
+  "candidate_cycle_seconds": 0.64,
+  "tests": {
+    "affected": {
+      "count": 14,
+      "seconds": 52.54,
+      "passed": true
+    },
+    "full": {
+      "command": "python -m unittest discover -s tests -v",
+      "count": 147,
+      "seconds": 81.355,
+      "passed": true,
+      "log_sha256": "4ca8a182cbe1d8e428e168fc33fbd6329aaecc6ab6dab53d2a7ea01d80b44472"
+    }
+  },
+  "checks": {
+    "eight_exports_reproduced": true,
+    "outside_edit_regions_pixels_unchanged": true,
+    "all_39_production_pngs_match_reference": true,
+    "source_prompt_reference_hashes_recorded": true,
+    "preview_resources_resolve": true,
+    "preview_javascript_syntax_passed": true,
+    "browser_interaction_tested": false,
+    "strict_zero_alpha_outer_border_passed": false,
+    "border_note": "Maximum border alpha1/255 retained from frozen original outside export boxes."
+  },
+  "device": {
+    "installed": false,
+    "state_demo_run": false,
+    "recording_acceptance": "not applicable to uninstalled rejected candidate",
+    "reason": "Only review tooling/docs/candidates changed; production artwork, timing and GUI code remain identical."
+  },
+  "unresolved": [
+    "01 farfore landing placement",
+    "03-to04 farfore recovery spacing",
+    "05-to06-to07 hind recovery/support path and near/far limb identification",
+    "whole cycle body response and motion acceptance"
+  ]
+}

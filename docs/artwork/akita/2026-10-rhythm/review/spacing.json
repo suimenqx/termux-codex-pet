@@ -1,0 +1,876 @@
+{
+  "production_accepted": false,
+  "coordinate_frame": "fixed canvas, 4 source pixels per 64dp-view dp; no hip subtraction",
+  "scope": "painted-paw displacement/exposure, not anatomical velocity or contact proof",
+  "annotation_uncertainty": "approximate painted-paw centers, several pixels; occluded hind_far in01 is null; rear near/far identities remain a visual review risk",
+  "clips": [
+    {
+      "label": "previous",
+      "cycle_seconds": 0.64,
+      "paws": {
+        "hind_near": [
+          {
+            "from_physical": 0,
+            "to_physical": 8,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              -5.75,
+              -4.75
+            ],
+            "distance_dp": 7.458,
+            "chord_speed_dp_s": 186.455
+          },
+          {
+            "from_physical": 8,
+            "to_physical": 1,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              -7.25,
+              -5.0
+            ],
+            "distance_dp": 8.807,
+            "chord_speed_dp_s": 220.174
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -0.5,
+              0.75
+            ],
+            "distance_dp": 0.901,
+            "chord_speed_dp_s": 11.267
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              0.0,
+              -3.0
+            ],
+            "distance_dp": 3.0,
+            "chord_speed_dp_s": 37.5
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.75,
+              1.5
+            ],
+            "distance_dp": 2.305,
+            "chord_speed_dp_s": 28.811
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 9,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              3.0,
+              2.5
+            ],
+            "distance_dp": 3.905,
+            "chord_speed_dp_s": 97.628
+          },
+          {
+            "from_physical": 9,
+            "to_physical": 5,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              8.5,
+              5.5
+            ],
+            "distance_dp": 10.124,
+            "chord_speed_dp_s": 253.106
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -3.25,
+              1.25
+            ],
+            "distance_dp": 3.482,
+            "chord_speed_dp_s": 43.526
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              4.25,
+              0.75
+            ],
+            "distance_dp": 4.316,
+            "chord_speed_dp_s": 53.946
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -0.75,
+              0.5
+            ],
+            "distance_dp": 0.901,
+            "chord_speed_dp_s": 11.267
+          }
+        ],
+        "hind_far": [
+          {
+            "from_physical": 0,
+            "to_physical": 8,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              -2.75,
+              -1.75
+            ],
+            "distance_dp": 3.26,
+            "chord_speed_dp_s": 81.49
+          },
+          {
+            "from_physical": 8,
+            "to_physical": 1,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              -0.25,
+              3.5
+            ],
+            "distance_dp": 3.509,
+            "chord_speed_dp_s": 87.723
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              3.75,
+              -0.75
+            ],
+            "distance_dp": 3.824,
+            "chord_speed_dp_s": 47.803
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -10.0,
+              -5.75
+            ],
+            "distance_dp": 11.535,
+            "chord_speed_dp_s": 144.191
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              2.75,
+              -0.5
+            ],
+            "distance_dp": 2.795,
+            "chord_speed_dp_s": 34.939
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 9,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              3.25,
+              0.25
+            ],
+            "distance_dp": 3.26,
+            "chord_speed_dp_s": 81.49
+          },
+          {
+            "from_physical": 9,
+            "to_physical": 5,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              1.25,
+              5.0
+            ],
+            "distance_dp": 5.154,
+            "chord_speed_dp_s": 128.847
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              3.5,
+              -0.5
+            ],
+            "distance_dp": 3.536,
+            "chord_speed_dp_s": 44.194
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -3.75,
+              1.25
+            ],
+            "distance_dp": 3.953,
+            "chord_speed_dp_s": 49.411
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              2.25,
+              -0.75
+            ],
+            "distance_dp": 2.372,
+            "chord_speed_dp_s": 29.646
+          }
+        ],
+        "fore_near": [
+          {
+            "from_physical": 0,
+            "to_physical": 8,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              4.25,
+              -1.0
+            ],
+            "distance_dp": 4.366,
+            "chord_speed_dp_s": 109.152
+          },
+          {
+            "from_physical": 8,
+            "to_physical": 1,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              4.5,
+              -2.0
+            ],
+            "distance_dp": 4.924,
+            "chord_speed_dp_s": 123.111
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              4.0,
+              3.25
+            ],
+            "distance_dp": 5.154,
+            "chord_speed_dp_s": 64.424
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -2.25,
+              -4.75
+            ],
+            "distance_dp": 5.256,
+            "chord_speed_dp_s": 65.699
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -7.75,
+              3.0
+            ],
+            "distance_dp": 8.31,
+            "chord_speed_dp_s": 103.88
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 9,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              1.5,
+              1.5
+            ],
+            "distance_dp": 2.121,
+            "chord_speed_dp_s": 53.033
+          },
+          {
+            "from_physical": 9,
+            "to_physical": 5,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              0.75,
+              -1.5
+            ],
+            "distance_dp": 1.677,
+            "chord_speed_dp_s": 41.926
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.75,
+              -0.75
+            ],
+            "distance_dp": 1.904,
+            "chord_speed_dp_s": 23.799
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.5,
+              -4.25
+            ],
+            "distance_dp": 4.507,
+            "chord_speed_dp_s": 56.337
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.75,
+              6.5
+            ],
+            "distance_dp": 6.731,
+            "chord_speed_dp_s": 84.143
+          }
+        ],
+        "fore_far": [
+          {
+            "from_physical": 0,
+            "to_physical": 8,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              1.75,
+              3.0
+            ],
+            "distance_dp": 3.473,
+            "chord_speed_dp_s": 86.828
+          },
+          {
+            "from_physical": 8,
+            "to_physical": 1,
+            "seconds": 0.04,
+            "visible": false
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": false
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -2.0,
+              -5.0
+            ],
+            "distance_dp": 5.385,
+            "chord_speed_dp_s": 67.315
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              2.5,
+              0.0
+            ],
+            "distance_dp": 2.5,
+            "chord_speed_dp_s": 31.25
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 9,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              -1.5,
+              4.75
+            ],
+            "distance_dp": 4.981,
+            "chord_speed_dp_s": 124.53
+          },
+          {
+            "from_physical": 9,
+            "to_physical": 5,
+            "seconds": 0.04,
+            "visible": true,
+            "delta_dp": [
+              -1.75,
+              -1.75
+            ],
+            "distance_dp": 2.475,
+            "chord_speed_dp_s": 61.872
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.0,
+              -1.75
+            ],
+            "distance_dp": 2.016,
+            "chord_speed_dp_s": 25.195
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.25,
+              3.0
+            ],
+            "distance_dp": 3.25,
+            "chord_speed_dp_s": 40.625
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.5,
+              0.5
+            ],
+            "distance_dp": 1.581,
+            "chord_speed_dp_s": 19.764
+          }
+        ]
+      }
+    },
+    {
+      "label": "candidate",
+      "cycle_seconds": 0.64,
+      "paws": {
+        "hind_near": [
+          {
+            "from_physical": 0,
+            "to_physical": 1,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -3.75,
+              -3.25
+            ],
+            "distance_dp": 4.962,
+            "chord_speed_dp_s": 62.029
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -5.25,
+              -5.25
+            ],
+            "distance_dp": 7.425,
+            "chord_speed_dp_s": 92.808
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              5.75,
+              0.0
+            ],
+            "distance_dp": 5.75,
+            "chord_speed_dp_s": 71.875
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              8.0,
+              2.5
+            ],
+            "distance_dp": 8.382,
+            "chord_speed_dp_s": 104.769
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 5,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.25,
+              0.75
+            ],
+            "distance_dp": 1.458,
+            "chord_speed_dp_s": 18.222
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -0.75,
+              2.0
+            ],
+            "distance_dp": 2.136,
+            "chord_speed_dp_s": 26.7
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              0.0,
+              0.75
+            ],
+            "distance_dp": 0.75,
+            "chord_speed_dp_s": 9.375
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -5.25,
+              2.5
+            ],
+            "distance_dp": 5.815,
+            "chord_speed_dp_s": 72.686
+          }
+        ],
+        "hind_far": [
+          {
+            "from_physical": 0,
+            "to_physical": 1,
+            "seconds": 0.08,
+            "visible": false
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": false
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.5,
+              -1.0
+            ],
+            "distance_dp": 1.803,
+            "chord_speed_dp_s": 22.535
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              2.75,
+              0.25
+            ],
+            "distance_dp": 2.761,
+            "chord_speed_dp_s": 34.517
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 5,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -3.25,
+              4.75
+            ],
+            "distance_dp": 5.755,
+            "chord_speed_dp_s": 71.943
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              3.75,
+              -4.0
+            ],
+            "distance_dp": 5.483,
+            "chord_speed_dp_s": 68.537
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -19.75,
+              0.25
+            ],
+            "distance_dp": 19.752,
+            "chord_speed_dp_s": 246.895
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -4.0,
+              -1.75
+            ],
+            "distance_dp": 4.366,
+            "chord_speed_dp_s": 54.576
+          }
+        ],
+        "fore_near": [
+          {
+            "from_physical": 0,
+            "to_physical": 1,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              0.0,
+              0.5
+            ],
+            "distance_dp": 0.5,
+            "chord_speed_dp_s": 6.25
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.75,
+              2.75
+            ],
+            "distance_dp": 3.26,
+            "chord_speed_dp_s": 40.745
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -6.5,
+              -0.75
+            ],
+            "distance_dp": 6.543,
+            "chord_speed_dp_s": 81.789
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -6.5,
+              0.5
+            ],
+            "distance_dp": 6.519,
+            "chord_speed_dp_s": 81.49
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 5,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              4.0,
+              -5.5
+            ],
+            "distance_dp": 6.801,
+            "chord_speed_dp_s": 85.009
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.25,
+              -0.75
+            ],
+            "distance_dp": 1.458,
+            "chord_speed_dp_s": 18.222
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              3.5,
+              0.0
+            ],
+            "distance_dp": 3.5,
+            "chord_speed_dp_s": 43.75
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              2.5,
+              3.25
+            ],
+            "distance_dp": 4.1,
+            "chord_speed_dp_s": 51.254
+          }
+        ],
+        "fore_far": [
+          {
+            "from_physical": 0,
+            "to_physical": 1,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -14.25,
+              2.0
+            ],
+            "distance_dp": 14.39,
+            "chord_speed_dp_s": 179.871
+          },
+          {
+            "from_physical": 1,
+            "to_physical": 2,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -1.0,
+              1.75
+            ],
+            "distance_dp": 2.016,
+            "chord_speed_dp_s": 25.195
+          },
+          {
+            "from_physical": 2,
+            "to_physical": 3,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              -5.0,
+              -1.25
+            ],
+            "distance_dp": 5.154,
+            "chord_speed_dp_s": 64.424
+          },
+          {
+            "from_physical": 3,
+            "to_physical": 4,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              11.25,
+              -6.25
+            ],
+            "distance_dp": 12.87,
+            "chord_speed_dp_s": 160.869
+          },
+          {
+            "from_physical": 4,
+            "to_physical": 5,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              4.0,
+              0.75
+            ],
+            "distance_dp": 4.07,
+            "chord_speed_dp_s": 50.871
+          },
+          {
+            "from_physical": 5,
+            "to_physical": 6,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              2.75,
+              2.0
+            ],
+            "distance_dp": 3.4,
+            "chord_speed_dp_s": 42.505
+          },
+          {
+            "from_physical": 6,
+            "to_physical": 7,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.25,
+              -0.5
+            ],
+            "distance_dp": 1.346,
+            "chord_speed_dp_s": 16.829
+          },
+          {
+            "from_physical": 7,
+            "to_physical": 0,
+            "seconds": 0.08,
+            "visible": true,
+            "delta_dp": [
+              1.0,
+              1.5
+            ],
+            "distance_dp": 1.803,
+            "chord_speed_dp_s": 22.535
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 from dataclasses import dataclass
 import hashlib
 import json
@@ -289,6 +290,43 @@ def _paw_sample(rgba: bytes, point: tuple[int, int]) -> tuple[float, float]:
     return coverage, mean_blue
 
 
+def _track_transitions(
+    points: Sequence[Sequence[float] | None],
+    durations: Sequence[float],
+    physical_frames: Sequence[int],
+    pixels_per_dp: float,
+) -> list[dict[str, object]]:
+    """Describe timing/spacing, including the seam; never bridge occlusion.
+
+    Samples are painted landmarks, not anatomical joint centers. Their chord
+    distance per exposure is diagnostic information, not a gait pass threshold.
+    """
+    if not points or len(points) != len(durations) or len(points) != len(physical_frames):
+        raise ValueError("each pose needs a point, duration and physical frame")
+    if not math.isfinite(pixels_per_dp) or pixels_per_dp <= 0:
+        raise ValueError("pixels per dp must be finite and positive")
+    if any(not math.isfinite(seconds) or seconds <= 0 for seconds in durations):
+        raise ValueError("exposure durations must be finite and positive")
+    if any(point is not None and (len(point) != 2 or
+           any(not math.isfinite(value) for value in point)) for point in points):
+        raise ValueError("visible points must have two finite coordinates")
+    transitions: list[dict[str, object]] = []
+    for index, before in enumerate(points):
+        following = (index + 1) % len(points)
+        after = points[following]
+        row = {"from_physical": physical_frames[index],
+               "to_physical": physical_frames[following],
+               "seconds": durations[index], "visible": before is not None and after is not None}
+        if before is not None and after is not None:
+            delta = [(after[c] - before[c]) / pixels_per_dp for c in (0, 1)]
+            distance = math.hypot(*delta)
+            row.update(delta_dp=[round(v, 3) for v in delta],
+                       distance_dp=round(distance, 3),
+                       chord_speed_dp_s=round(distance / durations[index], 3))
+        transitions.append(row)
+    return transitions
+
+
 def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
                          kind: str) -> dict[str, object] | None:
     """Track the near and far paws of one pair against the orange hip."""
@@ -378,6 +416,9 @@ def _running_leg_metrics(state: str, frames: tuple[RenderedFrame, ...],
             "minimum_cycle_path_length_dp": leg_minimum_path,
             "visible_poses": len(observed),
             "positions": positions,
+            "transitions": _track_transitions(
+                relative, [frame.delay_seconds for frame in cycle],
+                source_indices, source_pixels_per_dp),
             "passed": range_passed,
         }
         relative_tracks[name] = relative

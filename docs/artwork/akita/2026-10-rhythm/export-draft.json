@@ -1,0 +1,276 @@
+{
+  "exports": [
+    {
+      "source": "pose-00-source.png",
+      "original": "originals/frames/running/00.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/00.png"
+    },
+    {
+      "source": "pose-01-revised-source.png",
+      "original": "originals/frames/running/06.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/01.png"
+    },
+    {
+      "source": "pose-02-revised-source.png",
+      "original": "originals/frames/running/01.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/02.png"
+    },
+    {
+      "source": "pose-03-source.png",
+      "original": "originals/frames/running/00.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/03.png"
+    },
+    {
+      "source": "pose-04-revised-source.png",
+      "original": "originals/frames/running/06.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/04.png"
+    },
+    {
+      "source": "pose-05-source.png",
+      "original": "originals/frames/running/04.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/05.png"
+    },
+    {
+      "source": "pose-06-revised-source.png",
+      "original": "originals/frames/running/05.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/06.png"
+    },
+    {
+      "source": "pose-07-revised-source.png",
+      "original": "originals/frames/running/00.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            130,
+            127,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            110,
+            169,
+            252,
+            246
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            207,
+            161,
+            252,
+            195
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/07.png"
+    }
+  ]
+}

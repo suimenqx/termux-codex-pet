@@ -83,7 +83,7 @@ The installer registers `SessionStart`, `UserPromptSubmit`, `PermissionRequest`,
 
 Run `python tools/review_recording.py path/to/recording.mp4` from the checkout. It creates a local overview and original frame timestamps under `~/.cache/codex-pet/recordings/`. Add `--crop x,y,width,height` and repeatable `--window name:start:end` to create pet-only playback, slow motion, frame stepping and labelled contact sheets. The input is preserved; nothing is uploaded. See the [repeatable recording workflow](docs/recording-review.md) for coordinates, variable-frame-rate interpretation and the next-recording comparison process.
 
-The latest [animation revision](docs/artwork/akita/2026-10-continuity/brief.md) adds two bounded running breakdowns and rebuilds the body turn into Ready. It preserves the original running face pixels and blue collar, and checks the turn against the fixed crouch endpoint. New activity interrupts that entry immediately. Preview it with `python tools/preview_animation.py --state ready --from-state running`. Device visual acceptance still needs the next recording.
+The [deployed revision](docs/artwork/akita/2026-10-continuity/brief.md) uses ten running poses and three stopping poses. The latest recording confirms the transition to Ready, but exposes limb shape and running rhythm problems. A [complete-cycle redraw and timed comparison](docs/artwork/akita/2026-10-rhythm/review.md) is saved for review; its hind-leg recovery failed visual review and has not replaced the device animation. `tools/audit_animation.py` now reports each exposure, paw displacement, and chord speed. Passing file or playback tests does not certify natural gait.
 
 ## Uninstall
 

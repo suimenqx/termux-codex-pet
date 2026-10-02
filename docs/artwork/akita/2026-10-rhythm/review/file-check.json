@@ -1,0 +1,85 @@
+{
+  "note": "Exact zero-alpha border check failed. Faint legacy edge pixels are retained outside export regions; this is not a production acceptance.",
+  "frames": [
+    {
+      "file": "candidate/running/00.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 1,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/01.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 5,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/02.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 1,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/03.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 1,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/04.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 5,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/05.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 1,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/06.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 15,
+      "border_pixels_at_alpha_over_16": 0
+    },
+    {
+      "file": "candidate/running/07.png",
+      "size": [
+        256,
+        256
+      ],
+      "maximum_border_alpha": 1,
+      "nonzero_border_pixels": 1,
+      "border_pixels_at_alpha_over_16": 0
+    }
+  ]
+}

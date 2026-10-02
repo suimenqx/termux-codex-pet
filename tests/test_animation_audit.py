@@ -106,6 +106,14 @@ class AnimationAuditTests(unittest.TestCase):
             self.assertEqual(pair["phases"][6], "recovery_breakdown")
             self.assertEqual(pair["exposure_seconds"],
                              [.04, .04, .08, .08, .08, .04, .04, .08, .08, .08])
+            for leg in pair["legs"].values():
+                rows = leg["transitions"]
+                physical = pair["physical_frames"]
+                self.assertEqual([r["seconds"] for r in rows], pair["exposure_seconds"])
+                self.assertEqual([r["from_physical"] for r in rows], physical)
+                self.assertEqual([r["to_physical"] for r in rows], physical[1:] + physical[:1])
+                for row in rows:
+                    self.assertEqual("chord_speed_dp_s" in row, row["visible"])
 
     def test_rejected_sheet_remains_reproducible_from_its_archived_manifest(self) -> None:
         root = Path(__file__).resolve().parents[1]
