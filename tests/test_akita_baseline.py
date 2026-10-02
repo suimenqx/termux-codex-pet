@@ -25,7 +25,13 @@ class AkitaBaselineTests(unittest.TestCase):
             for frame in range(count)
         } | {f'{state}.png' for state in ('idle', 'needs_input', 'ready', 'blocked')}
         self.assertEqual(set(collars['sha256']), expected_collars)
-        self.assertEqual(actual, {**baseline['sha256'], **changes, **collars['sha256']})
+        continuity = json.loads((root / 'docs/artwork/akita/2026-10-continuity/delivery.json').read_text())
+        self.assertEqual(set(continuity['sha256']), {
+            'frames/running/08.png', 'frames/running/09.png',
+            'frames/ready/06.png', 'frames/ready/07.png',
+        })
+        self.assertEqual(actual, {**baseline['sha256'], **changes, **collars['sha256'],
+                                  **continuity['sha256']})
         original = root / 'docs/artwork/akita/2026-10-local-motion/running-original.png'
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), baseline['sha256']['frames/running/02.png'])
 

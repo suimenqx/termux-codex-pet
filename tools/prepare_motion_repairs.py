@@ -71,9 +71,17 @@ def export(manifest: Path, output: Path) -> None:
             raise ValueError("cell must identify an exported source frame")
         candidate = sources[source_key][cell]
         if "original" in item:
-            candidate = replace_region((manifest.parent / item["original"]).read_bytes(),
-                                       candidate, tuple(item["box"]), item["feather"],
-                                       preserve_alpha=item.get("preserve_alpha", False))
+            original = (manifest.parent / item["original"]).read_bytes()
+            # Ordered regions share one source canvas; they never move pixels.
+            # Keep the legacy single-region recipe byte-for-byte reproducible.
+            regions = item.get("regions", [item])
+            if not regions or ("regions" in item and "box" in item):
+                raise ValueError("choose one box or a nonempty list of regions")
+            for region in regions:
+                original = replace_region(original, candidate, tuple(region["box"]),
+                                          region["feather"],
+                                          preserve_alpha=item.get("preserve_alpha", False))
+            candidate = original
         frames.append((name, candidate))
     output.mkdir(parents=True)
     for name, png in frames:

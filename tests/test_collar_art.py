@@ -18,9 +18,10 @@ ASSETS = ROOT / 'codex_pet/assets/akita/frames'
 class CollarArtTests(unittest.TestCase):
     def test_every_physical_and_logical_pose_has_a_blue_collar(self):
         model = json.loads((PACKAGE / 'model.json').read_text())
+        model['frames'].update(json.loads((ROOT / 'docs/artwork/akita/2026-10-continuity/model.json').read_text())['frames'])
         actual = {p.relative_to(ASSETS).as_posix() for p in ASSETS.glob('*/*.png')}
         self.assertEqual(set(model['frames']), actual)
-        self.assertEqual(len(actual), 31)
+        self.assertEqual(len(actual), 34)
         for state, count in AKITA_FRAME_COUNTS.items():
             for index in range(count):
                 physical, number = akita_artwork_frame(state, index)
@@ -43,10 +44,13 @@ class CollarArtTests(unittest.TestCase):
     def test_neck_edits_preserve_every_pixel_outside_recorded_regions(self):
         recipe = json.loads((PACKAGE / 'export.json').read_text())
         edited = {item['output']: item for item in recipe['exports']}
-        for path in ASSETS.glob('*/*.png'):
-            key = path.relative_to(ASSETS).as_posix()
-            before = _decode_rgba_png((PACKAGE / 'originals' / key).read_bytes())[2]
-            after = _decode_rgba_png(path.read_bytes())[2]
+        for path in (PACKAGE / 'originals').glob('*/*.png'):
+            key = path.relative_to(PACKAGE / 'originals').as_posix()
+            before = _decode_rgba_png(path.read_bytes())[2]
+            target = ASSETS / key
+            if key == 'ready/06.png':
+                target = ROOT / 'docs/artwork/akita/2026-10-continuity/originals' / key
+            after = _decode_rgba_png(target.read_bytes())[2]
             self.assertEqual(before[3::4], after[3::4], key)
             if key not in edited:
                 self.assertEqual(before, after, key)

@@ -1,0 +1,137 @@
+{
+  "tool": "built-in imagegen",
+  "model_id": "not provided",
+  "sources": {
+    "running-08-source.png": {
+      "sha256": "1045ca8f920962198fbbbacd313f4e130621a62d440a3b39361860a603d5dfaa",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "running-09-source.png": {
+      "sha256": "ea5cca925905cf6f966baea1a94b0efc8c2d383e5c07a13467886505a8da509e",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "turn-06-source.png": {
+      "sha256": "34f706c19a2b17723d28b3a6d1ca7461ac1fa242e604b4bad02e26fdc0eff280",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "running-09-revised-source.png": {
+      "sha256": "581625a30d8fa14fe946af5c057020589c2d359495893ea0f9d82e77cb6d80b1",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "running-08-revised-source.png": {
+      "sha256": "0fd39720e4baab153c3603fef074e7c5e913bcca7ccbc666cb7be326ef4c65d6",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "turn-06-revised-source.png": {
+      "sha256": "3584c547d2dc025c6b2b74636acef289811f0fe9fffe2567eaaa696b21c992fb",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "turn-07-source.png": {
+      "sha256": "a7c62c571a4dd59aa63b818111f4ddc6c3b976e116cbdceca4e7446616c4bf15",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "turn-06-final-source.png": {
+      "sha256": "30fb37cc3eaeedba62392f349981f823d8a37b6ee991343f507a370cd4177d26",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    },
+    "turn-07-final-source.png": {
+      "sha256": "f176424d6e1b8477b40385bd957912e6c22721c479c75724f5abfd30552af356",
+      "size": [
+        1254,
+        1254
+      ],
+      "png_depth": 8,
+      "png_color_type": 6
+    }
+  },
+  "sha256": {
+    "frames/running/08.png": "3ec38bec100dfc5c0acc2eee28f016516620d9a1049155aea0994e396a046218",
+    "frames/running/09.png": "0c4d7f2e125e6e25fa8cbea2f968e83c8d9ef78ec092f8e9949f823420ba70c4",
+    "frames/ready/06.png": "5c9cc49faf8e85fd16130538dc78e33e773fc137a834a1a100b6830bff233401",
+    "frames/ready/07.png": "d1b2c14d044d61f402886f17fbb5905adb30d5f9bd057d6b94e9a00aa4d6bb5e"
+  },
+  "export_command": "python tools/prepare_motion_repairs.py docs/artwork/akita/2026-10-continuity/export.json NEW_EMPTY_DIRECTORY",
+  "acceptance": "141 automated tests pass; full-cycle static contact sheets inspected; deployed isolated demo and five-second Ready stability pass. Human post-deployment motion recording remains pending.",
+  "pixel_protection": [
+    {
+      "output": "running/08.png",
+      "outside_changed_pixels": 0,
+      "inside_changed_pixels": 10217,
+      "original_blue_collar_pixels_changed": 0,
+      "regions_xyxy": [
+        [
+          4,
+          170,
+          252,
+          244
+        ]
+      ]
+    },
+    {
+      "output": "running/09.png",
+      "outside_changed_pixels": 0,
+      "inside_changed_pixels": 11459,
+      "original_blue_collar_pixels_changed": 0,
+      "regions_xyxy": [
+        [
+          4,
+          140,
+          125,
+          244
+        ],
+        [
+          125,
+          168,
+          252,
+          244
+        ],
+        [
+          204,
+          156,
+          252,
+          194
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "source": {
+    "file": "SVID_20261002_105535_1.mp4",
+    "sha256": "b048429e57a57375eb5c901cd9cc68c091185db1d9068eb692abc6d10a8e51d0",
+    "bytes": 3398596
+  },
+  "code_commit": "7dc1042d97b948556a23b38415fca91a3142abb1",
+  "runtime_release": "/data/data/com.termux/files/home/.local/share/codex-pet/releases/20261002T013304Z-2f8daf9c",
+  "crop_xywh": [
+    240,
+    344,
+    128,
+    128
+  ],
+  "method": "Original-PTS contact sheets for all samples in 51..68.210s and individual key frames, plus full-screen overview; no interpolated or resampled video, no claim of direct realtime watching.",
+  "landmarks": [
+    {
+      "artwork": "running/00",
+      "video_frame": 734,
+      "seconds": 53.056422
+    },
+    {
+      "artwork": "running/01",
+      "video_frame": 735,
+      "seconds": 53.1239
+    },
+    {
+      "artwork": "running/02",
+      "video_frame": 736,
+      "seconds": 53.205478
+    },
+    {
+      "artwork": "running/03",
+      "video_frame": 737,
+      "seconds": 53.288522
+    },
+    {
+      "artwork": "running/04",
+      "video_frame": 739,
+      "seconds": 53.367833
+    },
+    {
+      "artwork": "running/05",
+      "video_frame": 740,
+      "seconds": 53.453222
+    },
+    {
+      "artwork": "running/06",
+      "video_frame": 741,
+      "seconds": 53.536978
+    },
+    {
+      "artwork": "running/07",
+      "video_frame": 742,
+      "seconds": 53.603489
+    },
+    {
+      "artwork": "last_running",
+      "video_frame": 775,
+      "seconds": 56.006111
+    },
+    {
+      "artwork": "ready/05 settle",
+      "video_frame": 776,
+      "seconds": 56.052056
+    },
+    {
+      "artwork": "ready/06 turn",
+      "video_frame": 777,
+      "seconds": 56.170956
+    },
+    {
+      "artwork": "ready/04 crouch",
+      "video_frame": 779,
+      "seconds": 56.304244
+    },
+    {
+      "artwork": "ready/01 rise",
+      "video_frame": 780,
+      "seconds": 56.453233
+    },
+    {
+      "artwork": "ready/02 airborne",
+      "video_frame": 781,
+      "seconds": 56.652778
+    },
+    {
+      "artwork": "ready/03 landing",
+      "video_frame": 782,
+      "seconds": 56.866944
+    },
+    {
+      "artwork": "idle/01 rest",
+      "video_frame": 784,
+      "seconds": 57.228544
+    }
+  ],
+  "observed_seconds": {
+    "running": 2.9956340000000026,
+    "stopping_entry_to_rest": 1.176487999999999,
+    "settle_and_turn_to_crouch": 0.25218799999999675,
+    "rest_after_entry": 10.981734000000003
+  },
+  "confirmed": [
+    "Blue collar in running, settle, turn, crouch/hop and rest; no old state colours or missing collar observed.",
+    "One stopping entry and happy hop, then rest through end; no observed return to running.",
+    "Recorded elapsed times agree with 3-second running demonstration and configured 1.18-second Ready entry to within recording sampling resolution."
+  ],
+  "next_priorities": [
+    {
+      "priority": 1,
+      "video_seconds": [
+        53.056422,
+        56.170956,
+        56.304244
+      ],
+      "finding": "Running/turn appearance has a smaller apparent head/body mass than standing/crouching artwork; the turn-to-crouch change is visibly abrupt. View angle and posture also change, so this does not establish a numeric global scale error.",
+      "action": "Match corresponding-view head volume, neck/chest relation and foot support between turn and Ready references; establish endpoints before drawing intermediate turn/weight-shift poses. No empirical global zoom factor."
+    },
+    {
+      "priority": 2,
+      "video_seconds": [
+        53.056422,
+        53.1239,
+        53.367833,
+        53.453222
+      ],
+      "source_transitions": [
+        "running/00 -> 01",
+        "running/04 -> 05"
+      ],
+      "finding": "Large rear-leg extension/recovery changes persist at the original drawing boundaries. Local front-leg repair has not established a coordinated complete four-leg gait.",
+      "action": "Plan all four feet contact/release and swing paths together, repair the high-displacement spans and recheck whole cycle; do not reorder whole frames to solve one leg or raise frame rate without new poses."
+    }
+  ],
+  "limits": [
+    "This captures a single ending phase of running; stopping from every other phase remains unverified.",
+    "Body silhouette size across different poses is not a valid numeric model-scale calibration.",
+    "VFR samples alone do not prove GUI stutter.",
+    "Touch not exercised."
+  ],
+  "changes_this_review": "None to source code or production artwork; source recording untouched."
+}

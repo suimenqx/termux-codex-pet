@@ -1,0 +1,21 @@
+{
+  "automated_tests": 141,
+  "full_suite_seconds": 80.371,
+  "demo_returncode": 0,
+  "sampled_states": [
+    "blocked",
+    "idle",
+    "needs_input",
+    "ready",
+    "running"
+  ],
+  "max_session_count_during_demo": 1,
+  "isolation": "Installer restarted the display daemon while only this known thread was active. Test ran with zero preexisting sessions; this thread was restored with its original turn ID in finally. No foreign session reconstructed.",
+  "ready_after_five_seconds": "ready",
+  "gui_ready": true,
+  "runtime_release": "/data/data/com.termux/files/home/.local/share/codex-pet/releases/20261002T033121Z-7b9e51a6",
+  "runtime_files_matching": 54,
+  "new_log_errors": 0,
+  "visual_acceptance": "pending user observation or recording",
+  "touch_verification": "not repeated; touch code unchanged"
+}

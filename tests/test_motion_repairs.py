@@ -3,7 +3,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from codex_pet.animation import AnimationTimeline, akita_artwork_frame, playback_frames
+from codex_pet.animation import (AKITA_FRAME_INTERVALS, AnimationTimeline,
+                                 akita_artwork_frame, playback_frames)
 from codex_pet.art import _decode_rgba_png, _png
 from tools.prepare_motion_repairs import export, replace_region
 
@@ -12,17 +13,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class MotionRepairTests(unittest.TestCase):
     def test_run_to_ready_has_one_interruptible_settle_and_turn(self):
-        for frame in range(8):
+        for frame in range(10):
             with self.subTest(frame=frame):
                 timeline = AnimationTimeline('akita', 'running', now=0)
-                timeline.advance(frame * .08 + .001)
+                timeline.advance(sum(AKITA_FRAME_INTERVALS["running"][:frame]) + .001)
+                self.assertEqual(timeline.frame, frame)
                 timeline.sync('akita', 'ready', 0, now=1)
                 self.assertEqual(timeline.state, 'ready')
                 self.assertEqual(akita_artwork_frame('ready', timeline.frame), ('ready', 5))
                 timeline.advance(1.120001)
                 self.assertEqual(akita_artwork_frame('ready', timeline.frame), ('ready', 6))
                 timeline.advance(1.240001)
-                self.assertEqual(akita_artwork_frame('ready', timeline.frame), ('ready', 4))
+                self.assertEqual(akita_artwork_frame('ready', timeline.frame), ('ready', 7))
                 timeline.sync('akita', 'needs_input', 0, now=1.25)
                 self.assertEqual(timeline.state, 'needs_input')
                 self.assertEqual(timeline.frame, 0)
@@ -49,11 +51,11 @@ class MotionRepairTests(unittest.TestCase):
     def test_offline_transition_uses_live_sequence_and_never_repeats_turn(self):
         steps = playback_frames('akita', 'ready', cycles=2, from_state='running')
         poses = [akita_artwork_frame('ready', step.frame) for step in steps]
-        self.assertEqual(poses[:3], [('ready', 5), ('ready', 6), ('ready', 4)])
+        self.assertEqual(poses[:4], [('ready', 5), ('ready', 6), ('ready', 7), ('ready', 4)])
         self.assertEqual(poses.count(('ready', 5)), 1)
         self.assertEqual(poses.count(('ready', 6)), 1)
-        self.assertAlmostEqual(sum(s.duration_seconds for s in steps), 9.94)
-        self.assertEqual([s.duration_seconds for s in steps[:2]], [.12, .12])
+        self.assertAlmostEqual(sum(s.duration_seconds for s in steps), 10.06)
+        self.assertEqual([s.duration_seconds for s in steps[:3]], [.12, .12, .12])
 
     def test_edit_boundary_locks_all_original_pixels_outside_the_patch(self):
         original = _png(16, 16, bytearray([180, 30, 10, 255] * 256))
@@ -96,8 +98,10 @@ class MotionRepairTests(unittest.TestCase):
             output = Path(temp) / 'export'
             export(folder / 'export.json', output)
             for item in json.loads((folder / 'export.json').read_text())['exports']:
-                self.assertEqual((output / item['output']).read_bytes(),
-                                 (ROOT / 'codex_pet/assets/akita/frames' / item['output']).read_bytes())
+                target = ROOT / 'codex_pet/assets/akita/frames' / item['output']
+                if item['output'] == 'ready/06.png':
+                    target = ROOT / 'docs/artwork/akita/2026-10-continuity/originals/ready/06.png'
+                self.assertEqual((output / item['output']).read_bytes(), target.read_bytes())
             with self.assertRaises(ValueError):
                 export(folder / 'export.json', output)
 
@@ -117,8 +121,8 @@ class MotionRepairTests(unittest.TestCase):
         self.assertEqual(audit.report['from_state'], 'running')
         self.assertTrue(audit.report['tail_motion']['passed'])
         self.assertEqual(audit.report['tail_motion']['chest_changed_pixels_at_display_size'], 0)
-        self.assertEqual(audit.report['tail_motion']['high_step'], 11)
-        self.assertEqual(audit.report['tail_motion']['low_step'], 12)
+        self.assertEqual(audit.report['tail_motion']['high_step'], 12)
+        self.assertEqual(audit.report['tail_motion']['low_step'], 13)
 
     def test_invalid_patch_bounds_and_canvas_mismatch_are_rejected(self):
         a = _png(16, 16, bytearray(16 * 16 * 4))

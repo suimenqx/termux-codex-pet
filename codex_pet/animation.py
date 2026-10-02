@@ -9,8 +9,8 @@ from .pets import (
 )
 
 AKITA_STATES = ("idle", "running", "needs_input", "ready", "blocked")
-# Preserve hind-leg phases; repair the foreleg inside its drawing instead.
-_AKITA_RUNNING_SEQUENCE = tuple(range(8))
+# Keep the eight key poses at their original times; split two large leg moves.
+_AKITA_RUNNING_SEQUENCE = (0, 8, 1, 2, 3, 4, 9, 5, 6, 7)
 _AKITA_READY_SEQUENCE = (
     ("ready", 4), ("ready", 1), ("ready", 2), ("ready", 3),
     ("idle", 1), ("idle", 0), ("blink", 0), ("idle", 0), ("idle", 3), ("idle", 6),
@@ -20,7 +20,7 @@ AKITA_READY_LOOP_START = 4
 AKITA_READY_LOOP_END = len(_AKITA_READY_SEQUENCE) - 1
 AKITA_READY_RUNNING_ENTRY_START = len(_AKITA_READY_SEQUENCE)
 # Contextual entry is outside the rest loop. It joins the normal entry at 0.
-_AKITA_READY_SEQUENCE += (("ready", 5), ("ready", 6))
+_AKITA_READY_SEQUENCE += (("ready", 5), ("ready", 6), ("ready", 7))
 AKITA_FRAME_COUNTS = {
     "idle": 8,
     "running": len(_AKITA_RUNNING_SEQUENCE),
@@ -31,13 +31,13 @@ AKITA_FRAME_COUNTS = {
 AKITA_FRAME_INTERVALS = {
     # Slow breath, one quick blink, then a quiet pause before the next loop.
     "idle": (0.6, 0.08, 0.08, 0.08, 0.6, 0.6, 0.6, 0.6),
-    # Approved eight-pose cycle; frame count is not a gait quality metric.
-    "running": (0.08,) * 8,
+    # Two 40 ms breakdowns preserve the original 640 ms cycle and key times.
+    "running": (0.04, 0.04, 0.08, 0.08, 0.08, 0.04, 0.04, 0.08, 0.08, 0.08),
     # A small wave with a longer hold at the raised paw.
     "needs_input": (0.2, 0.18, 0.18, 0.85),
     # The entry hop settles into subtle breathing and a slow blink.
     "ready": (0.16, 0.20, 0.22, 0.36, 0.8, 0.28, 0.20, 0.30, 0.6, 0.8, 0.6, 0.8,
-              0.12, 0.12),
+              0.12, 0.12, 0.12),
     # Blocked is a brief reaction that settles and holds its final pose.
     "blocked": (0.12, 0.18, 0.18, 0.12),
 }

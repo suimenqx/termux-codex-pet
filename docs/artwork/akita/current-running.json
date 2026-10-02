@@ -1,11 +1,11 @@
 {
-  "source_commit": "07d224c plus local front-leg patch",
-  "landmark_source_commit": "accepted-running.json except updated 02 front-paw samples",
-  "note": "Current physical drawings. 02 front paws manually re-marked after bounded patch; original hind-paw points remain unchanged. Sampling is not gait certification.",
+  "source_commit": "7dc1042 plus two bounded four-limb breakdowns",
+  "landmark_source_commit": "prior current-running.json; new 08/09 manually marked",
+  "note": "Physical file order; playback uses 00,08,01,02,03,04,09,05,06,07. Paw samples describe visible artwork, not joint centers or certified ground contacts.",
   "frames": [
     {
       "file": "00.png",
-      "seconds": 0.08,
+      "seconds": 0.04,
       "phase": "compression",
       "paw_centers": {
         "hind_near": [
@@ -98,7 +98,7 @@
     },
     {
       "file": "04.png",
-      "seconds": 0.08,
+      "seconds": 0.04,
       "phase": "fore_contact",
       "paw_centers": {
         "hind_near": [
@@ -191,6 +191,54 @@
         ]
       },
       "sha256": "5357fcd3d0d476002ebe830348c28af4f74409bfca171909015b28cef5bb6009"
+    },
+    {
+      "file": "08.png",
+      "seconds": 0.04,
+      "phase": "extension_breakdown",
+      "paw_centers": {
+        "hind_near": [
+          58,
+          195
+        ],
+        "hind_far": [
+          99,
+          201
+        ],
+        "fore_near": [
+          176,
+          210
+        ],
+        "fore_far": [
+          207,
+          205
+        ]
+      },
+      "sha256": "3ec38bec100dfc5c0acc2eee28f016516620d9a1049155aea0994e396a046218"
+    },
+    {
+      "file": "09.png",
+      "seconds": 0.04,
+      "phase": "recovery_breakdown",
+      "paw_centers": {
+        "hind_near": [
+          46,
+          182
+        ],
+        "hind_far": [
+          97,
+          188
+        ],
+        "fore_near": [
+          176,
+          214
+        ],
+        "fore_far": [
+          222,
+          193
+        ]
+      },
+      "sha256": "0c4d7f2e125e6e25fa8cbea2f968e83c8d9ef78ec092f8e9949f823420ba70c4"
     }
   ]
 }

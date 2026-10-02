@@ -83,7 +83,7 @@ class AkitaArtTests(unittest.TestCase):
 
     def test_animation_frame_files_are_contiguous_and_complete(self) -> None:
         root = Path(__file__).resolve().parents[1] / "codex_pet/assets/akita/frames"
-        source_frame_counts = dict(AKITA_FRAME_COUNTS, ready=7)
+        source_frame_counts = dict(AKITA_FRAME_COUNTS, ready=8)
         for state, frame_count in source_frame_counts.items():
             with self.subTest(state=state):
                 frame_names = sorted(path.name for path in (root / state).glob("*.png"))

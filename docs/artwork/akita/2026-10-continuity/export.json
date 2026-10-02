@@ -1,0 +1,58 @@
+{
+  "exports": [
+    {
+      "source": "running-08-revised-source.png",
+      "original": "originals/running/00.png",
+      "box": [
+        4,
+        170,
+        252,
+        244
+      ],
+      "feather": 6,
+      "output": "running/08.png"
+    },
+    {
+      "source": "running-09-revised-source.png",
+      "original": "originals/running/04.png",
+      "regions": [
+        {
+          "box": [
+            4,
+            140,
+            125,
+            244
+          ],
+          "feather": 4
+        },
+        {
+          "box": [
+            125,
+            168,
+            252,
+            244
+          ],
+          "feather": 6
+        },
+        {
+          "box": [
+            204,
+            156,
+            252,
+            194
+          ],
+          "feather": 4
+        }
+      ],
+      "output": "running/09.png"
+    },
+    {
+      "source": "turn-06-final-source.png",
+      "output": "ready/06.png"
+    },
+    {
+      "source": "turn-07-final-source.png",
+      "output": "ready/07.png"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "source": "running-08-source.png",
+    "prompt": "running-08-prompt.txt",
+    "references": [
+      "originals/running/00.png",
+      "originals/running/01.png"
+    ],
+    "selected_for_export": false,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "running-09-source.png",
+    "prompt": "running-09-prompt.txt",
+    "references": [
+      "originals/running/04.png",
+      "originals/running/05.png"
+    ],
+    "selected_for_export": false,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "turn-06-source.png",
+    "prompt": "turn-06-prompt.txt",
+    "references": [
+      "originals/ready/06.png",
+      "originals/ready/04.png",
+      "originals/ready/05.png"
+    ],
+    "selected_for_export": false,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "running-08-revised-source.png",
+    "prompt": "running-08-revised-prompt.txt",
+    "references": [
+      "running-08-source.png",
+      "originals/running/00.png",
+      "originals/running/01.png"
+    ],
+    "selected_for_export": true,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "running-09-revised-source.png",
+    "prompt": "running-09-revised-prompt.txt",
+    "references": [
+      "running-09-source.png",
+      "originals/running/04.png",
+      "originals/running/05.png"
+    ],
+    "selected_for_export": true,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "turn-06-revised-source.png",
+    "prompt": "turn-06-revised-prompt.txt",
+    "references": [
+      "originals/ready/04.png",
+      "originals/ready/05.png"
+    ],
+    "selected_for_export": false,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "turn-07-source.png",
+    "prompt": "turn-07-prompt.txt",
+    "references": [
+      "originals/ready/04.png",
+      "originals/ready/05.png"
+    ],
+    "selected_for_export": false,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "turn-06-final-source.png",
+    "prompt": "turn-06-final-prompt.txt",
+    "references": [
+      "turn-06-revised-source.png",
+      "originals/ready/04.png"
+    ],
+    "selected_for_export": true,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  },
+  {
+    "source": "turn-07-final-source.png",
+    "prompt": "turn-07-final-prompt.txt",
+    "references": [
+      "turn-07-source.png",
+      "originals/ready/04.png"
+    ],
+    "selected_for_export": true,
+    "tool": "built-in imagegen",
+    "model_id": "not provided"
+  }
+]

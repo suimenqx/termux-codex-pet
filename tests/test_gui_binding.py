@@ -126,11 +126,12 @@ class GuiBindingTests(unittest.TestCase):
         try:
             worker._refresh(timeline, now=1, advance=True)
             worker._refresh(timeline, now=1.120001, advance=True)
+            worker._refresh(timeline, now=1.240001, advance=True)
             snapshot["state"] = "needs_input"
-            worker._refresh(timeline, now=1.15, advance=True)
+            worker._refresh(timeline, now=1.25, advance=True)
         finally:
             worker.stop()
-        self.assertEqual(rendered, [("ready", 12), ("ready", 13), ("needs_input", 0)])
+        self.assertEqual(rendered, [("ready", 12), ("ready", 13), ("ready", 14), ("needs_input", 0)])
 
     def test_only_one_overlay_and_no_text_views_are_created(self) -> None:
         FakeView.next_id = 1

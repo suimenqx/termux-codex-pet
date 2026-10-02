@@ -69,7 +69,7 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertTrue(hind_legs["all_paw_markers_on_visible_art"])
         for leg in hind_legs["legs"].values():
             points = [p["relative_to_hip_dp"] for p in leg["positions"] if p["visible"]]
-            self.assertEqual(len(leg["positions"]), 8)
+            self.assertEqual(len(leg["positions"]), 10)
             self.assertAlmostEqual(leg["horizontal_range_dp"],
                                    max(p[0] for p in points) - min(p[0] for p in points),
                                    delta=.02)
@@ -80,10 +80,10 @@ class AnimationAuditTests(unittest.TestCase):
         self.assertTrue(fore_legs["passed"], fore_legs)
         self.assertTrue(fore_legs["all_paw_markers_on_visible_art"])
         self.assertIn("manual review required", fore_legs["gait_validation"])
-        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][2]["paw_source_px"], [210, 215])
-        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][3]["paw_source_px"], [201, 196])
+        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][3]["paw_source_px"], [210, 215])
+        self.assertEqual(fore_legs["legs"]["fore_near"]["positions"][4]["paw_source_px"], [201, 196])
         for name, leg in fore_legs["legs"].items():
-            self.assertEqual(len(leg["positions"]), 8)
+            self.assertEqual(len(leg["positions"]), 10)
             self.assertGreaterEqual(leg["visible_poses"], 7)
             self.assertTrue(all(
                 point["opaque_coverage"] >= 0.8
@@ -91,15 +91,21 @@ class AnimationAuditTests(unittest.TestCase):
                 for point in leg["positions"] if point["visible"]
             ), name)
         self.assertIn("not gait", fore_legs["pass_scope"])
-        self.assertEqual(result.report["frame_count"], 16)
+        self.assertEqual(result.report["frame_count"], 20)
         self.assertEqual(result.report["duration_seconds"], 1.28)
         self.assertEqual(
             [frame.frame for frame in result.frames],
             [frame["frame"] for frame in preview],
         )
-        self.assertEqual(len(hind_legs["phases"]), 8)
+        self.assertEqual(len(hind_legs["phases"]), 10)
         self.assertEqual(hind_legs["phases"][0], "compression")
         self.assertEqual(hind_legs["phases"][-1], "loop_transfer")
+        for pair in [hind_legs, fore_legs]:
+            self.assertEqual(pair["physical_frames"], [0, 8, 1, 2, 3, 4, 9, 5, 6, 7])
+            self.assertEqual(pair["phases"][1], "extension_breakdown")
+            self.assertEqual(pair["phases"][6], "recovery_breakdown")
+            self.assertEqual(pair["exposure_seconds"],
+                             [.04, .04, .08, .08, .08, .04, .04, .08, .08, .08])
 
     def test_rejected_sheet_remains_reproducible_from_its_archived_manifest(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -120,7 +126,7 @@ class AnimationAuditTests(unittest.TestCase):
 
     def test_running_head_has_no_jump_at_phase_or_cycle_boundary(self) -> None:
         head_tops = []
-        for frame in range(8):
+        for frame in range(10):
             pixels = rgba_icon("running", frame)
             head_tops.append(min(
                 y for y in range(35, 110) for x in range(120, 230)
