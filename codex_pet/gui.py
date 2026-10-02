@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 import select
 import socket
@@ -16,11 +17,20 @@ from .animation import AnimationTimeline
 from .art import icon
 from .pets import DEFAULT_APPEARANCE, appearance_for
 from .preferences import read_config, save_position
+from .renderer.transport import Connection
 
 LOG = logging.getLogger(__name__)
 PET_SIZE_DP = 64
 DRAG_SLOP_DP = 6
 RECONNECT_DELAYS = (0.0, 5.0, 20.0, 60.0)
+
+
+@dataclass(frozen=True)
+class OverlayStatus:
+    x: int
+    y: int
+    touch_count: int
+    last_touch: str
 
 
 def _overlay(connection: tg.Connection) -> tg.Activity:
@@ -191,9 +201,12 @@ class GuiWorker:
         self.snapshot = snapshot
         self.on_status = on_status
         self.read_wake, self.write_wake = socket.socketpair()
+        self.write_wake.setblocking(False)
+        self.read_wake.setblocking(False)
         self.stopping = False
         self.thread = threading.Thread(target=self._run, name="codex-pet-gui", daemon=True)
         self.ui: OverlayUI | None = None
+        self.overlay_status: OverlayStatus | None = None
 
     def start(self) -> None:
         self.thread.start()
@@ -203,6 +216,18 @@ class GuiWorker:
             self.write_wake.send(b"x")
         except OSError:
             pass
+
+    def _drain_wake(self) -> None:
+        try:
+            while self.read_wake.recv(4096):
+                pass
+        except BlockingIOError:
+            pass
+
+    def _publish_overlay(self) -> None:
+        ui = self.ui
+        self.overlay_status = (OverlayStatus(ui.x, ui.y, ui.touch_count, ui.last_touch)
+                               if ui is not None else None)
 
     def stop(self) -> None:
         self.stopping = True
@@ -215,11 +240,11 @@ class GuiWorker:
     def _run(self) -> None:
         failures = 0
         while not self.stopping:
-            connection: tg.Connection | None = None
+            connection: Connection | None = None
             try:
-                connection = tg.Connection()
-                connection._main.settimeout(4.0)
+                connection = Connection()
                 self.ui = OverlayUI(connection, self.config_path)
+                self._publish_overlay()
                 self.on_status(True, "")
                 failures = 0
                 self._loop(connection)
@@ -234,6 +259,7 @@ class GuiWorker:
                     except OSError:
                         LOG.exception("Could not close overlay")
                     self.ui = None
+                    self.overlay_status = None
                 if connection is not None:
                     connection.close()
             # Keep retrying a lost GUI connection at a low rate; a Codex event
@@ -242,7 +268,7 @@ class GuiWorker:
                 delay = RECONNECT_DELAYS[min(max(0, failures - 1), len(RECONNECT_DELAYS) - 1)]
                 readable, _, _ = select.select([self.read_wake], [], [], delay)
                 if readable:
-                    self.read_wake.recv(4096)
+                    self._drain_wake()
                     failures = 0
 
     def _loop(self, connection: tg.Connection) -> None:
@@ -258,7 +284,7 @@ class GuiWorker:
             timeout = timeline.timeout(time.monotonic())
             readable, _, _ = select.select([connection._event, self.read_wake], [], [], timeout)
             if self.read_wake in readable:
-                self.read_wake.recv(4096)
+                self._drain_wake()
                 if self.stopping:
                     break
                 self._refresh(timeline, time.monotonic())
@@ -269,6 +295,7 @@ class GuiWorker:
                 if event is not None:
                     if self.ui.handle(event):
                         self._refresh(timeline, time.monotonic())
+                    self._publish_overlay()
             now = time.monotonic()
             if timeline.due(now):
                 self._refresh(timeline, now, advance=True)

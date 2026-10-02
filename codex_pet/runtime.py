@@ -28,14 +28,23 @@ def directories() -> None:
 
 
 def request(payload: dict[str, Any], timeout: float = 0.25) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout
     data = (json.dumps(payload, ensure_ascii=False) + "\n").encode()
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-        connection.settimeout(timeout)
+        def remaining() -> None:
+            budget = deadline - time.monotonic()
+            if budget <= 0:
+                raise TimeoutError("IPC request deadline exceeded")
+            connection.settimeout(budget)
+
+        remaining()
         connection.connect(str(SOCKET))
+        remaining()
         connection.sendall(data)
         response = bytearray()
         while len(response) < 65536:
-            part = connection.recv(4096)
+            remaining()
+            part = connection.recv(min(4096, 65536 - len(response)))
             if not part:
                 break
             response.extend(part)
@@ -76,21 +85,28 @@ def _daemon_lock_held() -> bool:
 
 
 def start_daemon(wait: float = 0.8) -> dict[str, Any] | None:
+    deadline = time.monotonic() + wait
     directories()
     with open(START_LOCK, "a+b") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
-        try:
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return None
             try:
-                return request({"action": "status"}, 0.2)
-            except (OSError, ValueError, ConnectionError):
-                pass
-            deadline = time.monotonic() + wait
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                time.sleep(min(0.01, remaining))
+        try:
             spawned = False
             while time.monotonic() < deadline:
                 try:
-                    return request({"action": "status"}, 0.15)
+                    return request({"action": "status"},
+                                   min(0.15, deadline - time.monotonic()))
                 except (OSError, ValueError, ConnectionError):
                     pass
+                if time.monotonic() >= deadline:
+                    return None
                 if not spawned and not _daemon_lock_held():
                     try:
                         SOCKET.unlink()
@@ -103,7 +119,9 @@ def start_daemon(wait: float = 0.8) -> dict[str, Any] | None:
                             cwd=str(PROJECT), start_new_session=True, close_fds=True,
                         )
                     spawned = True
-                time.sleep(0.04)
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    time.sleep(min(0.04, remaining))
             return None
         finally:
             fcntl.flock(lock, fcntl.LOCK_UN)

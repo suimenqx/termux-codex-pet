@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import fcntl
+from dataclasses import asdict
 import json
 import logging
 from logging.handlers import RotatingFileHandler
@@ -34,6 +35,7 @@ class Daemon:
         self.notification_lock = threading.Lock()
         self.last_notification: tuple[str, str, str] | None = None
         self.signal_read, self.signal_write = socket.socketpair()
+        self.signal_write.setblocking(False)
         self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status)
 
     def snapshot(self) -> dict[str, Any]:
@@ -70,10 +72,8 @@ class Daemon:
     def status(self) -> dict[str, Any]:
         with self.lock:
             state = {**self.sessions.snapshot(), "appearance": self.appearance}
-            ui = self.gui.ui
-            overlay = ({"x": ui.x, "y": ui.y,
-                        "touch_count": ui.touch_count, "last_touch": ui.last_touch}
-                       if ui is not None else None)
+            overlay_status = self.gui.overlay_status
+            overlay = asdict(overlay_status) if overlay_status is not None else None
             return {"ok": True, "pid": os.getpid(), "gui_ready": self.gui_ready,
                     "overlay": overlay,
                     "gui_error": self.gui_error, **state}
@@ -105,8 +105,7 @@ class Daemon:
             return {"ok": True, "appearance": appearance,
                     "name": APPEARANCE_BY_ID[appearance].name}
         if action == "stop":
-            self.stopping = True
-            self.signal_write.send(b"s")
+            self._signal(0, None)
             return {"ok": True}
         if action == "event":
             event = direct_event(payload.get("event"))

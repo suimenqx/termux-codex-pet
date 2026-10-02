@@ -10,7 +10,7 @@ from codex_pet.state import direct_event
 
 
 class FakeGui:
-    ui = None
+    overlay_status = None
 
     def wake(self) -> None:
         pass

@@ -20,7 +20,7 @@ class GuiRecoveryTests(unittest.TestCase):
             raise ConnectionError("GUI is temporarily unavailable")
 
         worker = gui.GuiWorker(None, lambda: {}, lambda ready, error: None)
-        with patch.object(gui.tg, "Connection", side_effect=unavailable_connection), \
+        with patch.object(gui, "Connection", side_effect=unavailable_connection), \
              patch.object(gui, "RECONNECT_DELAYS", (0.0, 0.02, 0.05), create=True), \
              patch.object(gui.LOG, "exception"):
             worker.start()

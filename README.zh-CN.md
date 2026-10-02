@@ -68,7 +68,7 @@ codex-pet status
 
 ## Hooks 与自动恢复
 
-安装器注册 `SessionStart`、`UserPromptSubmit`、`PermissionRequest`、`PostToolUse`、`Stop`、`Interrupt` 和 `SessionEnd`。它们都调用 `codex-pet-event`，并将 Codex JSON 传给它。即使 Pet 出错，hook helper 也会正常退出，不阻断 Codex。Android 回收 daemon 后，下一个 Codex 事件会重新启动它，无需 Termux:Boot。`SessionEnd` 会移除对应会话。运行时 socket 和轮转日志位于 `~/.cache/codex-pet/`。
+安装器注册 `SessionStart`、`UserPromptSubmit`、`PermissionRequest`、`PostToolUse`、`Stop`、`Interrupt` 和 `SessionEnd`。它们都调用 `codex-pet-event`，并将 Codex JSON 传给它。即使 Pet 出错，hook helper 也会正常退出，不阻断 Codex。启动锁等待计入启动总时限；GUI 暂停消费唤醒时仍可接收事件。原生握手与回复读取有总时限，EOF、半包或非法回复会关闭连接后重连。Android 回收 daemon 后，下一个 Codex 事件会重新启动它，无需 Termux:Boot。`SessionEnd` 会移除对应会话。运行时 socket 和轮转日志位于 `~/.cache/codex-pet/`。
 
 ## 故障排查
 
