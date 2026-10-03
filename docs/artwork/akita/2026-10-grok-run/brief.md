@@ -37,10 +37,10 @@
 先按可行的近期方案做了一个单帧验证：用 imagegen 生成高清内部细节，再运行 `source/fixed_alpha_redraw.py`，把原始 `running/00.png` 的 alpha 作为不可变轮廓，并以预乘 alpha 方式缩回 256×256。生成源和完整提示词分别保存在 `source/redraw-pose-locked-generated.png` 与 `source/redraw-pose-locked-prompt.txt`。
 
 - 直接把生成图套上原始 alpha 的版本能做到 256 px alpha 和原图逐字节一致，但生成图自身的内部姿势/边缘颜色仍会带入接缝，不能直接使用。
-- 更保守的 `fixed-detail` 版本只在轮廓内侧以 30% 混合生成细节，并保护轮廓安全带；[`review/fixed-detail-compare-192px.png`](review/fixed-detail-compare-192px.png) 显示浅色、深色背景下动作轮廓保持，细节有轻微提升，没有引入直接套图版本的明显黑边。
-- 这证明“固定原图几何、AI 只参与内部细节”是当前可行方向；但单帧提升幅度有限，原有边缘 matte 问题也不会凭空消失。要批量处理 20 帧，还必须逐帧生成并做原速/帧间闪动复核。
+- 更保守的 `fixed-detail` 版本只在轮廓内侧以 30% 混合生成细节，并保护轮廓安全带；但用户在 [`review/fixed-detail-compare-192px.png`](review/fixed-detail-compare-192px.png) 中发现右侧仍有重影，白边也没有获得可见改善，因此视觉复核失败。
+- 这次实验只证明“原始 alpha 可以锁定”，没有证明“直接混合未配准的生成 RGB”可行。重影来自两套未对齐的内部轮廓叠加；白边来自原帧的半透明边缘颜色，当前配方保留了它。要继续，必须把 matte 边缘去污染和内部纹理生成拆开，并先完成几何配准；不能批量套用本候选。
 
-因此本轮只保存 `fixed-detail` 候选，不替换生产 `running/00`，也不把单帧结果宣称为整圈动画已通过。
+因此本轮将 `fixed-detail` 标为失败候选，不替换生产 `running/00`，也不把单帧结果宣称为整圈动画已通过。
 
 ## 生产接入
 

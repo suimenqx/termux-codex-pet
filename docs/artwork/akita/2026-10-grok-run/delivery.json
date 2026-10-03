@@ -103,7 +103,14 @@
       "blend_strength": 0.3,
       "protected_contour_band_source_px": 2,
       "alpha_equal_to_source_at_256": true,
-      "result": "preferred single-frame candidate; subtle detail improvement and preserved outer action, not batch-approved"
+      "diagnostic": {
+        "semi_edge_rgb_drift_mean": 22.78,
+        "dark_edge_luma_p95_reduction": 0.64,
+        "acceptance_loop": "alpha exact; edge drift <= 5.0; dark-edge luma p95 reduction >= 10.0",
+        "verdict": "fail"
+      },
+      "user_visual_review": "fail: visible double contour/ghosting on the right image and no material white-edge improvement",
+      "result": "rejected; alpha locking alone is insufficient when unregistered generated RGB is blended"
     }
   },
   "device_check": {
