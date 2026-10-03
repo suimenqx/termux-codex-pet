@@ -91,6 +91,13 @@ class DeploymentTests(unittest.TestCase):
                 deploy(self.source, self.home)
             self.assertEqual((self.home / '.local/share/codex-pet/current').resolve(), first)
 
+    def test_missing_new_pet_frame_cannot_replace_active_release(self):
+        first = deploy(self.source, self.home)
+        (self.source / 'codex_pet/assets/pixel_dog/frames/running/04.png').unlink()
+        with self.assertRaises(ValueError):
+            deploy(self.source, self.home)
+        self.assertEqual((self.home / '.local/share/codex-pet/current').resolve(), first)
+
     def test_deploy_migrates_legacy_source_symlinks_without_backing_them_up(self) -> None:
         local_bin = self.home / ".local/bin"
         local_bin.mkdir(parents=True)

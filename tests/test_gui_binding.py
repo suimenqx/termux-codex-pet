@@ -189,6 +189,7 @@ class GuiBindingTests(unittest.TestCase):
              patch.object(backend.tg, "Buffer", side_effect=AssertionError("raw-alpha buffer is unsafe")):
             pet = backend.TermuxGuiRenderer(connection)
             for appearance in APPEARANCES:
+                before = len(pet.face.image_updates)
                 for state in ("idle", "running", "needs_input", "ready", "blocked"):
                     render(pet, {"state": state, "running_count": 2,
                                 "appearance": appearance.id, "project": "repo",
@@ -196,7 +197,10 @@ class GuiBindingTests(unittest.TestCase):
                     self.assertEqual(decode_png(pet.face.image),
                                      decode_png(icon(state, 0, 2, appearance.id)))
                     self.assertEqual((pet.image_width, pet.image_height), bundled_pack(appearance.id).canvas)
-            self.assertEqual(len(pet.face.image_updates), len(APPEARANCES) * 5)
+                # Pixel Dog's ready and blocked entries reuse the same sit/00
+                # reference. A state change must not force a redundant send.
+                updates = {'akita': 5, 'robot': 5, 'pixel_dog': 4}
+                self.assertEqual(len(pet.face.image_updates) - before, updates[appearance.id])
             render(pet, {"state": "running", "running_count": 2, "appearance": "akita"})
             self.assertEqual(decode_png(pet.face.image), decode_png(icon("running", 0, 2)))
             pet.close()

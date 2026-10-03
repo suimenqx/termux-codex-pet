@@ -33,6 +33,17 @@ Install and uninstall serialize through `~/.config/codex-pet/install.lock`. Inst
 
 `pets.py` owns the supported appearance catalog and default selection. Each validated `assets/<id>/pet.json` owns canvas/display dimensions, frame identities and playback. There are no per-appearance art/animation profiles or duplicated geometry in the catalog.
 
+Bundled pack lookup, installation preflight and offline preview/audit choices use
+that catalog. Pixel Dog (`pixel_dog`) adds a separate 64×64 PNG-directory pack:
+20 unscaled poses from a CC0 sheet, including the original five-pose 650 ms run.
+Its manifest maps product roles to stand, run, bark, sit-entry and sit-rest clips;
+the existing 64-pixel count decoration is reused. `tools/import_pixel_dog.py`
+reproduces it from archived artwork and refuses to overwrite a directory. See
+the [import brief](artwork/pixel_dog/2026-10-import/brief.md) for source and timing
+provenance. Akita remains the default; installing additional packs preserves the
+saved appearance and position. No renderer, session or touch branch is needed
+for this pet.
+
 ## Contracts to preserve
 
 - **Fail open at the hook boundary.** `codex-pet-event` reads at most 64 KiB of hook JSON, tolerates missing fields, exits successfully on Pet failure, and never changes a Codex permission or execution decision. It attempts a short socket request, starts a missing daemon under `start.lock`, retries, then falls back to a notification for needs-input/ready. Keep hook work bounded.

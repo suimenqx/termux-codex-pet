@@ -8,6 +8,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Mapping
 from .image_contract import DISPLAY_DP, MAX_IMAGE_BYTES, rgba_size
+from .pets import APPEARANCE_BY_ID
 
 ROLES = frozenset(('idle', 'running', 'needs_input', 'ready', 'blocked'))
 # Aggregate pack preflight cap is a separate policy from per-image allocation.
@@ -223,7 +224,7 @@ def _validate_images(pack: PetPack) -> None:
 
 @lru_cache(maxsize=8)
 def bundled_pack(pack_id: str) -> PetPack:
-    if pack_id not in ('akita', 'robot'):
+    if pack_id not in APPEARANCE_BY_ID:
         raise ValueError('Unknown bundled pack')
     return compile_pack(Path(__file__).parent / 'assets' / pack_id / 'pet.json')
 
@@ -231,7 +232,7 @@ def bundled_pack(pack_id: str) -> PetPack:
 def preflight(package: Path) -> None:
     from .image_codec import check_capability
     check_capability()
-    for name in ('robot', 'akita'):
+    for name in APPEARANCE_BY_ID:
         pack = compile_pack(package / 'assets' / name /
                             'pet.json', validate_images=True)
         if pack.id != name:

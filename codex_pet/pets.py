@@ -25,6 +25,11 @@ APPEARANCES = (
         name="Robot",
         description="The original dark pixel robot.",
     ),
+    PetAppearance(
+        id="pixel_dog",
+        name="Pixel Dog",
+        description="A grey pixel dog with an original five-pose running loop (CC0).",
+    ),
 )
 APPEARANCE_BY_ID = {appearance.id: appearance for appearance in APPEARANCES}
 

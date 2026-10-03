@@ -1,0 +1,172 @@
+{
+  "renderer": "compiled frames with premultiplied bilinear downsampling",
+  "appearance": "pixel_dog",
+  "count": 0,
+  "state": "running",
+  "from_state": null,
+  "display_size_dp": 64,
+  "density": 1.0,
+  "display_size_px": 64,
+  "frame_count": 10,
+  "duration_seconds": 1.3,
+  "frames": [
+    {
+      "step": 0,
+      "frame": 0,
+      "reference": "running/00",
+      "delay_seconds": 0.13,
+      "sha256": "22cb3e77ec35296baec137da5cd353b37c30685812c41ee424d587d35538bfed",
+      "file": "frames/step-00-frame-00.png"
+    },
+    {
+      "step": 1,
+      "frame": 1,
+      "reference": "running/01",
+      "delay_seconds": 0.13,
+      "sha256": "ceb5fa480c3a21238e0e554c385aeb9a172883ab6ddbaf43a56f10cde5b4483b",
+      "file": "frames/step-01-frame-01.png"
+    },
+    {
+      "step": 2,
+      "frame": 2,
+      "reference": "running/02",
+      "delay_seconds": 0.13,
+      "sha256": "61ef5fb3270535512aa2c58d7d9d1eb1682c146c59436f497449031123adbe56",
+      "file": "frames/step-02-frame-02.png"
+    },
+    {
+      "step": 3,
+      "frame": 3,
+      "reference": "running/03",
+      "delay_seconds": 0.13,
+      "sha256": "6b1f44566fdf2dc0d827592f18559d560c8afc7c54a6c4e920452a4d78b7282f",
+      "file": "frames/step-03-frame-03.png"
+    },
+    {
+      "step": 4,
+      "frame": 4,
+      "reference": "running/04",
+      "delay_seconds": 0.13,
+      "sha256": "687a6e6bcd1918a4e9da5e4d87ef3373e48d23913a8131c5ada8c6b1505af9de",
+      "file": "frames/step-04-frame-04.png"
+    },
+    {
+      "step": 5,
+      "frame": 0,
+      "reference": "running/00",
+      "delay_seconds": 0.13,
+      "sha256": "22cb3e77ec35296baec137da5cd353b37c30685812c41ee424d587d35538bfed",
+      "file": "frames/step-05-frame-00.png"
+    },
+    {
+      "step": 6,
+      "frame": 1,
+      "reference": "running/01",
+      "delay_seconds": 0.13,
+      "sha256": "ceb5fa480c3a21238e0e554c385aeb9a172883ab6ddbaf43a56f10cde5b4483b",
+      "file": "frames/step-06-frame-01.png"
+    },
+    {
+      "step": 7,
+      "frame": 2,
+      "reference": "running/02",
+      "delay_seconds": 0.13,
+      "sha256": "61ef5fb3270535512aa2c58d7d9d1eb1682c146c59436f497449031123adbe56",
+      "file": "frames/step-07-frame-02.png"
+    },
+    {
+      "step": 8,
+      "frame": 3,
+      "reference": "running/03",
+      "delay_seconds": 0.13,
+      "sha256": "6b1f44566fdf2dc0d827592f18559d560c8afc7c54a6c4e920452a4d78b7282f",
+      "file": "frames/step-08-frame-03.png"
+    },
+    {
+      "step": 9,
+      "frame": 4,
+      "reference": "running/04",
+      "delay_seconds": 0.13,
+      "sha256": "687a6e6bcd1918a4e9da5e4d87ef3373e48d23913a8131c5ada8c6b1505af9de",
+      "file": "frames/step-09-frame-04.png"
+    }
+  ],
+  "transitions": [
+    {
+      "from_step": 0,
+      "to_step": 1,
+      "from_frame": 0,
+      "to_frame": 1,
+      "changed_pixels_at_display_size": 389,
+      "mean_absolute_channel_delta": 13.731
+    },
+    {
+      "from_step": 1,
+      "to_step": 2,
+      "from_frame": 1,
+      "to_frame": 2,
+      "changed_pixels_at_display_size": 261,
+      "mean_absolute_channel_delta": 8.038
+    },
+    {
+      "from_step": 2,
+      "to_step": 3,
+      "from_frame": 2,
+      "to_frame": 3,
+      "changed_pixels_at_display_size": 481,
+      "mean_absolute_channel_delta": 14.68
+    },
+    {
+      "from_step": 3,
+      "to_step": 4,
+      "from_frame": 3,
+      "to_frame": 4,
+      "changed_pixels_at_display_size": 657,
+      "mean_absolute_channel_delta": 21.513
+    },
+    {
+      "from_step": 4,
+      "to_step": 5,
+      "from_frame": 4,
+      "to_frame": 0,
+      "changed_pixels_at_display_size": 631,
+      "mean_absolute_channel_delta": 19.809
+    },
+    {
+      "from_step": 5,
+      "to_step": 6,
+      "from_frame": 0,
+      "to_frame": 1,
+      "changed_pixels_at_display_size": 389,
+      "mean_absolute_channel_delta": 13.731
+    },
+    {
+      "from_step": 6,
+      "to_step": 7,
+      "from_frame": 1,
+      "to_frame": 2,
+      "changed_pixels_at_display_size": 261,
+      "mean_absolute_channel_delta": 8.038
+    },
+    {
+      "from_step": 7,
+      "to_step": 8,
+      "from_frame": 2,
+      "to_frame": 3,
+      "changed_pixels_at_display_size": 481,
+      "mean_absolute_channel_delta": 14.68
+    },
+    {
+      "from_step": 8,
+      "to_step": 9,
+      "from_frame": 3,
+      "to_frame": 4,
+      "changed_pixels_at_display_size": 657,
+      "mean_absolute_channel_delta": 21.513
+    }
+  ],
+  "tail_motion": null,
+  "hind_leg_motion": null,
+  "fore_leg_motion": null,
+  "contact_sheet": "contact-sheet.png"
+}

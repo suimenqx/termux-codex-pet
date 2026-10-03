@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "id": "pixel_dog",
+  "canvas_px": [
+    64,
+    64
+  ],
+  "display_dp": [
+    64,
+    64
+  ],
+  "color_space": "srgb",
+  "source": {
+    "kind": "png_directory"
+  },
+  "frames": {
+    "bark/00": {
+      "file": "frames/bark/00.png"
+    },
+    "bark/01": {
+      "file": "frames/bark/01.png"
+    },
+    "bark/02": {
+      "file": "frames/bark/02.png"
+    },
+    "bark/03": {
+      "file": "frames/bark/03.png"
+    },
+    "running/00": {
+      "file": "frames/running/00.png"
+    },
+    "running/01": {
+      "file": "frames/running/01.png"
+    },
+    "running/02": {
+      "file": "frames/running/02.png"
+    },
+    "running/03": {
+      "file": "frames/running/03.png"
+    },
+    "running/04": {
+      "file": "frames/running/04.png"
+    },
+    "sit/00": {
+      "file": "frames/sit/00.png"
+    },
+    "sit/01": {
+      "file": "frames/sit/01.png"
+    },
+    "sit/02": {
+      "file": "frames/sit/02.png"
+    },
+    "sitting/00": {
+      "file": "frames/sitting/00.png"
+    },
+    "sitting/01": {
+      "file": "frames/sitting/01.png"
+    },
+    "sitting/02": {
+      "file": "frames/sitting/02.png"
+    },
+    "sitting/03": {
+      "file": "frames/sitting/03.png"
+    },
+    "standing/00": {
+      "file": "frames/standing/00.png"
+    },
+    "standing/01": {
+      "file": "frames/standing/01.png"
+    },
+    "standing/02": {
+      "file": "frames/standing/02.png"
+    },
+    "standing/03": {
+      "file": "frames/standing/03.png"
+    }
+  },
+  "clips": {
+    "idle": {
+      "frames": [
+        {
+          "frame": "standing/00",
+          "duration_ms": 200
+        },
+        {
+          "frame": "standing/01",
+          "duration_ms": 200
+        },
+        {
+          "frame": "standing/02",
+          "duration_ms": 200
+        },
+        {
+          "frame": "standing/03",
+          "duration_ms": 200
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "running": {
+      "frames": [
+        {
+          "frame": "running/00",
+          "duration_ms": 130
+        },
+        {
+          "frame": "running/01",
+          "duration_ms": 130
+        },
+        {
+          "frame": "running/02",
+          "duration_ms": 130
+        },
+        {
+          "frame": "running/03",
+          "duration_ms": 130
+        },
+        {
+          "frame": "running/04",
+          "duration_ms": 130
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "needs_input": {
+      "frames": [
+        {
+          "frame": "bark/00",
+          "duration_ms": 150
+        },
+        {
+          "frame": "bark/01",
+          "duration_ms": 150
+        },
+        {
+          "frame": "bark/02",
+          "duration_ms": 150
+        },
+        {
+          "frame": "bark/03",
+          "duration_ms": 150
+        },
+        {
+          "frame": "standing/00",
+          "duration_ms": 800
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "sit_down": {
+      "frames": [
+        {
+          "frame": "sit/00",
+          "duration_ms": 140
+        },
+        {
+          "frame": "sit/01",
+          "duration_ms": 140
+        },
+        {
+          "frame": "sit/02",
+          "duration_ms": 140
+        }
+      ],
+      "end": {
+        "mode": "next",
+        "clip": "sitting"
+      }
+    },
+    "sitting": {
+      "frames": [
+        {
+          "frame": "sitting/00",
+          "duration_ms": 200
+        },
+        {
+          "frame": "sitting/01",
+          "duration_ms": 200
+        },
+        {
+          "frame": "sitting/02",
+          "duration_ms": 200
+        },
+        {
+          "frame": "sitting/03",
+          "duration_ms": 200
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "blocked_entry": {
+      "frames": [
+        {
+          "frame": "sit/00",
+          "duration_ms": 140
+        },
+        {
+          "frame": "sit/01",
+          "duration_ms": 140
+        },
+        {
+          "frame": "sit/02",
+          "duration_ms": 140
+        }
+      ],
+      "end": {
+        "mode": "next",
+        "clip": "blocked_hold"
+      }
+    },
+    "blocked_hold": {
+      "frames": [
+        {
+          "frame": "sitting/00",
+          "duration_ms": null
+        }
+      ],
+      "end": {
+        "mode": "hold"
+      }
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "sit_down",
+    "blocked": "blocked_entry"
+  },
+  "transitions": [],
+  "decorations": {
+    "count": {
+      "style": "robot_count_v1",
+      "visible_above": 1,
+      "clamp": 10
+    }
+  }
+}

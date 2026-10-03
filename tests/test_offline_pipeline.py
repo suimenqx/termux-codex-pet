@@ -13,8 +13,8 @@ from codex_pet.image_codec import decode_png
 
 
 class OfflinePipelineTests(unittest.TestCase):
-    def test_preview_matches_live_requests_for_both_pets_and_transition(self):
-        for pet in ('akita', 'robot'):
+    def test_preview_matches_live_requests_for_all_pets_and_transition(self):
+        for pet in ('akita', 'robot', 'pixel_dog'):
             for state, old in [('idle', None), ('running', None), ('needs_input', None),
                                ('ready', None), ('ready', 'running'), ('blocked', None)]:
                 with self.subTest(pet=pet, state=state, source=old):
@@ -36,11 +36,12 @@ class OfflinePipelineTests(unittest.TestCase):
                         self.assertEqual(row['reference'], request.reference)
                         now += row['seconds']
 
-    def test_tool_commands_export_robot_and_akita_badges_and_holds(self):
+    def test_tool_commands_export_all_pets_badges_and_holds(self):
         root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
-            for pet, state in [('robot', 'running'), ('robot', 'blocked'), ('akita', 'ready')]:
+            for pet, state in [('robot', 'running'), ('robot', 'blocked'), ('akita', 'ready'),
+                               ('pixel_dog', 'running'), ('pixel_dog', 'ready')]:
                 target = folder/f'{pet}-{state}'
                 command = [sys.executable, str(root/'tools/audit_animation.py'), '--pet', pet, '--state', state,
                            '--cycles', '1', '--density', '1', '--count', '10', '--output', str(target)]

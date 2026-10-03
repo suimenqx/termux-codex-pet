@@ -1,0 +1,41 @@
+{
+  "baseline_commit": "d23aee3",
+  "python": "3.14.6",
+  "pillow": "12.3.0",
+  "tests": {
+    "command": "python -m unittest discover -s tests -v",
+    "passed": 206,
+    "seconds": 136.567
+  },
+  "typing": {
+    "command": "python -m mypy --ignore-missing-imports codex_pet",
+    "source_files": 28,
+    "result": "pass"
+  },
+  "reproduction": {
+    "files": 29,
+    "result": "byte-identical; existing destination refused"
+  },
+  "existing_assets": {
+    "akita_files_unchanged": 41,
+    "robot_files_unchanged": 1
+  },
+  "device": {
+    "release": "20261003T002139Z-72e0bba5",
+    "binding": "0.1.6",
+    "plugin": 7,
+    "transport": "png",
+    "state_demo": "isolated codex-pet test passed",
+    "new_log_errors": 0,
+    "continuous_preview_seconds": 70,
+    "prior_appearance": "akita",
+    "final_appearance": "akita",
+    "configuration_preserved": true,
+    "checks": [
+      "isolated codex-pet test passed",
+      "new pet remained GUI ready"
+    ]
+  },
+  "human_visual_acceptance": "pending",
+  "human_touch_acceptance": "pending"
+}

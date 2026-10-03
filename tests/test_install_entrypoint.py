@@ -119,14 +119,30 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         self.run_command([self.cli, 'pet', 'use', 'robot'])
         self.wait_for(lambda: any(row.get('size') == [
                       64, 64] for row in self.frames()))
+        offset = len(self.frames())
+        self.run_command([self.cli, 'pet', 'use', 'pixel_dog'])
+        from PIL import Image
+        with Image.open(second / 'codex_pet/assets/pixel_dog/frames/standing/00.png') as img:
+            expected = hashlib.sha256(img.tobytes()).hexdigest()
+        self.wait_for(lambda: any(row.get('rgba_sha256') == expected
+                                  for row in self.frames()[offset:]))
+        self.assertEqual(json.loads(self.config.read_text()), {
+            'appearance': 'pixel_dog', 'position': {'x': 130, 'y': 240}, 'theme': 'mine'})
+        self.assertIn('CC0', (second / 'codex_pet/assets/pixel_dog/LICENSE.txt').read_text())
+        # Reinstallation also preserves the new selection and unrelated settings.
+        self.run_command(['bash', self.source / 'install.sh'])
+        first, second = second, (self.app / 'current').resolve()
+        self.assertEqual(json.loads(self.config.read_text()), {
+            'appearance': 'pixel_dog', 'position': {'x': 130, 'y': 240}, 'theme': 'mine'})
         self.run_command([self.cli, 'pet', 'use', 'akita'])
         saved_config, saved_hooks = self.config.read_bytes(), self.hooks.read_bytes()
+        saved_releases = set(self.app.joinpath('releases').iterdir())
         (self.root / 'fail-restart').touch()
         self.run_command(['bash', self.source / 'install.sh'], success=False)
         self.assertEqual((self.app / 'current').resolve(), second)
         self.assertEqual((self.app / 'previous').resolve(), first)
         self.assertEqual(set(self.app.joinpath(
-            'releases').iterdir()), {first, second})
+            'releases').iterdir()), saved_releases)
         self.assertEqual(self.config.read_bytes(), saved_config)
         self.assertEqual(self.hooks.read_bytes(), saved_hooks)
         restored = self.request({'action': 'status'})
