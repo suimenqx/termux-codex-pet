@@ -1,0 +1,95 @@
+{
+  "software": {
+    "unittest": "212 tests passed, 136.449s",
+    "mypy": "29 source files passed",
+    "device": "Huawei Mate60Pro+ / ALN-AL10, Android API31, termuxgui0.1.6, plugin7",
+    "transport": "png"
+  },
+  "packs": {
+    "boba": {
+      "frames": 31,
+      "manifest_sha256": "821a2a1399244d3b7d189b6f6d89b553809fe619ca1da7002f9a8a0a1ea45d2c",
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "deterministic_export": "two exports byte-identical"
+    },
+    "mochi": {
+      "frames": 31,
+      "manifest_sha256": "1a9291a2c1482458ab9e558eddabe0076b74956a0a0769d66ae55469450cb247",
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "deterministic_export": "two exports byte-identical"
+    },
+    "golden_retriever": {
+      "frames": 31,
+      "manifest_sha256": "8600413b7078a435ed449a8af777c71ed5eb7da83fd3a5c56e7a4d67231ed5ba",
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "deterministic_export": "two exports byte-identical"
+    },
+    "vpet": {
+      "frames": 48,
+      "manifest_sha256": "1f443ee994eed583d00858604596a7f601684d26eb4708667bebd1d02fd71d1a",
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "deterministic_export": "two exports byte-identical"
+    },
+    "bongo_cat": {
+      "frames": 5,
+      "manifest_sha256": "b5354468eb45252f6530bc08d2ce44c889c872932ea822726988592797782698",
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "deterministic_export": "two exports byte-identical"
+    }
+  },
+  "human_acceptance": "pending: asked during the sequential phone preview; touch/alpha not automatically certified",
+  "continuous_preview": {
+    "previewed": [
+      {
+        "pet": "boba",
+        "continuous_seconds": 20,
+        "gui_ready": true
+      },
+      {
+        "pet": "mochi",
+        "continuous_seconds": 20,
+        "gui_ready": true
+      },
+      {
+        "pet": "golden_retriever",
+        "continuous_seconds": 20,
+        "gui_ready": true
+      },
+      {
+        "pet": "vpet",
+        "continuous_seconds": 20,
+        "gui_ready": true
+      },
+      {
+        "pet": "bongo_cat",
+        "continuous_seconds": 20,
+        "gui_ready": true
+      }
+    ],
+    "prior": {
+      "position": {
+        "x": 920,
+        "y": 138
+      },
+      "appearance": "akita"
+    },
+    "final": {
+      "position": {
+        "x": 973,
+        "y": 188
+      },
+      "appearance": "akita"
+    },
+    "restored_appearance": "akita"
+  }
+}

@@ -17,7 +17,7 @@ if str(ROOT) not in sys.path:
 from codex_pet.frames import FrameSource, FrameComposer  # noqa: E402
 from codex_pet.frame_cache import FrameCache  # noqa: E402
 from codex_pet.pet_pack import bundled_pack  # noqa: E402
-from codex_pet.pets import APPEARANCE_BY_ID  # noqa: E402
+from codex_pet.pets import appearance_catalog  # noqa: E402
 from codex_pet.image_codec import decode_png as _decode_rgba_png, encode_png  # noqa: E402
 from tools.historical_animation import AKITA_STATES, playback_frames  # noqa: E402
 
@@ -200,7 +200,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", choices=AKITA_STATES, default="ready")
     parser.add_argument("--cycles", type=int, default=2)
-    parser.add_argument("--pet", choices=tuple(APPEARANCE_BY_ID), default="akita")
+    parser.add_argument("--pet", choices=tuple(appearance_catalog()), default="akita")
     parser.add_argument("--count", type=int, default=0)
     parser.add_argument("--from-state", choices=AKITA_STATES,
                         help="include the production entry from this previous state")

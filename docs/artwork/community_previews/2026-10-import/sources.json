@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "note": "Source art stays outside the repository; hashes fix the inspected versions. Read brief.md for permissions and transformations.",
+  "files": {
+    "boba-sheet.webp": {
+      "url": "https://assets.petdex.dev/curated/boba/sprite-v2.webp",
+      "sha256": "b2a723fc55ac6af867765dedc26b3841fbf178d7e1025d6011e8d96ac44f19c9"
+    },
+    "boba-pet.json": {
+      "url": "https://assets.petdex.dev/curated/boba/petjson-v2.json",
+      "sha256": "a5f00ef46e5dc981430286cc11bad3b54fca73551f66ac47faa71d3ecc47f75c"
+    },
+    "mochi-sheet.webp": {
+      "url": "https://assets.petdex.dev/pets/mochi-c8ceaf04b7d3/sprite.webp",
+      "sha256": "0ca16521eef9b6de0c59123f40146e41362fd684db5c476d33b6b36a495f560d"
+    },
+    "mochi-pet.json": {
+      "url": "https://assets.petdex.dev/pets/mochi-c8ceaf04b7d3/petjson.json",
+      "sha256": "857e76a24bae2ce3fabee1bb841bc67bb509c064861808d779995f51573a82c6"
+    },
+    "golden-retriever-sheet.webp": {
+      "url": "https://assets.petdex.dev/pets/golden-retriever-fcdbff377324/sprite.webp",
+      "sha256": "4ac2a7e9f58b7bc9398aae7c89b13e4445a30033f5ccffb9ff310ec5af64fdec"
+    },
+    "golden-retriever-pet.json": {
+      "url": "https://assets.petdex.dev/pets/golden-retriever-fcdbff377324/petjson.json",
+      "sha256": "9284afc4c430bbcf5f761ff37a215c8e389cca85fc6765f762f934833257719b"
+    },
+    "vpet/Default/Nomal/1/_000_250.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_000_250.png",
+      "sha256": "e05ce6f085ed5cf09bf8a08071264a89bd9deebe0afa9ffa8bc7727f96b84fb9"
+    },
+    "vpet/Default/Nomal/1/_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_001_125.png",
+      "sha256": "5a28990a4880513d88dfe6757c63b695f3056978bd2a34845547a7826a50b2ea"
+    },
+    "vpet/Default/Nomal/1/_002_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_002_125.png",
+      "sha256": "02ebba4270211fdb4b8a5a65ec6022a56d6297854869656926dc00120a30349b"
+    },
+    "vpet/Default/Nomal/1/_003_375.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_003_375.png",
+      "sha256": "7415ee79b635deb83cdc62444eb2fdc82fda253405fb5223e508650adf89d0d3"
+    },
+    "vpet/Default/Nomal/1/_004_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_004_125.png",
+      "sha256": "22328629082da59559e70813450ea35e3e2eaf307106a21131bd88bab29c796e"
+    },
+    "vpet/Default/Nomal/1/_005_250.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_005_250.png",
+      "sha256": "e9737e64dc3f2aca63853291e9a070e47e375a260b12318e38109c30089d9c30"
+    },
+    "vpet/Default/Nomal/1/_006_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_006_125.png",
+      "sha256": "5a28990a4880513d88dfe6757c63b695f3056978bd2a34845547a7826a50b2ea"
+    },
+    "vpet/Default/Nomal/1/_007_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Default/Nomal/1/_007_125.png",
+      "sha256": "e05ce6f085ed5cf09bf8a08071264a89bd9deebe0afa9ffa8bc7727f96b84fb9"
+    },
+    "vpet/MOVE/walk.left.faster/A_Happy/哈皮走路向左_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/A_Happy/%E5%93%88%E7%9A%AE%E8%B5%B0%E8%B7%AF%E5%90%91%E5%B7%A6_000_125.png",
+      "sha256": "3aa5666f67294339a51818c3a3cc799e846a30e99fb2acf15047c2794ff760c5"
+    },
+    "vpet/MOVE/walk.left.faster/A_Happy/哈皮走路向左_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/A_Happy/%E5%93%88%E7%9A%AE%E8%B5%B0%E8%B7%AF%E5%90%91%E5%B7%A6_001_125.png",
+      "sha256": "e4994e247da76019cfa7bf7f5207d59b8e2825b6323ee58a1def6249ade58f5f"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_000_125.png",
+      "sha256": "e35f36db590d99fdddc7e0670f03e6567500d09308fecf048cffe669e8c74997"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_001_125.png",
+      "sha256": "cbb4cd278e1603f74b76d175ea1dda2426adae987b99e95478766b79113506a4"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_002_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_002_125.png",
+      "sha256": "29b93f53c914d309d65d2a99cac5ffd6f517cfecf692444a2bd5f577536d82c3"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_003_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_003_125.png",
+      "sha256": "012ed6572dbecd3849720f31a1c34217f056d40928b72436bd5a7e2f70531598"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_004_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_004_125.png",
+      "sha256": "29b93f53c914d309d65d2a99cac5ffd6f517cfecf692444a2bd5f577536d82c3"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_005_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_005_125.png",
+      "sha256": "e35f36db590d99fdddc7e0670f03e6567500d09308fecf048cffe669e8c74997"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_006_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_006_125.png",
+      "sha256": "5e2f6cc8905846807639d21f2bd747d29dde5e5695787c1754d1eef62a894bef"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_007_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_007_125.png",
+      "sha256": "a79245f917d1e811dfa2c60a012173d613b25eca5ab2006ac6f33646713067fb"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_008_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_008_125.png",
+      "sha256": "3ab769f7b2a9ba3cac17e672b6ad514d136cb6ed86bb7bf3ceff20195f1629a3"
+    },
+    "vpet/MOVE/walk.left.faster/B_Happy/哈皮左走_009_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/B_Happy/%E5%93%88%E7%9A%AE%E5%B7%A6%E8%B5%B0_009_125.png",
+      "sha256": "a34b0373e9695a865f00fe823857101cca0adc7c50d4baa9061748b10193ae4c"
+    },
+    "vpet/MOVE/walk.left.faster/C_Happy/哈皮走路向左_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/C_Happy/%E5%93%88%E7%9A%AE%E8%B5%B0%E8%B7%AF%E5%90%91%E5%B7%A6_000_125.png",
+      "sha256": "b843eb433fb414703b8c1ee60175e2ae42057ca0b2c45ffb5a93d980798d4ecc"
+    },
+    "vpet/MOVE/walk.left.faster/C_Happy/哈皮走路向左_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/MOVE/walk.left.faster/C_Happy/%E5%93%88%E7%9A%AE%E8%B5%B0%E8%B7%AF%E5%90%91%E5%B7%A6_001_125.png",
+      "sha256": "e4994e247da76019cfa7bf7f5207d59b8e2825b6323ee58a1def6249ade58f5f"
+    },
+    "vpet/Think/Nomal/A/_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/A/_000_125.png",
+      "sha256": "8334ee622fd7fe30e7beceab6c88988154e754b71c3cd4ee6e4dcf505585c144"
+    },
+    "vpet/Think/Nomal/A/_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/A/_001_125.png",
+      "sha256": "48cddbca00dc576065df2e9e3a576fc6e911a2af8c294cf2646646c09004b2cd"
+    },
+    "vpet/Think/Nomal/B/_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_000_125.png",
+      "sha256": "b7c2a86476b07d2fe1fba87c77e165b2599dd54cd9e1a768347cce598bf11c4a"
+    },
+    "vpet/Think/Nomal/B/_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_001_125.png",
+      "sha256": "91933035dc7c4731a0613641feead1e5803d6f612fa1dbb2afffb6b7a7343fe3"
+    },
+    "vpet/Think/Nomal/B/_002_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_002_125.png",
+      "sha256": "b9e91e8fc6a3c5f83d6554bbdfa1fe13d39589ca3bf15c489f5e86d549d9331a"
+    },
+    "vpet/Think/Nomal/B/_003_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_003_125.png",
+      "sha256": "cd816c9480cd130f64ca04f4df9b029fc11d4820fbe16318de74f849bdce6dfb"
+    },
+    "vpet/Think/Nomal/B/_004_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_004_125.png",
+      "sha256": "b7c2a86476b07d2fe1fba87c77e165b2599dd54cd9e1a768347cce598bf11c4a"
+    },
+    "vpet/Think/Nomal/B/_005_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_005_125.png",
+      "sha256": "cd816c9480cd130f64ca04f4df9b029fc11d4820fbe16318de74f849bdce6dfb"
+    },
+    "vpet/Think/Nomal/B/_006_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_006_125.png",
+      "sha256": "b9e91e8fc6a3c5f83d6554bbdfa1fe13d39589ca3bf15c489f5e86d549d9331a"
+    },
+    "vpet/Think/Nomal/B/_007_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_007_125.png",
+      "sha256": "91933035dc7c4731a0613641feead1e5803d6f612fa1dbb2afffb6b7a7343fe3"
+    },
+    "vpet/Think/Nomal/B/_008_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/B/_008_125.png",
+      "sha256": "b7c2a86476b07d2fe1fba87c77e165b2599dd54cd9e1a768347cce598bf11c4a"
+    },
+    "vpet/Think/Nomal/C/_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/C/_000_125.png",
+      "sha256": "f5c8317e5f319a01f353b3cf429d4f3c8f9e4b400fda2fdb2d074c7621a109b1"
+    },
+    "vpet/Think/Nomal/C/_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Think/Nomal/C/_001_125.png",
+      "sha256": "8334ee622fd7fe30e7beceab6c88988154e754b71c3cd4ee6e4dcf505585c144"
+    },
+    "vpet/Touch_Head/A_Nomal/摸头_0_250.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/A_Nomal/%E6%91%B8%E5%A4%B4_0_250.png",
+      "sha256": "833238f4fc50d5237695ade9971ef371e2216c6a210927f9b0aad436f75e5082"
+    },
+    "vpet/Touch_Head/A_Nomal/摸头_1_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/A_Nomal/%E6%91%B8%E5%A4%B4_1_125.png",
+      "sha256": "e7bde4871e0b7ce409bdd807bedfad18a150f3256376358cbf58a039ee50e6cb"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_000_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_000_125.png",
+      "sha256": "c8e1c2a4579c9f3751de6ed45816f88e155afcdf4e0dfb0c9bd89de8c13b83cb"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_001_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_001_125.png",
+      "sha256": "0db61f48264de432075073c9aef90d586749c6eef75c8681c29cdf6163c0e681"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_002_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_002_125.png",
+      "sha256": "9b2b760e7921afe88a43c3741dd16a0a865858b3683262a0b145f4ff61e37448"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_003_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_003_125.png",
+      "sha256": "c8e1c2a4579c9f3751de6ed45816f88e155afcdf4e0dfb0c9bd89de8c13b83cb"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_004_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_004_125.png",
+      "sha256": "cd4e6a679fa9958e98476d26f035d4104032cb52fde36bc182206db757191837"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_005_250.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_005_250.png",
+      "sha256": "9b2b760e7921afe88a43c3741dd16a0a865858b3683262a0b145f4ff61e37448"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_006_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_006_125.png",
+      "sha256": "c8e1c2a4579c9f3751de6ed45816f88e155afcdf4e0dfb0c9bd89de8c13b83cb"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_007_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_007_125.png",
+      "sha256": "d1a6dac54f4b23a75ecdac3e4c5b88697e811b8b21167c1ba8fc0d8d868f3391"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_008_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_008_125.png",
+      "sha256": "9b2b760e7921afe88a43c3741dd16a0a865858b3683262a0b145f4ff61e37448"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_009_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_009_125.png",
+      "sha256": "6b556144efdda1c53483fee60b9c91ab34767ef521ffdff32c4acd0846732ef1"
+    },
+    "vpet/Touch_Head/B_Nomal/摸头_010_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/B_Nomal/%E6%91%B8%E5%A4%B4_010_125.png",
+      "sha256": "c8e1c2a4579c9f3751de6ed45816f88e155afcdf4e0dfb0c9bd89de8c13b83cb"
+    },
+    "vpet/Touch_Head/C_Nomal/摸头_0_125.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/C_Nomal/%E6%91%B8%E5%A4%B4_0_125.png",
+      "sha256": "35627647624647ceb2117de55305f1af4755baea8daf6f2f80a907c346b5b591"
+    },
+    "vpet/Touch_Head/C_Nomal/摸头_1_250.png": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/VPet-Simulator.Windows/mod/0000_core/pet/vup/Touch_Head/C_Nomal/%E6%91%B8%E5%A4%B4_1_250.png",
+      "sha256": "3dec3de337295e670e55e32901894bb11a95c0a53e0ea1a3c3d5ca4b57c6c9d9"
+    },
+    "vpet-readme.txt": {
+      "url": "https://raw.githubusercontent.com/LorisYounger/VPet/332933432a93b6daac90186d67be2356e71e75ff/README.md",
+      "sha256": "bab2da8bddefeee26414b1a3a08200be88fb24a7fa34d302aeee019a2899469d"
+    },
+    "bongo-classic/README.md": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/README.md",
+      "sha256": "c66e0d7a575ea3f749a23bfbdd98fd0130d98105aa85197d4b6b9e1f4dc7c399"
+    },
+    "bongo-classic/LICENSE": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/LICENSE",
+      "sha256": "d23c4d7fec837307ee66bf833db70af3337480a0b1871a8c60edb731643f26c2"
+    },
+    "bongo-classic/style/style.css": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/style/style.css",
+      "sha256": "d21ed3d24d95b944fcf79d2f7049d24b5a681ba1e2664241c0cb692dd02230ff"
+    },
+    "bongo-classic/js/core.js": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/js/core.js",
+      "sha256": "a0fe1a254ad4f4d8e0c90be925842b383c6b9dc57bd85f87fc3396dd656b1b2d"
+    },
+    "bongo-classic/images/cat.png": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/images/cat.png",
+      "sha256": "1b5f375f51fca310f9a237d396410967b7c7e4338648667c25e8d3b13863fea3"
+    },
+    "bongo-classic/images/mouth.png": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/images/mouth.png",
+      "sha256": "7ef06b5646dbd2ece25e9440c98d6a05becb5bc966b90ca994d2296950955f2c"
+    },
+    "bongo-classic/images/bongo.png": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/images/bongo.png",
+      "sha256": "77ec637da1fd6505ec83f62fd9a9570a9daecedb91b021f0de18f46a7f9af6ea"
+    },
+    "bongo-classic/images/paw-left.png": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/images/paw-left.png",
+      "sha256": "938e6d976c5b6e92ead83df1edd7e7557ae28dc16f8a37a133cfa49275acd9a3"
+    },
+    "bongo-classic/images/paw-right.png": {
+      "url": "https://raw.githubusercontent.com/Externalizable/bongo.cat/591940644775d7cfd5167eceeeb6b97a1f9aadd4/images/paw-right.png",
+      "sha256": "4cf7ffb3a3b61738cee14153e399841221453ed5d2ffc33cd293eeab988d44af"
+    },
+    "petdex-sprite.zig": {
+      "url": "https://raw.githubusercontent.com/crafter-station/petdex/7e327034c27098bb7b701b834e34af81c2cfbdba/packages/petdex-desktop-native/src/sprite.zig",
+      "sha256": "90f82172169e748ec89182b8d67e1cd1017bd909b036591bcbe6a1fec6b7a2c9"
+    }
+  },
+  "pets": {
+    "boba": {
+      "name": "Boba",
+      "description": "A tiny otter sipping bubble tea while keeping you company in Codex. Local preview.",
+      "source_size": [
+        1536,
+        2288
+      ],
+      "credits": "# Boba — local preview\n\nSource: https://petdex.dev/pets/boba\nSubmitted by: railly\nOriginal sheet: https://assets.petdex.dev/curated/boba/sprite-v2.webp\n\nIndividual artwork redistribution permission is unverified. Petdex code MIT is not a grant for this image. Imported for this user's local visual comparison; not bundled or published. Original sheet SHA256: b2a723fc55ac6af867765dedc26b3841fbf178d7e1025d6011e8d96ac44f19c9. Frame layout and timing follow the archived Petdex native sprite definition.\n"
+    },
+    "mochi": {
+      "name": "Mochi",
+      "description": "A cute chibi cat companion for Codex. Local preview.",
+      "source_size": [
+        1536,
+        1872
+      ],
+      "credits": "# Mochi — local preview\n\nSource: https://petdex.dev/pets/mochi\nSubmitted by: Aoi\nOriginal sheet: https://assets.petdex.dev/pets/mochi-c8ceaf04b7d3/sprite.webp\n\nIndividual artwork redistribution permission is unverified. Petdex code MIT is not a grant for this image. Imported for this user's local visual comparison; not bundled or published. Original sheet SHA256: 0ca16521eef9b6de0c59123f40146e41362fd684db5c476d33b6b36a495f560d. Frame layout and timing follow the archived Petdex native sprite definition.\n"
+    },
+    "golden-retriever": {
+      "name": "Golden Retriever",
+      "description": "A friendly golden retriever digital pet. Local preview.",
+      "source_size": [
+        1536,
+        1872
+      ],
+      "credits": "# Golden Retriever — local preview\n\nSource: https://petdex.dev/pets/golden-retriever\nSubmitted by: Prem S.\nOriginal sheet: https://assets.petdex.dev/pets/golden-retriever-fcdbff377324/sprite.webp\n\nIndividual artwork redistribution permission is unverified. Petdex code MIT is not a grant for this image. Imported for this user's local visual comparison; not bundled or published. Original sheet SHA256: 4ac2a7e9f58b7bc9398aae7c89b13e4445a30033f5ccffb9ff310ec5af64fdec. Frame layout and timing follow the archived Petdex native sprite definition.\n"
+    },
+    "vpet": {
+      "credits": "# VPet / vup\n\nAnimation copyright: 虚拟主播模拟器制作组. Source: https://github.com/LorisYounger/VPet/tree/332933432a93b6daac90186d67be2356e71e75ff\n\nLocal noncommercial preview, preserving attribution and all original animation terms in LICENSE.md. The code license is distinct from animation permission. Original 1000px frames, original filename timing; uniformly downsampled without redrawing.\n"
+    },
+    "bongo_cat": {
+      "credits": "# Bongo Cat Classic\n\nArt: StrayRogue; original meme: DitzyFlama; website: Externalizable / Eric Huber.\nSource: https://github.com/Externalizable/bongo.cat/tree/591940644775d7cfd5167eceeeb6b97a1f9aadd4\n\nWebsite-use permission is documented upstream. General cross-application image redistribution is unverified. Local preview only; no derived image publication. Source MIT retained separately. Original PNG layers and CSS table adapted to transparent RGBA; drumming timing is an integration choice. Not ayangweb Live2D BongoCat. Original README follows.\n"
+    }
+  }
+}

@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 import sys
 import time
 from typing import Any
 
-from .pets import APPEARANCES, APPEARANCE_BY_ID, DEFAULT_APPEARANCE
+from .pets import appearance_catalog, DEFAULT_APPEARANCE
 from .preferences import save_appearance, selected_appearance
 from .runtime import (
     CONFIG, LOG, SOCKET, _daemon_lock_held, request, send_event, start_daemon,
@@ -116,7 +117,7 @@ def _test() -> int:
 def _pet_list() -> int:
     selected = selected_appearance(CONFIG)
     print("Supported pet appearances:")
-    for appearance in APPEARANCES:
+    for appearance in appearance_catalog().values():
         marker = "*" if appearance.id == selected else " "
         default = "; default" if appearance.id == DEFAULT_APPEARANCE else ""
         print(f"{marker} {appearance.id} — {appearance.name}{default}: {appearance.description}")
@@ -124,8 +125,9 @@ def _pet_list() -> int:
 
 
 def _pet_use(appearance: str) -> int:
-    if appearance not in APPEARANCE_BY_ID:
-        available = ", ".join(item.id for item in APPEARANCES)
+    catalog = appearance_catalog()
+    if appearance not in catalog:
+        available = ", ".join(catalog)
         print(f"Unknown pet appearance '{appearance}'. Available: {available}", file=sys.stderr)
         return 2
 
@@ -134,7 +136,7 @@ def _pet_use(appearance: str) -> int:
     except (OSError, ValueError, ConnectionError):
         result = None
     if result is not None and result.get("ok"):
-        print(f"Pet appearance set to {APPEARANCE_BY_ID[appearance].name} ({appearance}).")
+        print(f"Pet appearance set to {catalog[appearance].name} ({appearance}).")
         return 0
 
     try:
@@ -149,6 +151,17 @@ def _pet_use(appearance: str) -> int:
     return 0
 
 
+def _pet_import(source: Path) -> int:
+    from .local_pets import import_local_pack
+    try:
+        pet = import_local_pack(source)
+    except (OSError, ValueError) as exc:
+        print(f'Could not import pet: {exc}', file=sys.stderr)
+        return 1
+    print(f'Imported {pet.name}. Select with: codex-pet pet use {pet.id}')
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="codex-pet")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -159,9 +172,14 @@ def main() -> None:
     pet_commands.add_parser("list", help="list supported pet appearances")
     use_parser = pet_commands.add_parser("use", help="select a pet appearance")
     use_parser.add_argument("appearance")
+    import_parser = pet_commands.add_parser("import", help="validate and copy a local Pet Pack")
+    import_parser.add_argument("directory", type=Path)
     args = parser.parse_args()
     if args.command == "pet":
-        code = _pet_list() if args.pet_action == "list" else _pet_use(args.appearance)
+        if args.pet_action == 'import':
+            code = _pet_import(args.directory)
+        else:
+            code = _pet_list() if args.pet_action == "list" else _pet_use(args.appearance)
         raise SystemExit(code)
     if args.command == "daemon":
         from .daemon import main as daemon_main

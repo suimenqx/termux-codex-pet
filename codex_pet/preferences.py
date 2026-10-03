@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from .pets import APPEARANCE_BY_ID, DEFAULT_APPEARANCE, appearance_for
+from .pets import DEFAULT_APPEARANCE, appearance_for, appearance_catalog
 
 
 def read_config(path: Path) -> dict[str, Any]:
@@ -50,7 +50,7 @@ def selected_appearance(path: Path) -> str:
 
 
 def save_appearance(path: Path, appearance: str) -> dict[str, Any]:
-    if appearance not in APPEARANCE_BY_ID:
+    if appearance not in appearance_catalog():
         raise ValueError(f"Unknown pet appearance: {appearance}")
     return update_config(path, lambda data: data.__setitem__("appearance", appearance))
 

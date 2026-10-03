@@ -177,6 +177,40 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         self.assertEqual(
             (self.config.read_bytes(), self.hooks.read_bytes()), original)
 
+    def test_local_pack_live_import_pixels_upgrade_rollback_and_uninstall_preserve_data(self):
+        self.run_command(['bash', self.source / 'install.sh'])
+        pack = self.root / 'downloaded-pet'
+        shutil.copytree(self.source / 'codex_pet/assets/pixel_dog', pack)
+        manifest = json.loads((pack / 'pet.json').read_text())
+        manifest.update(id='local_dog', display_name='Local Dog')
+        (pack / 'pet.json').write_text(json.dumps(manifest))
+        saved = self.config.read_bytes()
+        self.run_command([self.cli, 'pet', 'import', pack])
+        self.assertEqual(self.config.read_bytes(), saved)
+        from PIL import Image
+        with Image.open(pack / 'frames/standing/00.png') as img:
+            expected = hashlib.sha256(img.tobytes()).hexdigest()
+        shutil.rmtree(pack)
+        offset = len(self.frames())
+        self.run_command([self.cli, 'pet', 'use', 'local_dog'])
+        self.wait_for(lambda: any(row.get('rgba_sha256') == expected
+                                  for row in self.frames()[offset:]))
+        installed = self.app / 'pets/local_dog/pet.json'
+        original = installed.read_bytes()
+        saved = self.config.read_bytes()
+        self.run_command(['bash', self.source / 'install.sh'])
+        self.assertEqual(self.request({'action': 'status'})['appearance'], 'local_dog')
+        self.assertEqual(self.config.read_bytes(), saved)
+        self.run_command([self.cli, 'stop'])
+        self.run_command([sys.executable, '-m', 'codex_pet.deployment',
+                          'rollback', '--source', self.source, '--home', self.home])
+        self.run_command([self.cli, 'start'])
+        self.assertEqual(self.request({'action': 'status'})['appearance'], 'local_dog')
+        self.run_command(['bash', self.source / 'uninstall.sh'])
+        self.assertEqual(installed.read_bytes(), original)
+        self.assertTrue((self.app / 'pets/catalog.json').is_file())
+        self.assertEqual(self.config.read_bytes(), saved)
+
     def test_real_hooks_ipc_frames_turn_closure_and_position(self):
         self.run_command(['bash', self.source / 'install.sh'])
 

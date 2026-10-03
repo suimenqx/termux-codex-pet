@@ -44,6 +44,37 @@ The Pet is a single, roughly 64 dp floating icon. The Akita uses high-resolution
 
 **Pixel Dog** is an additional grey pixel-art dog, imported from [rmazanek's CC0 Dog sprite sheet](https://opengameart.org/content/dog-3). It stands and wags its tail while idle, runs through five original poses at 130 ms each, barks for Needs input, sits down once then wags for Ready, and sits still for Blocked. Its 64×64 transparent frames use the same 64 dp overlay and controls. Select it with `codex-pet pet use pixel_dog`; adding it does not change Akita, Robot or the saved appearance. Source, license, original timing references and reproducible export are recorded in the [import brief](docs/artwork/pixel_dog/2026-10-import/brief.md).
 
+You can add a separate local Pet Pack with `codex-pet pet import /path/to/pack`.
+The directory must contain a valid `pet.json` and its referenced frames. Import
+validates and copies it into `~/.local/share/codex-pet/pets/<id>/`, then lists it
+under `pet list`; use `pet use <id>` to select it. Import does not change the
+current pet or position. Built-in IDs and existing local IDs cannot be replaced;
+give a revised pack a new ID. Local packs remain available after reinstall or
+rollback to a version supporting local packs, and are retained on uninstall.
+
+The optional [community preview importer](docs/artwork/community_previews/2026-10-import/brief.md)
+prepares five separate local packs: `boba`, `mochi`, `golden_retriever`, `vpet`,
+and `bongo_cat`. The first three preserve Petdex's pixel-style art; VPet uses
+the original humanoid animations from [LorisYounger/VPet](https://github.com/LorisYounger/VPet),
+with its separate animation attribution/terms. Bongo Cat uses the classic
+[bongo.cat](https://github.com/Externalizable/bongo.cat) drumming layers, not
+the Live2D edition. These previews are not bundled with installation. Their
+source/provenance records are preserved locally; unverified image redistribution
+rights are not inferred from a project's code license.
+
+```sh
+python tools/import_community_previews.py \
+  --sources "$HOME/.cache/codex-pet/community-sources" \
+  --output "$HOME/.cache/codex-pet/community-packs" --download
+codex-pet pet import "$HOME/.cache/codex-pet/community-packs/vpet"
+codex-pet pet use vpet
+```
+
+The exporter refuses an existing output directory and checks locked source
+hashes. Import the other generated directories individually to make them
+selectable. A preview is a chance to assess appearance and motion on the device,
+not a claim that its animation has passed human review.
+
 The [pet image and animation standards](docs/animation-assets.md) cover character scale and registration, motion timing and in-between frames, agent generation prompts, a production-brief template, and acceptance checks. They also identify the limits of the current artwork and audit tools. The following visual descriptions refer to Akita; all pets share the same state events.
 
 | State | What you see | When it changes |

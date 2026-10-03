@@ -15,7 +15,7 @@ import threading
 from typing import Any
 
 from .gui import GuiWorker
-from .pets import APPEARANCE_BY_ID
+from .pets import appearance_catalog
 from .preferences import save_appearance, selected_appearance
 from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, directories, notification
 from .state import SessionStore
@@ -94,9 +94,10 @@ class Daemon:
             return self.status()
         if action == "set_appearance":
             appearance = payload.get("appearance")
-            if not isinstance(appearance, str) or appearance not in APPEARANCE_BY_ID:
+            catalog = appearance_catalog()
+            if not isinstance(appearance, str) or appearance not in catalog:
                 return {"ok": False, "error": "unknown appearance",
-                        "available": list(APPEARANCE_BY_ID)}
+                        "available": list(catalog)}
             try:
                 save_appearance(CONFIG, appearance)
             except OSError as exc:
@@ -105,7 +106,7 @@ class Daemon:
                 self.appearance = appearance
             self.gui.wake()
             return {"ok": True, "appearance": appearance,
-                    "name": APPEARANCE_BY_ID[appearance].name}
+                    "name": catalog[appearance].name}
         if action == "stop":
             self._signal(0, None)
             return {"ok": True}

@@ -31,10 +31,23 @@ The two `bin` scripts add their containing runtime release to `sys.path`. `insta
 
 Install and uninstall serialize through `~/.config/codex-pet/install.lock`. Installation records the prior managed paths before changing them; a failed checked step restores those paths, removes the new release after the new daemon stops, and restarts the prior daemon if it had been running. Codex configuration backups remain available for inspection.
 
-`pets.py` owns the supported appearance catalog and default selection. Each validated `assets/<id>/pet.json` owns canvas/display dimensions, frame identities and playback. There are no per-appearance art/animation profiles or duplicated geometry in the catalog.
+`pets.py` owns the supported appearance catalog and default selection. Each validated `pet.json` owns canvas/display dimensions, frame identities and playback. There are no per-appearance art/animation profiles or duplicated geometry in the catalog.
 
-Bundled pack lookup, installation preflight and offline preview/audit choices use
-that catalog. Pixel Dog (`pixel_dog`) adds a separate 64×64 PNG-directory pack:
+`appearance_catalog()` merges shipped IDs with lightweight local metadata in
+`~/.local/share/codex-pet/pets/catalog.json`; it imports no image or native
+modules. `local_pets.import_local_pack()` validates a pack and its decoded frames,
+copies referenced art and provenance into a staged private directory, and
+publishes metadata under an import lock. Failed metadata publication removes
+only the new pack. Imports cannot replace bundled or existing IDs and never
+select the new pack. Immutable IDs preserve the compiled/frame-cache contract.
+`bundled_pack()` retains its compatibility name and resolves either location;
+runtime and renderer receive the same compiled pack/frame types. Installation
+preflight still validates only shipped assets. Missing local directories or a
+malformed catalog fall back to the normal default. The material is local user
+data, outside immutable releases; reinstall/rollback/uninstall preserve it.
+
+Offline preview/audit choices use the combined catalog. Pixel Dog (`pixel_dog`)
+adds a separate bundled 64×64 PNG-directory pack:
 20 unscaled poses from a CC0 sheet, including the original five-pose 650 ms run.
 Its manifest maps product roles to stand, run, bark, sit-entry and sit-rest clips;
 the existing 64-pixel count decoration is reused. `tools/import_pixel_dog.py`
