@@ -1,0 +1,34 @@
+{
+  "previewed": [
+    {
+      "pet": "akita",
+      "seconds": 15,
+      "gui_ready": true
+    },
+    {
+      "pet": "akita_run_cutout_v1",
+      "seconds": 30,
+      "gui_ready": true
+    },
+    {
+      "pet": "akita",
+      "seconds": 15,
+      "gui_ready": true
+    }
+  ],
+  "prior": {
+    "position": {
+      "x": 902,
+      "y": 457
+    },
+    "appearance": "akita"
+  },
+  "final": {
+    "position": {
+      "x": 902,
+      "y": 457
+    },
+    "appearance": "akita"
+  },
+  "restored_appearance": "akita"
+}

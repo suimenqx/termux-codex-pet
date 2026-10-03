@@ -150,3 +150,10 @@ This stops the daemon, removes its command wrappers, installed runtime releases,
 MIT. See [LICENSE](LICENSE).
 
 Animation review tools use the same compiled packs and frame composition as the overlay. For example, `python tools/preview_animation.py --pet akita --state ready --from-state running` includes the completion transition; `python tools/audit_animation.py --pet robot --state running --count 10` exports the Robot badge. Both accept `--cycles`. Audit paw measurements apply to Akita; candidate previews retain their separate explicit file list.
+
+The [archived Akita cutout experiment](docs/artwork/akita/2026-10-cutout/brief.md)
+reused original textures with continuous limb curves. The user found no running
+improvement in the phone comparison, so the candidate was withdrawn and the
+original Akita retained. Its [synchronized comparison](docs/artwork/akita/2026-10-cutout/review/comparison.html)
+records a rejected experiment, not a recommended upgrade. Original artwork and
+playback remain unchanged; running coordination is still an open art limitation.

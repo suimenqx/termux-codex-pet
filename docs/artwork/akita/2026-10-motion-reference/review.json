@@ -1,0 +1,35 @@
+{
+  "accepted": false,
+  "calls": 1,
+  "reason": "First pose reaches/clips right edge; requested continuous rear-paw recovery and fixed head layout not achieved. No expanded cycle or import.",
+  "frames": [
+    {
+      "file": "frames/00.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "right_border_alpha_max": 253
+    },
+    {
+      "file": "frames/01.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "right_border_alpha_max": 0
+    },
+    {
+      "file": "frames/02.png",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "right_border_alpha_max": 0
+    }
+  ],
+  "next": "User explicitly accepted source-texture cutout/code animation experiment."
+}
