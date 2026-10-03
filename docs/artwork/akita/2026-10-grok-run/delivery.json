@@ -62,6 +62,22 @@
     ],
     "result": "higher detail and cleaner edges, but leg pose changed; rejected for direct running integration"
   },
+  "prototype_pose_locked": {
+    "file": "review/redraw-prototype-running-00-pose-locked.png",
+    "generator": "built-in imagegen",
+    "size_px": [1254, 1254],
+    "format": "RGBA8 with transparent background",
+    "sha256": "5b89e68f27ac2037f207b0ef9ebe7ba64bc7af22dca8fe5ff4020976d2d736d7",
+    "inputs": [
+      "codex_pet/assets/akita/frames/running/00.png"
+    ],
+    "constraints_requested": [
+      "preserve exact alpha silhouette and outer contour",
+      "preserve limb positions, bends, overlaps, paw placement, tail curl, head angle, and framing",
+      "allow only internal fur, face detail, lighting, and edge anti-aliasing changes"
+    ],
+    "result": "detail improved, but the generated stance/action still changed; rejected for direct running integration"
+  },
   "device_check": {
     "date": "2026-10-03",
     "installer": "bash ./install.sh",
