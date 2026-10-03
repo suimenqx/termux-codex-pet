@@ -49,6 +49,19 @@
     "fur_texture_flicker": "minor source-model variation; not visible in the 64 dp review at normal speed",
     "visual_status": "offline review passed; device shell smoke passed; on-screen observation pending"
   },
+  "prototype_redraw": {
+    "file": "review/redraw-prototype-running-00.png",
+    "generator": "built-in imagegen",
+    "size_px": [1254, 1254],
+    "format": "RGBA8 with transparent background",
+    "sha256": "c375c0a3b5b7fbc4034cfee49c903a3ff34de982e848c127c743a2a2c6409fcb",
+    "inputs": [
+      "codex_pet/assets/akita/frames/running/00.png",
+      "docs/artwork/akita/2026-10-3d-reference/canonical/running-highres.png",
+      "docs/artwork/akita/2026-10-3d-reference/canonical/idle-highres.png"
+    ],
+    "result": "higher detail and cleaner edges, but leg pose changed; rejected for direct running integration"
+  },
   "device_check": {
     "date": "2026-10-03",
     "installer": "bash ./install.sh",
