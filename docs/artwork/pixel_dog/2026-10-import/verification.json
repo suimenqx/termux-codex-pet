@@ -36,6 +36,9 @@
       "new pet remained GUI ready"
     ]
   },
-  "human_visual_acceptance": "pending",
+  "human_visual_acceptance": "running motion acceptable; pixel-art appearance unsatisfactory on phone",
+  "human_feedback": "可以接受，就是像素感在手机上看着不太好看。",
+  "human_edge_acceptance": "not separately confirmed",
+  "human_state_readability_acceptance": "not separately confirmed",
   "human_touch_acceptance": "pending"
 }
