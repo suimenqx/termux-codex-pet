@@ -1,0 +1,11 @@
+Use case: precise-object-edit
+Asset type: high-resolution transparent 2D animation frame for a desktop pet.
+Input image 1 — edit target and hard geometry reference: the supplied current Akita running/00 PNG.
+Primary request: produce a clean high-resolution redraw of exactly this same animation frame. Treat the supplied frame as a hard stencil, not as a loose inspiration. This is an internal-detail restoration test, not a new pose or a character redesign.
+Subject: the same orange-and-white Akita with blue collar, same face, markings, ears, tail curl, visible legs, paws, body shape, and running-frame expression.
+Hard invariants: preserve the exact outer alpha silhouette, canvas framing, bounding box, feet baseline, head angle, every limb's position/bend/overlap and paw placement, tail curl, ear shape, eye/nose/mouth locations, collar location, and all existing colored marking boundaries. Preserve the current action and camera exactly.
+Allowed changes only inside the existing opaque silhouette: cleaner high-resolution fur texture, sharper eyes and mouth details, smoother anti-aliased internal edges, and removal of white matte speckles or compression noise. Do not redraw or reinterpret anatomy.
+Scene/backdrop: genuinely transparent background; no shadow, no floor, no halo, no colored matte.
+Style/medium: clean polished 2D illustrated sprite matching the supplied artwork, consistent line weight and soft fur shading.
+Composition/framing: same square canvas and same exact placement as the input.
+Avoid: any pose change, limb movement, new or missing limbs, changed proportions, changed camera, changed expression, changed markings, extra fur tufts outside the silhouette, background, checkerboard, text, watermark, blur, or photorealism.
