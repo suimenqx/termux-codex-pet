@@ -1,5 +1,5 @@
 {
-  "baseline_commit": "c7edbfa125e20599d1ae3500f822201e4aba8cfc",
+  "baseline_commit": "2026-10-grok-run",
   "pixel_format": "straight RGBA8",
   "cases": {
     "akita|idle|None|1|0": {
@@ -435,436 +435,436 @@
       "sha256": "67ec78f50b33350122ecf23b34cd99ca60db88cbffbe097ff23042c5aa2e0619"
     },
     "akita|running|None|1|0": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|None|1|1": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|None|1|2": {
-      "exposures": 10,
-      "sha256": "988b459d3effc40f8b6a14d260393c8c8bf24c954df4743ba9dc09532ec5f0ae"
+      "exposures": 20,
+      "sha256": "0eb67aa6cf831f77e9fd906b47676aef8781bc0c26d090b6a6f4ccb031c1bdfb"
     },
     "akita|running|None|1|9": {
-      "exposures": 10,
-      "sha256": "a52b3ec8a6b5460ca22cb574560da933e9274c23d5edf309dfe9f11b890cadf3"
+      "exposures": 20,
+      "sha256": "afdf6d0edeb1ded5780e62d8ac5f04d1481187f79512ea50676c1bb0b9810b4b"
     },
     "akita|running|None|1|10": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|None|1|25": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|None|2|0": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|None|2|1": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|None|2|2": {
-      "exposures": 20,
-      "sha256": "d4690e28839fda44cf57a979532c553444356f144c0028f22e7e26ea43c28de1"
+      "exposures": 40,
+      "sha256": "4b6a303a2996e82966b6e9f525d5ae69e8074851729dba54f618ff39e25b179f"
     },
     "akita|running|None|2|9": {
-      "exposures": 20,
-      "sha256": "44e84c0ca2bf7718ddc94d9eef3df67cf939c2aea790d9c92c50d34351bfffbc"
+      "exposures": 40,
+      "sha256": "53ae9cf6d7586abbd312a22152ffd7046ed4ef5523917be11039a4c6c055b877"
     },
     "akita|running|None|2|10": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|None|2|25": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|None|3|0": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|None|3|1": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|None|3|2": {
-      "exposures": 30,
-      "sha256": "16ae9600e25a1c6bb28c59c6ae9ea1cb9a21134c9c79bfd854d105d5e11cf73b"
+      "exposures": 60,
+      "sha256": "68fdf694719f6d8789d4d9ea1860b17e5988d26993f52c7915c8576611f49d5e"
     },
     "akita|running|None|3|9": {
-      "exposures": 30,
-      "sha256": "4fa02b4e0e8d975aa04e53c463934f5b2b89326e5f5045f6ab01547eb6fb6825"
+      "exposures": 60,
+      "sha256": "0628d31b8db8712ad77d059782e4b2246c3eaa45465bf60e876505ae40f90dac"
     },
     "akita|running|None|3|10": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|None|3|25": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|idle|1|0": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|idle|1|1": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|idle|1|2": {
-      "exposures": 10,
-      "sha256": "988b459d3effc40f8b6a14d260393c8c8bf24c954df4743ba9dc09532ec5f0ae"
+      "exposures": 20,
+      "sha256": "0eb67aa6cf831f77e9fd906b47676aef8781bc0c26d090b6a6f4ccb031c1bdfb"
     },
     "akita|running|idle|1|9": {
-      "exposures": 10,
-      "sha256": "a52b3ec8a6b5460ca22cb574560da933e9274c23d5edf309dfe9f11b890cadf3"
+      "exposures": 20,
+      "sha256": "afdf6d0edeb1ded5780e62d8ac5f04d1481187f79512ea50676c1bb0b9810b4b"
     },
     "akita|running|idle|1|10": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|idle|1|25": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|idle|2|0": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|idle|2|1": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|idle|2|2": {
-      "exposures": 20,
-      "sha256": "d4690e28839fda44cf57a979532c553444356f144c0028f22e7e26ea43c28de1"
+      "exposures": 40,
+      "sha256": "4b6a303a2996e82966b6e9f525d5ae69e8074851729dba54f618ff39e25b179f"
     },
     "akita|running|idle|2|9": {
-      "exposures": 20,
-      "sha256": "44e84c0ca2bf7718ddc94d9eef3df67cf939c2aea790d9c92c50d34351bfffbc"
+      "exposures": 40,
+      "sha256": "53ae9cf6d7586abbd312a22152ffd7046ed4ef5523917be11039a4c6c055b877"
     },
     "akita|running|idle|2|10": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|idle|2|25": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|idle|3|0": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|idle|3|1": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|idle|3|2": {
-      "exposures": 30,
-      "sha256": "16ae9600e25a1c6bb28c59c6ae9ea1cb9a21134c9c79bfd854d105d5e11cf73b"
+      "exposures": 60,
+      "sha256": "68fdf694719f6d8789d4d9ea1860b17e5988d26993f52c7915c8576611f49d5e"
     },
     "akita|running|idle|3|9": {
-      "exposures": 30,
-      "sha256": "4fa02b4e0e8d975aa04e53c463934f5b2b89326e5f5045f6ab01547eb6fb6825"
+      "exposures": 60,
+      "sha256": "0628d31b8db8712ad77d059782e4b2246c3eaa45465bf60e876505ae40f90dac"
     },
     "akita|running|idle|3|10": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|idle|3|25": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|running|1|0": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|running|1|1": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|running|1|2": {
-      "exposures": 10,
-      "sha256": "988b459d3effc40f8b6a14d260393c8c8bf24c954df4743ba9dc09532ec5f0ae"
+      "exposures": 20,
+      "sha256": "0eb67aa6cf831f77e9fd906b47676aef8781bc0c26d090b6a6f4ccb031c1bdfb"
     },
     "akita|running|running|1|9": {
-      "exposures": 10,
-      "sha256": "a52b3ec8a6b5460ca22cb574560da933e9274c23d5edf309dfe9f11b890cadf3"
+      "exposures": 20,
+      "sha256": "afdf6d0edeb1ded5780e62d8ac5f04d1481187f79512ea50676c1bb0b9810b4b"
     },
     "akita|running|running|1|10": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|running|1|25": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|running|2|0": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|running|2|1": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|running|2|2": {
-      "exposures": 20,
-      "sha256": "d4690e28839fda44cf57a979532c553444356f144c0028f22e7e26ea43c28de1"
+      "exposures": 40,
+      "sha256": "4b6a303a2996e82966b6e9f525d5ae69e8074851729dba54f618ff39e25b179f"
     },
     "akita|running|running|2|9": {
-      "exposures": 20,
-      "sha256": "44e84c0ca2bf7718ddc94d9eef3df67cf939c2aea790d9c92c50d34351bfffbc"
+      "exposures": 40,
+      "sha256": "53ae9cf6d7586abbd312a22152ffd7046ed4ef5523917be11039a4c6c055b877"
     },
     "akita|running|running|2|10": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|running|2|25": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|running|3|0": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|running|3|1": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|running|3|2": {
-      "exposures": 30,
-      "sha256": "16ae9600e25a1c6bb28c59c6ae9ea1cb9a21134c9c79bfd854d105d5e11cf73b"
+      "exposures": 60,
+      "sha256": "68fdf694719f6d8789d4d9ea1860b17e5988d26993f52c7915c8576611f49d5e"
     },
     "akita|running|running|3|9": {
-      "exposures": 30,
-      "sha256": "4fa02b4e0e8d975aa04e53c463934f5b2b89326e5f5045f6ab01547eb6fb6825"
+      "exposures": 60,
+      "sha256": "0628d31b8db8712ad77d059782e4b2246c3eaa45465bf60e876505ae40f90dac"
     },
     "akita|running|running|3|10": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|running|3|25": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|needs_input|1|0": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|needs_input|1|1": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|needs_input|1|2": {
-      "exposures": 10,
-      "sha256": "988b459d3effc40f8b6a14d260393c8c8bf24c954df4743ba9dc09532ec5f0ae"
+      "exposures": 20,
+      "sha256": "0eb67aa6cf831f77e9fd906b47676aef8781bc0c26d090b6a6f4ccb031c1bdfb"
     },
     "akita|running|needs_input|1|9": {
-      "exposures": 10,
-      "sha256": "a52b3ec8a6b5460ca22cb574560da933e9274c23d5edf309dfe9f11b890cadf3"
+      "exposures": 20,
+      "sha256": "afdf6d0edeb1ded5780e62d8ac5f04d1481187f79512ea50676c1bb0b9810b4b"
     },
     "akita|running|needs_input|1|10": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|needs_input|1|25": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|needs_input|2|0": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|needs_input|2|1": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|needs_input|2|2": {
-      "exposures": 20,
-      "sha256": "d4690e28839fda44cf57a979532c553444356f144c0028f22e7e26ea43c28de1"
+      "exposures": 40,
+      "sha256": "4b6a303a2996e82966b6e9f525d5ae69e8074851729dba54f618ff39e25b179f"
     },
     "akita|running|needs_input|2|9": {
-      "exposures": 20,
-      "sha256": "44e84c0ca2bf7718ddc94d9eef3df67cf939c2aea790d9c92c50d34351bfffbc"
+      "exposures": 40,
+      "sha256": "53ae9cf6d7586abbd312a22152ffd7046ed4ef5523917be11039a4c6c055b877"
     },
     "akita|running|needs_input|2|10": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|needs_input|2|25": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|needs_input|3|0": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|needs_input|3|1": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|needs_input|3|2": {
-      "exposures": 30,
-      "sha256": "16ae9600e25a1c6bb28c59c6ae9ea1cb9a21134c9c79bfd854d105d5e11cf73b"
+      "exposures": 60,
+      "sha256": "68fdf694719f6d8789d4d9ea1860b17e5988d26993f52c7915c8576611f49d5e"
     },
     "akita|running|needs_input|3|9": {
-      "exposures": 30,
-      "sha256": "4fa02b4e0e8d975aa04e53c463934f5b2b89326e5f5045f6ab01547eb6fb6825"
+      "exposures": 60,
+      "sha256": "0628d31b8db8712ad77d059782e4b2246c3eaa45465bf60e876505ae40f90dac"
     },
     "akita|running|needs_input|3|10": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|needs_input|3|25": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|ready|1|0": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|ready|1|1": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|ready|1|2": {
-      "exposures": 10,
-      "sha256": "988b459d3effc40f8b6a14d260393c8c8bf24c954df4743ba9dc09532ec5f0ae"
+      "exposures": 20,
+      "sha256": "0eb67aa6cf831f77e9fd906b47676aef8781bc0c26d090b6a6f4ccb031c1bdfb"
     },
     "akita|running|ready|1|9": {
-      "exposures": 10,
-      "sha256": "a52b3ec8a6b5460ca22cb574560da933e9274c23d5edf309dfe9f11b890cadf3"
+      "exposures": 20,
+      "sha256": "afdf6d0edeb1ded5780e62d8ac5f04d1481187f79512ea50676c1bb0b9810b4b"
     },
     "akita|running|ready|1|10": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|ready|1|25": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|ready|2|0": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|ready|2|1": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|ready|2|2": {
-      "exposures": 20,
-      "sha256": "d4690e28839fda44cf57a979532c553444356f144c0028f22e7e26ea43c28de1"
+      "exposures": 40,
+      "sha256": "4b6a303a2996e82966b6e9f525d5ae69e8074851729dba54f618ff39e25b179f"
     },
     "akita|running|ready|2|9": {
-      "exposures": 20,
-      "sha256": "44e84c0ca2bf7718ddc94d9eef3df67cf939c2aea790d9c92c50d34351bfffbc"
+      "exposures": 40,
+      "sha256": "53ae9cf6d7586abbd312a22152ffd7046ed4ef5523917be11039a4c6c055b877"
     },
     "akita|running|ready|2|10": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|ready|2|25": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|ready|3|0": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|ready|3|1": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|ready|3|2": {
-      "exposures": 30,
-      "sha256": "16ae9600e25a1c6bb28c59c6ae9ea1cb9a21134c9c79bfd854d105d5e11cf73b"
+      "exposures": 60,
+      "sha256": "68fdf694719f6d8789d4d9ea1860b17e5988d26993f52c7915c8576611f49d5e"
     },
     "akita|running|ready|3|9": {
-      "exposures": 30,
-      "sha256": "4fa02b4e0e8d975aa04e53c463934f5b2b89326e5f5045f6ab01547eb6fb6825"
+      "exposures": 60,
+      "sha256": "0628d31b8db8712ad77d059782e4b2246c3eaa45465bf60e876505ae40f90dac"
     },
     "akita|running|ready|3|10": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|ready|3|25": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|blocked|1|0": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|blocked|1|1": {
-      "exposures": 10,
-      "sha256": "686696847fd6756bdb49280cfd702e021728d7334882b06fc4764de067b7b475"
+      "exposures": 20,
+      "sha256": "530e89142dac14c63ee76e8c61c7f86c24ff94a960421a31d7de457087174779"
     },
     "akita|running|blocked|1|2": {
-      "exposures": 10,
-      "sha256": "988b459d3effc40f8b6a14d260393c8c8bf24c954df4743ba9dc09532ec5f0ae"
+      "exposures": 20,
+      "sha256": "0eb67aa6cf831f77e9fd906b47676aef8781bc0c26d090b6a6f4ccb031c1bdfb"
     },
     "akita|running|blocked|1|9": {
-      "exposures": 10,
-      "sha256": "a52b3ec8a6b5460ca22cb574560da933e9274c23d5edf309dfe9f11b890cadf3"
+      "exposures": 20,
+      "sha256": "afdf6d0edeb1ded5780e62d8ac5f04d1481187f79512ea50676c1bb0b9810b4b"
     },
     "akita|running|blocked|1|10": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|blocked|1|25": {
-      "exposures": 10,
-      "sha256": "ab543a1730bb8971d66ea505cc746b8b7b0b3c6ac84f32173f49e945ad9d9677"
+      "exposures": 20,
+      "sha256": "15c7c73b576676516a2d4e9ed0d3918bff52eeac280906ba490921d642e1248c"
     },
     "akita|running|blocked|2|0": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|blocked|2|1": {
-      "exposures": 20,
-      "sha256": "5da018f1beae082a4f6a67453677f566472cb318a1d5a8259536e61de8c91fa0"
+      "exposures": 40,
+      "sha256": "ac9a6d1391f8df3fe5e7cd9d081fb5c2b980b2c0f8bd2696e8b7a01a5d6f2123"
     },
     "akita|running|blocked|2|2": {
-      "exposures": 20,
-      "sha256": "d4690e28839fda44cf57a979532c553444356f144c0028f22e7e26ea43c28de1"
+      "exposures": 40,
+      "sha256": "4b6a303a2996e82966b6e9f525d5ae69e8074851729dba54f618ff39e25b179f"
     },
     "akita|running|blocked|2|9": {
-      "exposures": 20,
-      "sha256": "44e84c0ca2bf7718ddc94d9eef3df67cf939c2aea790d9c92c50d34351bfffbc"
+      "exposures": 40,
+      "sha256": "53ae9cf6d7586abbd312a22152ffd7046ed4ef5523917be11039a4c6c055b877"
     },
     "akita|running|blocked|2|10": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|blocked|2|25": {
-      "exposures": 20,
-      "sha256": "cdbd6171db2d159586de3c47a6965970b273b3bab151db3d49841f083b3eba31"
+      "exposures": 40,
+      "sha256": "446bd6ae52c0eb4669fd7db799264fd777399084c01379090902084ef2314daf"
     },
     "akita|running|blocked|3|0": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|blocked|3|1": {
-      "exposures": 30,
-      "sha256": "5cd2c1fbeb5fba0305b7550c5022d33baaaea51bcf64eaeac79e16583ba89807"
+      "exposures": 60,
+      "sha256": "8d726dd2b8ca46e1f588e1a5d1a1e8f3e9d9559060ccd9b98339a00897c39092"
     },
     "akita|running|blocked|3|2": {
-      "exposures": 30,
-      "sha256": "16ae9600e25a1c6bb28c59c6ae9ea1cb9a21134c9c79bfd854d105d5e11cf73b"
+      "exposures": 60,
+      "sha256": "68fdf694719f6d8789d4d9ea1860b17e5988d26993f52c7915c8576611f49d5e"
     },
     "akita|running|blocked|3|9": {
-      "exposures": 30,
-      "sha256": "4fa02b4e0e8d975aa04e53c463934f5b2b89326e5f5045f6ab01547eb6fb6825"
+      "exposures": 60,
+      "sha256": "0628d31b8db8712ad77d059782e4b2246c3eaa45465bf60e876505ae40f90dac"
     },
     "akita|running|blocked|3|10": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|running|blocked|3|25": {
-      "exposures": 30,
-      "sha256": "6f67fa55775bafcc9fb44c11c448aa4f15215a9e2b68bfb2900aac4a85c1ef42"
+      "exposures": 60,
+      "sha256": "20a06afa96c9fba433944121a60b25491485cf57ad8e4e6a152e6e19d3e98457"
     },
     "akita|needs_input|None|1|0": {
       "exposures": 4,
@@ -4322,5 +4322,6 @@
       "exposures": 1,
       "sha256": "f242983c506f94f77369c51664007008be608e4f0c5d9abe87128d0702f4a2d4"
     }
-  }
+  },
+  "baseline_revision": "2026-10-grok-run"
 }

@@ -1,10 +1,16 @@
 {
-  "packet_version": 1,
+  "packet_version": 2,
   "created": "2026-10-03",
   "purpose": "Reference-only material for fitting an editable Akita 3D or skeletal model.",
   "production_contract": {
-    "canvas_px": [256, 256],
-    "display_dp": [64, 64],
+    "canvas_px": [
+      256,
+      256
+    ],
+    "display_dp": [
+      64,
+      64
+    ],
     "pixels": "RGBA8",
     "color_space": "sRGB",
     "runtime_status": "No production files changed by this packet."
@@ -13,7 +19,7 @@
     "pet_manifest": {
       "file": "current-pet.json",
       "source": "codex_pet/assets/akita/pet.json",
-      "sha256": "71a6cd46324ff532f30b4b7d8514aac4493b5e2b97553017ef51c4cd7faced1f"
+      "sha256": "5fae8ad75be92927ddfa339fb77791e5d5430db7448219659f6d486d7940f313"
     },
     "recording_evidence": {
       "file": "recording-evidence.json",
@@ -25,68 +31,177 @@
     {
       "file": "canonical/idle-highres.png",
       "source": "docs/artwork/akita/2026-10-collar/idle-source.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "4ff275dca957c35fa84bc1cf6a8e42c7da8744e50bbc48adaa2032fe48e842e8",
-      "roles": ["identity", "face", "scale", "layout"],
+      "roles": [
+        "identity",
+        "face",
+        "scale",
+        "layout"
+      ],
       "authority": "canonical"
     },
     {
       "file": "canonical/running-highres.png",
       "source": "docs/artwork/akita/2026-10-local-motion/running-source.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "98b914f89e364c64692259b028b641a924001b17c7ee612eebf876774a83a988",
-      "roles": ["identity", "oblique-right", "pose", "scale", "layout"],
+      "roles": [
+        "identity",
+        "oblique-right",
+        "pose",
+        "scale",
+        "layout"
+      ],
       "authority": "canonical"
     },
     {
       "file": "canonical/ready-04-highres.png",
       "source": "docs/artwork/akita/2026-10-collar/ready-04-source.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "fed01bf15a3ce31afb3d5e3c204ecab2894591064049790f453b9c36846bff07",
-      "roles": ["identity", "front-oblique", "pose", "chest", "layout"],
+      "roles": [
+        "identity",
+        "front-oblique",
+        "pose",
+        "chest",
+        "layout"
+      ],
       "authority": "supporting-canonical"
     }
   ],
   "production_representatives": [
-    {"file": "canonical/production-idle-00.png", "size_px": [256, 256], "sha256": "bc373fbcfb792b53b6dfe0a20fcf720c0a06e8bfd007fe1239d674292399fba4", "role": "idle-baseline"},
-    {"file": "canonical/production-running-00.png", "size_px": [256, 256], "sha256": "11a1e1228b1815ebffae9dca74b09981a09d4bfe54b3d6fed0fe3d41e6fdb135", "role": "running-baseline"},
-    {"file": "canonical/production-ready-04.png", "size_px": [256, 256], "sha256": "52b219904ef82a4aab0098adbd168a9ccb1d9dfe45c7e6634b8e09280c3c7cb9", "role": "ready-baseline"},
-    {"file": "canonical/production-needs-input-00.png", "size_px": [256, 256], "sha256": "495327d6756f2398fbe277b1fe194f3f756539bd5cda86cb68890ce6688ecd98", "role": "needs-input-baseline"},
-    {"file": "canonical/production-blocked-00.png", "size_px": [256, 256], "sha256": "7c980dc611d074362924ad7bb9b792681119a95eb1cf81d05873404d0f92748f", "role": "blocked-baseline"}
+    {
+      "file": "canonical/production-idle-00.png",
+      "size_px": [
+        256,
+        256
+      ],
+      "sha256": "bc373fbcfb792b53b6dfe0a20fcf720c0a06e8bfd007fe1239d674292399fba4",
+      "role": "idle-baseline"
+    },
+    {
+      "file": "canonical/production-running-00.png",
+      "size_px": [
+        256,
+        256
+      ],
+      "sha256": "e05e95932929ae8cedd750c619e83da79fa6beff9f95f442dc486b9485fbc628",
+      "role": "running-baseline"
+    },
+    {
+      "file": "canonical/production-ready-04.png",
+      "size_px": [
+        256,
+        256
+      ],
+      "sha256": "52b219904ef82a4aab0098adbd168a9ccb1d9dfe45c7e6634b8e09280c3c7cb9",
+      "role": "ready-baseline"
+    },
+    {
+      "file": "canonical/production-needs-input-00.png",
+      "size_px": [
+        256,
+        256
+      ],
+      "sha256": "495327d6756f2398fbe277b1fe194f3f756539bd5cda86cb68890ce6688ecd98",
+      "role": "needs-input-baseline"
+    },
+    {
+      "file": "canonical/production-blocked-00.png",
+      "size_px": [
+        256,
+        256
+      ],
+      "sha256": "7c980dc611d074362924ad7bb9b792681119a95eb1cf81d05873404d0f92748f",
+      "role": "blocked-baseline"
+    }
   ],
   "production_frames": {
     "directory": "production-frames/",
-    "count": 34,
-    "states": {"idle": 8, "running": 10, "needs_input": 4, "ready": 8, "blocked": 4},
-    "role": "Existing motion and state references; not a replacement source."
+    "count": 44,
+    "states": {
+      "idle": 8,
+      "running": 20,
+      "needs_input": 4,
+      "ready": 8,
+      "blocked": 4
+    },
+    "role": "Current motion and state references; not a replacement source.",
+    "running_revision": "2026-10-grok-run",
+    "running_cycle_ms": 834,
+    "running_source": "../2026-10-grok-run/brief.md"
   },
   "generated_candidates": [
     {
       "file": "generated/front-neutral-candidate.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "ef1fe5eb94d4cf6ecf117623a23b1fd8a88478e5a22d45582fcc28f10ec1aa2e",
-      "roles": ["front", "head-width", "chest-width", "eye-spacing"],
+      "roles": [
+        "front",
+        "head-width",
+        "chest-width",
+        "eye-spacing"
+      ],
       "status": "candidate-pending-review"
     },
     {
       "file": "generated/side-right-neutral-candidate.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "e8efcbb9b1cb4d4dd6c41d0cff58408329bc2b77e2aba407d7df9e86c047ee6c",
-      "roles": ["strict-right-side", "body-length", "leg-length", "tail-silhouette"],
+      "roles": [
+        "strict-right-side",
+        "body-length",
+        "leg-length",
+        "tail-silhouette"
+      ],
       "status": "candidate-pending-review"
     },
     {
       "file": "generated/rear-neutral-candidate.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "36f0c8525464d5dc9aa5dfb6b75a4c145049388827502b3b5f5ade14c932cca9",
-      "roles": ["rear", "back-width", "rump", "tail-root", "rear-markings"],
+      "roles": [
+        "rear",
+        "back-width",
+        "rump",
+        "tail-root",
+        "rear-markings"
+      ],
       "status": "candidate-pending-review"
     },
     {
       "file": "generated/face-closeup-candidate.png",
-      "size_px": [1254, 1254],
+      "size_px": [
+        1254,
+        1254
+      ],
       "sha256": "5eba9b5cb68ce16bf613ce74bae76d50fa36868b209dfa26f90dcd52aa447828",
-      "roles": ["face", "iris", "eye-rim", "mouth", "tongue"],
+      "roles": [
+        "face",
+        "iris",
+        "eye-rim",
+        "mouth",
+        "tongue"
+      ],
       "status": "candidate-pending-review"
     }
   ],
@@ -102,5 +217,6 @@
       "status": "not present in repository",
       "available": "recording-evidence.json contains source-video metadata and landmarks, not the extracted PNG set"
     }
-  ]
+  ],
+  "updated": "2026-10-03"
 }

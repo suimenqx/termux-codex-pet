@@ -20,9 +20,16 @@ class CollarArtTests(unittest.TestCase):
         model = json.loads((PACKAGE / 'model.json').read_text())
         model['frames'].update(json.loads((ROOT / 'docs/artwork/akita/2026-10-continuity/model.json').read_text())['frames'])
         actual = {p.relative_to(ASSETS).as_posix() for p in ASSETS.glob('*/*.png')}
-        self.assertEqual(set(model['frames']), actual)
-        self.assertEqual(len(actual), 34)
+        grok_frames = {f'running/{frame:02}.png' for frame in range(10, 20)}
+        self.assertEqual(set(model['frames']) | grok_frames, actual)
+        self.assertEqual(len(actual), 44)
         for state, count in AKITA_FRAME_COUNTS.items():
+            # The historical collar samples below belong to the previous
+            # ten-pose running delivery. The live running clip is now the
+            # separately recorded twenty-frame Grok delivery, checked by
+            # the blue-pixel coverage assertion below.
+            if state == 'running':
+                continue
             for index in range(count):
                 physical, number = akita_artwork_frame(state, index)
                 if physical == 'blink':
@@ -37,34 +44,44 @@ class CollarArtTests(unittest.TestCase):
                     self.assertLess(r, g)
                     self.assertLess(g, b)
         for key, record in model['frames'].items():
+            if key.startswith('running/'):
+                continue
             pixels = _decode_rgba_png((ASSETS / key).read_bytes())[2]
             x, y = record['sample_xy']
             self.assertEqual(list(pixels[(y * 256 + x) * 4:(y * 256 + x + 1) * 4]), record['sample_rgba'])
+        for key in {f'running/{frame:02}.png' for frame in range(20)}:
+            pixels = _decode_rgba_png((ASSETS / key).read_bytes())[2]
+            blue_pixels = sum(
+                1 for i in range(0, len(pixels), 4)
+                if pixels[i + 3] > 0 and pixels[i] < 80
+                and pixels[i + 1] < 150 and pixels[i + 2] > 120
+                and pixels[i + 2] > pixels[i + 1]
+            )
+            self.assertGreater(blue_pixels, 50, key)
 
     def test_neck_edits_preserve_every_pixel_outside_recorded_regions(self):
         recipe = json.loads((PACKAGE / 'export.json').read_text())
         edited = {item['output']: item for item in recipe['exports']}
-        for path in (PACKAGE / 'originals').glob('*/*.png'):
-            key = path.relative_to(PACKAGE / 'originals').as_posix()
-            before = _decode_rgba_png(path.read_bytes())[2]
-            target = ASSETS / key
-            if key == 'ready/06.png':
-                target = ROOT / 'docs/artwork/akita/2026-10-continuity/originals' / key
-            after = _decode_rgba_png(target.read_bytes())[2]
-            self.assertEqual(before[3::4], after[3::4], key)
-            if key not in edited:
-                self.assertEqual(before, after, key)
-                continue
-            x0, y0, x1, y1 = edited[key]['box']
-            changed = 0
-            for y in range(256):
-                for x in range(256):
-                    i = (y * 256 + x) * 4
-                    if not (x0 <= x < x1 and y0 <= y < y1):
-                        self.assertEqual(before[i:i+4], after[i:i+4], (key, x, y))
-                    else:
-                        changed += before[i:i+4] != after[i:i+4]
-            self.assertGreater(changed, 0, key)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / 'export'
+            export(PACKAGE / 'export.json', output)
+            for path in (PACKAGE / 'originals').glob('*/*.png'):
+                key = path.relative_to(PACKAGE / 'originals').as_posix()
+                before = _decode_rgba_png(path.read_bytes())[2]
+                after = _decode_rgba_png((output / key).read_bytes())[2] if key in edited else before
+                self.assertEqual(before[3::4], after[3::4], key)
+                if key not in edited:
+                    continue
+                x0, y0, x1, y1 = edited[key]['box']
+                changed = 0
+                for y in range(256):
+                    for x in range(256):
+                        i = (y * 256 + x) * 4
+                        if not (x0 <= x < x1 and y0 <= y < y1):
+                            self.assertEqual(before[i:i+4], after[i:i+4], (key, x, y))
+                        else:
+                            changed += before[i:i+4] != after[i:i+4]
+                self.assertGreater(changed, 0, key)
 
     def test_preserved_originals_match_the_prior_reviewed_version(self):
         baseline = json.loads((ROOT / 'docs/artwork/akita/accepted-baseline.json').read_text())['sha256']
@@ -79,8 +96,10 @@ class CollarArtTests(unittest.TestCase):
             output = Path(temp) / 'export'
             export(PACKAGE / 'export.json', output)
             for item in json.loads((PACKAGE / 'export.json').read_text())['exports']:
-                self.assertEqual(_decode_rgba_png((output / item['output']).read_bytes()),
-                                 _decode_rgba_png((ASSETS / item['output']).read_bytes()))
+                self.assertEqual(
+                    _decode_rgba_png((output / item['output']).read_bytes()),
+                    _decode_rgba_png((ASSETS / item['output']).read_bytes()),
+                )
 
     def test_sheet_cell_selection_and_invalid_indices(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -18,19 +18,25 @@ ASSETS = ROOT / 'codex_pet/assets/akita/frames'
 
 class AnimationContinuityTests(unittest.TestCase):
     def test_breakdowns_preserve_all_eight_key_times_and_drawings(self):
+        # This is a historical record of the ten-pose repair. The live
+        # production clip has since moved to the separately recorded Grok
+        # twenty-frame delivery.
+        historical = [(0, .04), (8, .04), (1, .08), (2, .08), (3, .08),
+                      (4, .04), (9, .04), (5, .08), (6, .08), (7, .08)]
         at = 0
         times = {}
-        for step in playback_frames('akita', 'running'):
-            physical = akita_artwork_frame('running', step.frame)[1]
+        for physical, duration in historical:
             times[physical] = at
-            at += step.duration_seconds
+            at += duration
         self.assertEqual(len(times), 10)
         self.assertAlmostEqual(at, .64)
+        delivery = json.loads((PACKAGE / 'delivery.json').read_text())
         for frame in range(8):
             self.assertAlmostEqual(times[frame], frame * .08)
-            name = f'running/{frame:02}.png'
-            self.assertEqual((ASSETS / name).read_bytes(),
-                             (PACKAGE / 'originals' / name).read_bytes())
+            relative = Path('running') / f'{frame:02}.png'
+            archived = PACKAGE / 'originals' / relative
+            self.assertEqual(hashlib.sha256(archived.read_bytes()).hexdigest(),
+                             delivery['originals_sha256'][f'frames/{relative.as_posix()}'])
         self.assertAlmostEqual(times[8], .04)
         self.assertAlmostEqual(times[9], .36)
 
@@ -60,25 +66,29 @@ class AnimationContinuityTests(unittest.TestCase):
                 relative = Path(key).relative_to('frames')
                 data = (output / relative).read_bytes()
                 self.assertEqual(historical_png_sha256(data), expected)
-                self.assertEqual(_decode_rgba_png(data), _decode_rgba_png((ASSETS / relative).read_bytes()))
+                if relative.as_posix() not in {'running/08.png', 'running/09.png'}:
+                    self.assertEqual(_decode_rgba_png(data), _decode_rgba_png((ASSETS / relative).read_bytes()))
 
     def test_breakdowns_preserve_pixels_outside_the_declared_limb_regions(self):
-        for item in json.loads((PACKAGE / 'export.json').read_text())['exports']:
-            if 'original' not in item:
-                continue
-            before = _decode_rgba_png((PACKAGE / item['original']).read_bytes())[2]
-            after = _decode_rgba_png((ASSETS / item['output']).read_bytes())[2]
-            regions = item.get('regions', [item])
-            boxes = [r['box'] for r in regions]
-            changed = 0
-            for y in range(256):
-                for x in range(256):
-                    i = (y * 256 + x) * 4
-                    if not any(x0 <= x < x1 and y0 <= y < y1 for x0, y0, x1, y1 in boxes):
-                        self.assertEqual(before[i:i+4], after[i:i+4], (item['output'], x, y))
-                    else:
-                        changed += before[i:i+4] != after[i:i+4]
-            self.assertGreater(changed, 0)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / 'export'
+            export(PACKAGE / 'export.json', output)
+            for item in json.loads((PACKAGE / 'export.json').read_text())['exports']:
+                if 'original' not in item:
+                    continue
+                before = _decode_rgba_png((PACKAGE / item['original']).read_bytes())[2]
+                after = _decode_rgba_png((output / item['output']).read_bytes())[2]
+                regions = item.get('regions', [item])
+                boxes = [r['box'] for r in regions]
+                changed = 0
+                for y in range(256):
+                    for x in range(256):
+                        i = (y * 256 + x) * 4
+                        if not any(x0 <= x < x1 and y0 <= y < y1 for x0, y0, x1, y1 in boxes):
+                            self.assertEqual(before[i:i+4], after[i:i+4], (item['output'], x, y))
+                        else:
+                            changed += before[i:i+4] != after[i:i+4]
+                self.assertGreater(changed, 0)
 
     def test_ordered_regions_use_one_source_without_moving_pixels(self):
         original = _png(256, 256, bytearray([180, 30, 10, 255] * 256 * 256))

@@ -10,7 +10,10 @@
     64
   ],
   "source": {
-    "kind": "png_directory"
+    "kind": "png_directory",
+    "running_revision": "2026-10-grok-run",
+    "running_cycle_ms": 834,
+    "running_source_fps": 24
   },
   "frames": {
     "idle/00": {
@@ -66,6 +69,36 @@
     },
     "running/09": {
       "file": "frames/running/09.png"
+    },
+    "running/10": {
+      "file": "frames/running/10.png"
+    },
+    "running/11": {
+      "file": "frames/running/11.png"
+    },
+    "running/12": {
+      "file": "frames/running/12.png"
+    },
+    "running/13": {
+      "file": "frames/running/13.png"
+    },
+    "running/14": {
+      "file": "frames/running/14.png"
+    },
+    "running/15": {
+      "file": "frames/running/15.png"
+    },
+    "running/16": {
+      "file": "frames/running/16.png"
+    },
+    "running/17": {
+      "file": "frames/running/17.png"
+    },
+    "running/18": {
+      "file": "frames/running/18.png"
+    },
+    "running/19": {
+      "file": "frames/running/19.png"
     },
     "needs_input/00": {
       "file": "frames/needs_input/00.png"
@@ -187,43 +220,83 @@
       "frames": [
         {
           "frame": "running/00",
-          "duration_ms": 40
-        },
-        {
-          "frame": "running/08",
-          "duration_ms": 40
+          "duration_ms": 42
         },
         {
           "frame": "running/01",
-          "duration_ms": 80
+          "duration_ms": 42
         },
         {
           "frame": "running/02",
-          "duration_ms": 80
+          "duration_ms": 41
         },
         {
           "frame": "running/03",
-          "duration_ms": 80
+          "duration_ms": 42
         },
         {
           "frame": "running/04",
-          "duration_ms": 40
-        },
-        {
-          "frame": "running/09",
-          "duration_ms": 40
+          "duration_ms": 42
         },
         {
           "frame": "running/05",
-          "duration_ms": 80
+          "duration_ms": 41
         },
         {
           "frame": "running/06",
-          "duration_ms": 80
+          "duration_ms": 42
         },
         {
           "frame": "running/07",
-          "duration_ms": 80
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/08",
+          "duration_ms": 41
+        },
+        {
+          "frame": "running/09",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/10",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/11",
+          "duration_ms": 41
+        },
+        {
+          "frame": "running/12",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/13",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/14",
+          "duration_ms": 41
+        },
+        {
+          "frame": "running/15",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/16",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/17",
+          "duration_ms": 41
+        },
+        {
+          "frame": "running/18",
+          "duration_ms": 42
+        },
+        {
+          "frame": "running/19",
+          "duration_ms": 42
         }
       ],
       "end": {

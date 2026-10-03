@@ -90,6 +90,16 @@
     "frames/ready/06.png": "5c9cc49faf8e85fd16130538dc78e33e773fc137a834a1a100b6830bff233401",
     "frames/ready/07.png": "d1b2c14d044d61f402886f17fbb5905adb30d5f9bd057d6b94e9a00aa4d6bb5e"
   },
+  "originals_sha256": {
+    "frames/running/00.png": "11a1e1228b1815ebffae9dca74b09981a09d4bfe54b3d6fed0fe3d41e6fdb135",
+    "frames/running/01.png": "44a43ec4e94f271bd7c9e169adba76a8f6a706280821f57f62935dabe9cbf5df",
+    "frames/running/02.png": "8ff508a3065428b78bf7869e95242db5ae74e82bf6713be446f6abb1e48d3400",
+    "frames/running/03.png": "7157be1f2923fee0f2ca048dc10e22de168d28e341fe7b6ab997b9c912322419",
+    "frames/running/04.png": "0bfe008612aa41313b839f08dc1b82933aee4615cecabbdbd7a3f166055c7c67",
+    "frames/running/05.png": "fdc62b73f8bd2e5588de398b80c0ee955e4664cfec406efc3bb0e23d8659ffe0",
+    "frames/running/06.png": "adf9d3a40d42f6128bb54bcd350e231630dde0043c5705da167552ff2aec5468",
+    "frames/running/07.png": "5357fcd3d0d476002ebe830348c28af4f74409bfca171909015b28cef5bb6009"
+  },
   "export_command": "python tools/prepare_motion_repairs.py docs/artwork/akita/2026-10-continuity/export.json NEW_EMPTY_DIRECTORY",
   "acceptance": "141 automated tests pass; full-cycle static contact sheets inspected; deployed isolated demo and five-second Ready stability pass. Human post-deployment motion recording remains pending.",
   "pixel_protection": [

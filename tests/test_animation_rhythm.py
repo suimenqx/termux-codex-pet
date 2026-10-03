@@ -67,20 +67,29 @@ class AnimationRhythmTests(unittest.TestCase):
                             q = (y * w + x) * 4
                             self.assertEqual(actual[q:q+4], reference[q:q+4], (item['output'], x, y))
 
-    def test_rejected_candidate_has_not_replaced_any_production_art(self):
+    def test_rejected_candidate_remains_archived_after_later_running_revision(self):
         references = json.loads((PACKAGE / 'references.json').read_text())
         production = ROOT / 'codex_pet/assets/akita'
-        paths = set()
         for item in references:
             file = Path(item['file']).relative_to('originals')
-            paths.add(file.as_posix())
-            for path in [PACKAGE / item['file'], production / file]:
-                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), item['sha256'])
+            archived = PACKAGE / item['file']
+            self.assertEqual(hashlib.sha256(archived.read_bytes()).hexdigest(), item['sha256'])
+            # The old candidate is evidence of the rejected attempt. A later
+            # accepted running revision is allowed to replace its production
+            # files, so the candidate must not be used as the live baseline.
+            live_sha = hashlib.sha256((production / file).read_bytes()).hexdigest()
+            if file.parts[:2] == ('frames', 'running') or file.name == 'running.png':
+                self.assertNotEqual(live_sha, item['sha256'], file.as_posix())
+            else:
+                self.assertEqual(live_sha, item['sha256'])
         derived = json.loads((ROOT / 'docs/artwork/akita/2026-10-pack/derived-blink.json').read_text())
         blink = production / 'derived/ready-blink.png'
         self.assertEqual(hashlib.sha256(blink.read_bytes()).hexdigest(), derived['png_sha256'])
-        self.assertEqual(paths | {'derived/ready-blink.png'},
-                         {p.relative_to(production).as_posix() for p in production.rglob('*.png')})
+        current = json.loads((ROOT / 'docs/artwork/akita/2026-10-grok-run/delivery.json').read_text())
+        self.assertEqual(
+            hashlib.sha256((production / 'frames/running/19.png').read_bytes()).hexdigest(),
+            current['sha256']['frames/running/19.png'],
+        )
 
     def test_generation_inputs_and_prompts_remain_available(self):
         records = json.loads((PACKAGE / 'generation-inputs.json').read_text())

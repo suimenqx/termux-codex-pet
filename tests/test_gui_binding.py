@@ -162,7 +162,7 @@ class GuiBindingTests(unittest.TestCase):
             worker.refresh(1.13)
         finally:
             worker.stop()
-        self.assertEqual(rendered, ['running/00', 'running/01', 'running/00',
+        self.assertEqual(rendered, ['running/00', 'running/02', 'running/00',
                                     'ready/05', 'ready/06', 'needs_input/00'])
 
     def test_only_one_overlay_and_no_text_views_are_created(self) -> None:

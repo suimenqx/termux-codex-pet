@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class MotionRepairTests(unittest.TestCase):
     def test_run_to_ready_has_one_interruptible_settle_and_turn(self):
-        for frame in range(10):
+        for frame in range(len(AKITA_FRAME_INTERVALS["running"])):
             with self.subTest(frame=frame):
                 timeline = AnimationTimeline('akita', 'running', now=0)
                 timeline.advance(sum(AKITA_FRAME_INTERVALS["running"][:frame]) + .001)
@@ -81,35 +81,47 @@ class MotionRepairTests(unittest.TestCase):
     def test_production_patch_protects_head_torso_tail_and_hindlegs(self):
         folder = ROOT / 'docs/artwork/akita/2026-10-local-motion'
         original = _decode_rgba_png((folder / 'running-original.png').read_bytes())[2]
-        repaired = _decode_rgba_png((ROOT / 'codex_pet/assets/akita/frames/running/02.png').read_bytes())[2]
-        changes = 0
-        for y in range(256):
-            for x in range(256):
-                i = (y * 256 + x) * 4
-                if not (126 <= x < 256 and 174 <= y < 242):
-                    self.assertEqual(original[i:i+4], repaired[i:i+4])
-                elif original[i:i+4] != repaired[i:i+4]:
-                    changes += 1
-        self.assertGreater(changes, 0)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / 'export'
+            export(folder / 'export.json', output)
+            repaired = _decode_rgba_png((output / 'running/02.png').read_bytes())[2]
+            changes = 0
+            for y in range(256):
+                for x in range(256):
+                    i = (y * 256 + x) * 4
+                    if not (126 <= x < 256 and 174 <= y < 242):
+                        self.assertEqual(original[i:i+4], repaired[i:i+4])
+                    elif original[i:i+4] != repaired[i:i+4]:
+                        changes += 1
+            self.assertGreater(changes, 0)
 
     def test_exports_reproduce_the_shipped_assets(self):
         folder = ROOT / 'docs/artwork/akita/2026-10-local-motion'
+        historical_targets = {
+            'running/02.png': ROOT / 'docs/artwork/akita/2026-10-collar/originals/running/02.png',
+            'ready/05.png': ROOT / 'codex_pet/assets/akita/frames/ready/05.png',
+            'ready/06.png': ROOT / 'docs/artwork/akita/2026-10-continuity/originals/ready/06.png',
+        }
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / 'export'
             export(folder / 'export.json', output)
             for item in json.loads((folder / 'export.json').read_text())['exports']:
-                target = ROOT / 'codex_pet/assets/akita/frames' / item['output']
-                if item['output'] == 'ready/06.png':
-                    target = ROOT / 'docs/artwork/akita/2026-10-continuity/originals/ready/06.png'
-                self.assertEqual(_decode_rgba_png((output / item['output']).read_bytes()),
-                                 _decode_rgba_png(target.read_bytes()))
+                target = historical_targets[item['output']]
+                self.assertEqual(
+                    _decode_rgba_png((output / item['output']).read_bytes()),
+                    _decode_rgba_png(target.read_bytes()),
+                )
             with self.assertRaises(ValueError):
                 export(folder / 'export.json', output)
 
     def test_settle_preserves_the_running_face_and_original_scale(self):
-        original = _decode_rgba_png((ROOT / 'codex_pet/assets/akita/frames/running/00.png').read_bytes())[2]
-        settled = _decode_rgba_png((ROOT / 'codex_pet/assets/akita/frames/ready/05.png').read_bytes())[2]
-        self.assertEqual(original[:174 * 256 * 4], settled[:174 * 256 * 4])
+        folder = ROOT / 'docs/artwork/akita/2026-10-local-motion'
+        original = _decode_rgba_png((folder / 'settle-original.png').read_bytes())[2]
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / 'export'
+            export(folder / 'export.json', output)
+            settled = _decode_rgba_png((output / 'ready/05.png').read_bytes())[2]
+            self.assertEqual(original[:174 * 256 * 4], settled[:174 * 256 * 4])
 
     def test_preview_and_audit_include_the_contextual_entry(self):
         from tools.preview_animation import _timeline

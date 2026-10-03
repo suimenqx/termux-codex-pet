@@ -1,244 +1,31 @@
 {
-  "source_commit": "7dc1042 plus two bounded four-limb breakdowns",
-  "landmark_source_commit": "prior current-running.json; new 08/09 manually marked",
-  "note": "Physical file order; playback uses 00,08,01,02,03,04,09,05,06,07. Paw samples describe visible artwork, not joint centers or certified ground contacts.",
+  "source_archive": "akita-run-grok.zip",
+  "source_archive_sha256": "0cd00ce48c5d4400dc0dd565a0e3845b8ac5e8c6f900ab9c83bae7392b278367",
+  "source_video": "Grok generated_video.mp4",
+  "source_fps": 24,
+  "source_frames": [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92],
+  "cycle_ms": 834,
+  "landmark_note": "The centers are approximate visible limb/paw samples for the display-size audit. They are not joint centers, contact evidence, or gait certification. A null marks an occluded or ambiguous limb.",
   "frames": [
-    {
-      "file": "00.png",
-      "seconds": 0.04,
-      "phase": "compression",
-      "paw_centers": {
-        "hind_near": [
-          81,
-          214
-        ],
-        "hind_far": [
-          110,
-          208
-        ],
-        "fore_near": [
-          159,
-          214
-        ],
-        "fore_far": [
-          200,
-          193
-        ]
-      },
-      "sha256": "11a1e1228b1815ebffae9dca74b09981a09d4bfe54b3d6fed0fe3d41e6fdb135"
-    },
-    {
-      "file": "01.png",
-      "seconds": 0.08,
-      "phase": "rear_support",
-      "paw_centers": {
-        "hind_near": [
-          29,
-          175
-        ],
-        "hind_far": [
-          98,
-          215
-        ],
-        "fore_near": [
-          194,
-          202
-        ],
-        "fore_far": null
-      },
-      "sha256": "44a43ec4e94f271bd7c9e169adba76a8f6a706280821f57f62935dabe9cbf5df"
-    },
-    {
-      "file": "02.png",
-      "seconds": 0.08,
-      "phase": "hind_drive",
-      "paw_centers": {
-        "hind_near": [
-          27,
-          178
-        ],
-        "hind_far": [
-          113,
-          212
-        ],
-        "fore_near": [
-          210,
-          215
-        ],
-        "fore_far": [
-          226,
-          194
-        ]
-      },
-      "sha256": "8ff508a3065428b78bf7869e95242db5ae74e82bf6713be446f6abb1e48d3400"
-    },
-    {
-      "file": "03.png",
-      "seconds": 0.08,
-      "phase": "suspension",
-      "paw_centers": {
-        "hind_near": [
-          27,
-          166
-        ],
-        "hind_far": [
-          73,
-          189
-        ],
-        "fore_near": [
-          201,
-          196
-        ],
-        "fore_far": [
-          218,
-          174
-        ]
-      },
-      "sha256": "7157be1f2923fee0f2ca048dc10e22de168d28e341fe7b6ab997b9c912322419"
-    },
-    {
-      "file": "04.png",
-      "seconds": 0.04,
-      "phase": "fore_contact",
-      "paw_centers": {
-        "hind_near": [
-          34,
-          172
-        ],
-        "hind_far": [
-          84,
-          187
-        ],
-        "fore_near": [
-          170,
-          208
-        ],
-        "fore_far": [
-          228,
-          174
-        ]
-      },
-      "sha256": "0bfe008612aa41313b839f08dc1b82933aee4615cecabbdbd7a3f166055c7c67"
-    },
-    {
-      "file": "05.png",
-      "seconds": 0.08,
-      "phase": "fore_support",
-      "paw_centers": {
-        "hind_near": [
-          80,
-          204
-        ],
-        "hind_far": [
-          102,
-          208
-        ],
-        "fore_near": [
-          179,
-          208
-        ],
-        "fore_far": [
-          215,
-          186
-        ]
-      },
-      "sha256": "fdc62b73f8bd2e5588de398b80c0ee955e4664cfec406efc3bb0e23d8659ffe0"
-    },
-    {
-      "file": "06.png",
-      "seconds": 0.08,
-      "phase": "recovery_tuck",
-      "paw_centers": {
-        "hind_near": [
-          67,
-          209
-        ],
-        "hind_far": [
-          116,
-          206
-        ],
-        "fore_near": [
-          172,
-          205
-        ],
-        "fore_far": [
-          211,
-          179
-        ]
-      },
-      "sha256": "adf9d3a40d42f6128bb54bcd350e231630dde0043c5705da167552ff2aec5468"
-    },
-    {
-      "file": "07.png",
-      "seconds": 0.08,
-      "phase": "loop_transfer",
-      "paw_centers": {
-        "hind_near": [
-          84,
-          212
-        ],
-        "hind_far": [
-          101,
-          211
-        ],
-        "fore_near": [
-          166,
-          188
-        ],
-        "fore_far": [
-          206,
-          191
-        ]
-      },
-      "sha256": "5357fcd3d0d476002ebe830348c28af4f74409bfca171909015b28cef5bb6009"
-    },
-    {
-      "file": "08.png",
-      "seconds": 0.04,
-      "phase": "extension_breakdown",
-      "paw_centers": {
-        "hind_near": [
-          58,
-          195
-        ],
-        "hind_far": [
-          99,
-          201
-        ],
-        "fore_near": [
-          176,
-          210
-        ],
-        "fore_far": [
-          207,
-          205
-        ]
-      },
-      "sha256": "3ec38bec100dfc5c0acc2eee28f016516620d9a1049155aea0994e396a046218"
-    },
-    {
-      "file": "09.png",
-      "seconds": 0.04,
-      "phase": "recovery_breakdown",
-      "paw_centers": {
-        "hind_near": [
-          46,
-          182
-        ],
-        "hind_far": [
-          97,
-          188
-        ],
-        "fore_near": [
-          176,
-          214
-        ],
-        "fore_far": [
-          222,
-          193
-        ]
-      },
-      "sha256": "0c4d7f2e125e6e25fa8cbea2f968e83c8d9ef78ec092f8e9949f823420ba70c4"
-    }
+    {"file": "00.png", "seconds": 0.042, "phase": "cycle_00", "paw_centers": {"hind_near": [73, 222], "hind_far": [73, 222], "fore_near": [178, 191], "fore_far": [124, 212]}, "sha256": "e05e95932929ae8cedd750c619e83da79fa6beff9f95f442dc486b9485fbc628"},
+    {"file": "01.png", "seconds": 0.042, "phase": "cycle_01", "paw_centers": {"hind_near": [68, 221], "hind_far": [70, 220], "fore_near": [181, 183], "fore_far": [120, 212]}, "sha256": "1128575484fe0aaec7bada0e3372b7341a740258725dfe076c16c0eda2555707"},
+    {"file": "02.png", "seconds": 0.041, "phase": "cycle_02", "paw_centers": {"hind_near": [58, 221], "hind_far": [70, 217], "fore_near": [188, 179], "fore_far": [115, 190]}, "sha256": "4a773a660266f7593f6937a8c84a5412d4621bb9705c9833edc7cd58cfb02d10"},
+    {"file": "03.png", "seconds": 0.042, "phase": "cycle_03", "paw_centers": {"hind_near": [36, 218], "hind_far": [70, 215], "fore_near": [190, 175], "fore_far": [190, 175]}, "sha256": "168101a0f2428dc2b8a1c3d17542568dde16b92d80e613dad1f4ed5715343b78"},
+    {"file": "04.png", "seconds": 0.042, "phase": "cycle_04", "paw_centers": {"hind_near": [42, 212], "hind_far": [78, 207], "fore_near": [188, 179], "fore_far": [188, 179]}, "sha256": "b648d043c4412f3ebc8c6ee73dc0aaa9473861c9f1f0a06acfdf677a5a9b4d7c"},
+    {"file": "05.png", "seconds": 0.041, "phase": "cycle_05", "paw_centers": {"hind_near": [40, 207], "hind_far": [73, 196], "fore_near": [192, 194], "fore_far": [192, 194]}, "sha256": "5ef545ba40f56cf5d1e8d70f12722c8a6946f6062915d88d8c8da74d5b0f9513"},
+    {"file": "06.png", "seconds": 0.042, "phase": "cycle_06", "paw_centers": {"hind_near": [25, 195], "hind_far": [70, 178], "fore_near": [187, 203], "fore_far": [187, 203]}, "sha256": "3481057bf209089d06aec1e1c4738247ebf6ec7ae634e3d6bfb2778c6257775a"},
+    {"file": "07.png", "seconds": 0.042, "phase": "cycle_07", "paw_centers": {"hind_near": [34, 181], "hind_far": [123, 170], "fore_near": [182, 217], "fore_far": [182, 217]}, "sha256": "945002ca029e42fa59e08c3039508dc999d0774f493bcf80058e0bd1153c3955"},
+    {"file": "08.png", "seconds": 0.041, "phase": "cycle_08", "paw_centers": {"hind_near": [36, 174], "hind_far": [129, 173], "fore_near": [174, 221], "fore_far": [174, 221]}, "sha256": "de338f87aaf8202d044246c2d8f642c5792fa6fbc853215752e9f637a8137aca"},
+    {"file": "09.png", "seconds": 0.042, "phase": "cycle_09", "paw_centers": {"hind_near": [40, 172], "hind_far": [129, 189], "fore_near": [156, 221], "fore_far": [156, 221]}, "sha256": "9b8c65f3de6883cb8c1e9fa23c212e6a9651894599c272a039f8b267736f293f"},
+    {"file": "10.png", "seconds": 0.042, "phase": "cycle_10", "paw_centers": {"hind_near": [45, 174], "hind_far": [129, 200], "fore_near": [145, 221], "fore_far": [143, 220]}, "sha256": "16995772b1f223b23589e349dcb533866e58256e24769ec6f47967f8a06028f1"},
+    {"file": "11.png", "seconds": 0.041, "phase": "cycle_11", "paw_centers": {"hind_near": [56, 180], "hind_far": [125, 218], "fore_near": [145, 215], "fore_far": [133, 218]}, "sha256": "5dbeb2562fcd751f970e57f5c986e4718ca407bb43424167304118e206ae5b87"},
+    {"file": "12.png", "seconds": 0.042, "phase": "cycle_12", "paw_centers": {"hind_near": [68, 182], "hind_far": [117, 220], "fore_near": [145, 218], "fore_far": [117, 220]}, "sha256": "05a4a1800ef92840a299b1478eab9fa666b22b33d9d0cc8cbeb2f117bae6e248"},
+    {"file": "13.png", "seconds": 0.042, "phase": "cycle_13", "paw_centers": {"hind_near": [75, 185], "hind_far": [119, 217], "fore_near": [151, 210], "fore_far": [120, 216]}, "sha256": "4a619cd17a262673e0a89aa703589deb78391513c706282685b53c5503b0d40a"},
+    {"file": "14.png", "seconds": 0.041, "phase": "cycle_14", "paw_centers": {"hind_near": [77, 186], "hind_far": [114, 216], "fore_near": [145, 209], "fore_far": [115, 216]}, "sha256": "ecc7cbaac914d649a161b7e99f64933479f920105d07b0e5527ea10dc096fbcf"},
+    {"file": "15.png", "seconds": 0.042, "phase": "cycle_15", "paw_centers": {"hind_near": [79, 190], "hind_far": [117, 212], "fore_near": [145, 197], "fore_far": [118, 211]}, "sha256": "dd10642395f4aaa4afd452c598b8da3ad064340ab7889f8c82abe21821908c25"},
+    {"file": "16.png", "seconds": 0.042, "phase": "cycle_16", "paw_centers": {"hind_near": [79, 192], "hind_far": [128, 206], "fore_near": [147, 200], "fore_far": [128, 206]}, "sha256": "b8238971601735d5339d671be995a601c58879d8b32437170a3eab283c68b5b6"},
+    {"file": "17.png", "seconds": 0.041, "phase": "cycle_17", "paw_centers": {"hind_near": [78, 195], "hind_far": [91, 210], "fore_near": [166, 195], "fore_far": [123, 207]}, "sha256": "74a996c3a46ae0cd5fcd3efb994001baf120cc7673e0d9f2b2092e1f00c22f26"},
+    {"file": "18.png", "seconds": 0.042, "phase": "cycle_18", "paw_centers": {"hind_near": [78, 204], "hind_far": [99, 214], "fore_near": [150, 201], "fore_far": [115, 209]}, "sha256": "382f86c7fce0d62c7decf6895c4865c0fe741ae46c3db5cd63ca13ae3d193d89"},
+    {"file": "19.png", "seconds": 0.042, "phase": "cycle_19", "paw_centers": {"hind_near": [78, 219], "hind_far": [83, 224], "fore_near": [145, 210], "fore_far": [131, 213]}, "sha256": "a7cc288e12f32c7bf4678560bb0387c7fe3ba5b0de3c9a3bbfbbd6e5574e565f"}
   ]
 }

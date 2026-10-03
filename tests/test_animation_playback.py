@@ -18,19 +18,19 @@ class AnimationTimelineTests(unittest.TestCase):
         timeline = AnimationTimeline("akita", "running", now=10.0)
 
         self.assertEqual(timeline.advance(now=10.05), 1)
-        self.assertEqual(timeline.advance(now=10.081), 2)
-        self.assertAlmostEqual(timeline.deadline or 0, 10.16)
-        self.assertAlmostEqual(timeline.timeout(now=10.15) or 0, 0.01)
-        self.assertEqual(timeline.advance(now=10.161), 3)
-        self.assertAlmostEqual(timeline.deadline or 0, 10.24)
+        self.assertEqual(timeline.advance(now=10.085), 2)
+        self.assertAlmostEqual(timeline.deadline or 0, 10.125)
+        self.assertAlmostEqual(timeline.timeout(now=10.115) or 0, 0.01)
+        self.assertEqual(timeline.advance(now=10.126), 3)
+        self.assertAlmostEqual(timeline.deadline or 0, 10.167)
 
     def test_late_wakeup_skips_stale_frames_instead_of_catching_up_in_a_burst(self) -> None:
         timeline = AnimationTimeline("akita", "running", now=20.0)
 
         frame = timeline.advance(now=20.35)
 
-        self.assertEqual(frame, 5)
-        self.assertAlmostEqual(timeline.deadline or 0, 20.36)
+        self.assertEqual(frame, 8)
+        self.assertAlmostEqual(timeline.deadline or 0, 20.375)
 
     def test_state_reset_starts_a_new_visual_at_frame_zero(self) -> None:
         timeline = AnimationTimeline("akita", "running", now=10.0)
@@ -49,11 +49,11 @@ class AnimationTimelineTests(unittest.TestCase):
 
         self.assertTrue(timeline.sync("akita", "running", 1, now=2.0))
         self.assertEqual(timeline.frame, 0)
-        self.assertAlmostEqual(timeline.deadline or 0, 2.04)
+        self.assertAlmostEqual(timeline.deadline or 0, 2.042)
         timeline.advance(now=2.09)
         self.assertTrue(timeline.sync("akita", "running", 2, now=3.0))
         self.assertEqual(timeline.frame, 0)
-        self.assertAlmostEqual(timeline.deadline or 0, 3.04)
+        self.assertAlmostEqual(timeline.deadline or 0, 3.042)
 
         self.assertTrue(timeline.sync("robot", "running", 2, now=4.0))
         self.assertAlmostEqual(timeline.deadline or 0, 6.0)
@@ -85,26 +85,26 @@ class PlaybackScheduleTests(unittest.TestCase):
     def test_akita_looping_states_keep_their_frame_order_and_cadence(self) -> None:
         self.assertEqual(animation_interval("akita", "idle", 0), 0.6)
         self.assertEqual(animation_interval("akita", "idle", 6), 0.6)
-        self.assertEqual(animation_interval("akita", "running", 0), 0.04)
+        self.assertEqual(animation_interval("akita", "running", 0), 0.042)
         self.assertEqual(animation_interval("akita", "needs_input", 3), 0.85)
         self.assertEqual(advance_animation("akita", "idle", 5), 6)
         self.assertEqual(advance_animation("akita", "idle", 7), 0)
-        self.assertEqual(AKITA_FRAME_COUNTS["running"], 10)
-        self.assertEqual(advance_animation("akita", "running", 9), 0)
+        self.assertEqual(AKITA_FRAME_COUNTS["running"], 20)
+        self.assertEqual(advance_animation("akita", "running", 19), 0)
         self.assertEqual(advance_animation("akita", "needs_input", 3), 0)
 
-    def test_running_schedule_uses_two_complete_ten_pose_cycles(self) -> None:
+    def test_running_schedule_uses_two_complete_twenty_pose_cycles(self) -> None:
         frames = playback_frames("akita", "running", cycles=2)
 
-        self.assertEqual([item.frame for item in frames], list(range(10)) * 2)
+        self.assertEqual([item.frame for item in frames], list(range(20)) * 2)
         self.assertEqual([item.duration_seconds for item in frames], list(AKITA_FRAME_INTERVALS["running"]) * 2)
 
-    def test_running_preserves_hindleg_order_and_cycle_after_local_repair(self) -> None:
+    def test_running_preserves_source_frame_order_and_cycle(self) -> None:
         frames = playback_frames("akita", "running")
         physical = [akita_artwork_frame("running", step.frame)[1] for step in frames]
-        self.assertEqual(physical, [0, 8, 1, 2, 3, 4, 9, 5, 6, 7])
-        self.assertEqual(sorted(physical), list(range(10)))
-        self.assertAlmostEqual(sum(step.duration_seconds for step in frames), .64)
+        self.assertEqual(physical, list(range(20)))
+        self.assertEqual(sorted(physical), list(range(20)))
+        self.assertAlmostEqual(sum(step.duration_seconds for step in frames), .834)
 
     def test_ready_interrupts_every_running_pose_with_grounded_crouch(self) -> None:
         for position in range(AKITA_FRAME_COUNTS["running"]):

@@ -8,6 +8,6 @@
 
 确定性导出命令：`python tools/export_derived_blink.py /tmp/ready-blink.png`。编码器迁移后 PNG 压缩字节可能不同，验收以解码 RGBA 指纹和区域外逐像素一致为准；首次交付的 PNG 指纹仍保留。
 
-时序由 `assets/akita/pet.json` 定义：Running 十帧 640 ms；同宠物 Running→Ready 360 ms 收步后接 940 ms 轻跃，再进入 4380 ms 休息循环。眨眼为休息循环第 3 次曝光、200 ms。其他状态、Blocked 的有限反应和无限保持沿用基线。
+本历史迁移包记录当时的时序：`assets/akita/pet.json` 定义 Running 十帧 640 ms；同宠物 Running→Ready 360 ms 收步后接 940 ms 轻跃，再进入 4380 ms 休息循环。眨眼为休息循环第 3 次曝光、200 ms。当前 Running 已由 [2026-10 Grok 循环](../2026-10-grok-run/brief.md) 取代；本包的时间表只用于历史复现。
 
 文件、时长、合成结果和徽标以独立旧基线的 1080 条路径/8694 次曝光校验；设备与自动检查结果记录在 [实施证据](../../../../research/implementation-status.md)。新生产链路的人工观感验收仍 pending；原图及历史记录不改写为本次通过证据。

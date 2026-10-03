@@ -17,7 +17,7 @@ class FramePipelineTests(unittest.TestCase):
             frame = composer.compose(source.frame(request.pack_id, request.revision, request.reference), request.count)
             self.assertEqual((frame.width, frame.height), (256,256))
             self.assertEqual(len(frame.pixels),256*256*4)
-            self.assertAlmostEqual(runtime.deadline, .04)
+            self.assertAlmostEqual(runtime.deadline, .042)
             self.assertEqual(runtime.current(), request)
 
     def test_frame_rejects_mutable_or_incorrect_length_pixels(self):

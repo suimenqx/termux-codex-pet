@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-03",
+  "installer": "bash ./install.sh",
+  "release": "20261003T210259Z-347ebcdc",
+  "status_before_test": {
+    "daemon": "running",
+    "gui": "ready",
+    "pet": "akita",
+    "renderer": "png",
+    "pack_revision": "2026-10-grok-run",
+    "running_cycle_ms": 834,
+    "running_frame_count": 20,
+    "running_durations_ms": [42, 42, 41, 42, 42, 41, 42, 42, 41, 42, 42, 41, 42, 42, 41, 42, 42, 41, 42, 42]
+  },
+  "smoke_command": "codex-pet test",
+  "smoke_result": [
+    "idle",
+    "running",
+    "needs_input",
+    "ready icon (persistent until the next event)",
+    "blocked",
+    "Test complete; Pet returned to idle"
+  ],
+  "log_check": {
+    "file": "~/.cache/codex-pet/pet.log",
+    "result": "daemon started and Termux:GUI overlay ready; no new error reported"
+  },
+  "human_screen_observation": "pending"
+}
