@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "id": "akita",
+  "canvas_px": [
+    256,
+    256
+  ],
+  "display_dp": [
+    64,
+    64
+  ],
+  "source": {
+    "kind": "png_directory"
+  },
+  "frames": {
+    "idle/00": {
+      "file": "frames/idle/00.png"
+    },
+    "idle/01": {
+      "file": "frames/idle/01.png"
+    },
+    "idle/02": {
+      "file": "frames/idle/02.png"
+    },
+    "idle/03": {
+      "file": "frames/idle/03.png"
+    },
+    "idle/04": {
+      "file": "frames/idle/04.png"
+    },
+    "idle/05": {
+      "file": "frames/idle/05.png"
+    },
+    "idle/06": {
+      "file": "frames/idle/06.png"
+    },
+    "idle/07": {
+      "file": "frames/idle/07.png"
+    },
+    "running/00": {
+      "file": "frames/running/00.png"
+    },
+    "running/01": {
+      "file": "frames/running/01.png"
+    },
+    "running/02": {
+      "file": "frames/running/02.png"
+    },
+    "running/03": {
+      "file": "frames/running/03.png"
+    },
+    "running/04": {
+      "file": "frames/running/04.png"
+    },
+    "running/05": {
+      "file": "frames/running/05.png"
+    },
+    "running/06": {
+      "file": "frames/running/06.png"
+    },
+    "running/07": {
+      "file": "frames/running/07.png"
+    },
+    "running/08": {
+      "file": "frames/running/08.png"
+    },
+    "running/09": {
+      "file": "frames/running/09.png"
+    },
+    "needs_input/00": {
+      "file": "frames/needs_input/00.png"
+    },
+    "needs_input/01": {
+      "file": "frames/needs_input/01.png"
+    },
+    "needs_input/02": {
+      "file": "frames/needs_input/02.png"
+    },
+    "needs_input/03": {
+      "file": "frames/needs_input/03.png"
+    },
+    "ready/00": {
+      "file": "frames/ready/00.png"
+    },
+    "ready/01": {
+      "file": "frames/ready/01.png"
+    },
+    "ready/02": {
+      "file": "frames/ready/02.png"
+    },
+    "ready/03": {
+      "file": "frames/ready/03.png"
+    },
+    "ready/04": {
+      "file": "frames/ready/04.png"
+    },
+    "ready/05": {
+      "file": "frames/ready/05.png"
+    },
+    "ready/06": {
+      "file": "frames/ready/06.png"
+    },
+    "ready/07": {
+      "file": "frames/ready/07.png"
+    },
+    "blocked/00": {
+      "file": "frames/blocked/00.png"
+    },
+    "blocked/01": {
+      "file": "frames/blocked/01.png"
+    },
+    "blocked/02": {
+      "file": "frames/blocked/02.png"
+    },
+    "blocked/03": {
+      "file": "frames/blocked/03.png"
+    },
+    "ready/blink": {
+      "file": "derived/ready-blink.png",
+      "derived_provenance": {
+        "base": "idle/00",
+        "patch": "idle/02",
+        "copy_rect": [
+          58,
+          54,
+          198,
+          116
+        ]
+      }
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  },
+  "transitions": [
+    {
+      "from": "running",
+      "to": "ready",
+      "clip": "running_to_ready"
+    }
+  ],
+  "clips": {
+    "idle": {
+      "frames": [
+        {
+          "frame": "idle/00",
+          "duration_ms": 600
+        },
+        {
+          "frame": "idle/01",
+          "duration_ms": 80
+        },
+        {
+          "frame": "idle/02",
+          "duration_ms": 80
+        },
+        {
+          "frame": "idle/03",
+          "duration_ms": 80
+        },
+        {
+          "frame": "idle/04",
+          "duration_ms": 600
+        },
+        {
+          "frame": "idle/05",
+          "duration_ms": 600
+        },
+        {
+          "frame": "idle/06",
+          "duration_ms": 600
+        },
+        {
+          "frame": "idle/07",
+          "duration_ms": 600
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "running": {
+      "frames": [
+        {
+          "frame": "running/00",
+          "duration_ms": 40
+        },
+        {
+          "frame": "running/08",
+          "duration_ms": 40
+        },
+        {
+          "frame": "running/01",
+          "duration_ms": 80
+        },
+        {
+          "frame": "running/02",
+          "duration_ms": 80
+        },
+        {
+          "frame": "running/03",
+          "duration_ms": 80
+        },
+        {
+          "frame": "running/04",
+          "duration_ms": 40
+        },
+        {
+          "frame": "running/09",
+          "duration_ms": 40
+        },
+        {
+          "frame": "running/05",
+          "duration_ms": 80
+        },
+        {
+          "frame": "running/06",
+          "duration_ms": 80
+        },
+        {
+          "frame": "running/07",
+          "duration_ms": 80
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "needs_input": {
+      "frames": [
+        {
+          "frame": "needs_input/00",
+          "duration_ms": 200
+        },
+        {
+          "frame": "needs_input/01",
+          "duration_ms": 180
+        },
+        {
+          "frame": "needs_input/02",
+          "duration_ms": 180
+        },
+        {
+          "frame": "needs_input/03",
+          "duration_ms": 850
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "ready": {
+      "frames": [
+        {
+          "frame": "ready/04",
+          "duration_ms": 160
+        },
+        {
+          "frame": "ready/01",
+          "duration_ms": 200
+        },
+        {
+          "frame": "ready/02",
+          "duration_ms": 220
+        },
+        {
+          "frame": "ready/03",
+          "duration_ms": 360
+        }
+      ],
+      "end": {
+        "mode": "next",
+        "clip": "ready_rest"
+      }
+    },
+    "ready_rest": {
+      "frames": [
+        {
+          "frame": "idle/01",
+          "duration_ms": 800
+        },
+        {
+          "frame": "idle/00",
+          "duration_ms": 280
+        },
+        {
+          "frame": "ready/blink",
+          "duration_ms": 200
+        },
+        {
+          "frame": "idle/00",
+          "duration_ms": 300
+        },
+        {
+          "frame": "idle/03",
+          "duration_ms": 600
+        },
+        {
+          "frame": "idle/06",
+          "duration_ms": 800
+        },
+        {
+          "frame": "idle/07",
+          "duration_ms": 600
+        },
+        {
+          "frame": "idle/00",
+          "duration_ms": 800
+        }
+      ],
+      "end": {
+        "mode": "loop"
+      }
+    },
+    "running_to_ready": {
+      "frames": [
+        {
+          "frame": "ready/05",
+          "duration_ms": 120
+        },
+        {
+          "frame": "ready/06",
+          "duration_ms": 120
+        },
+        {
+          "frame": "ready/07",
+          "duration_ms": 120
+        }
+      ],
+      "end": {
+        "mode": "next",
+        "clip": "ready"
+      }
+    },
+    "blocked": {
+      "frames": [
+        {
+          "frame": "blocked/00",
+          "duration_ms": 120
+        },
+        {
+          "frame": "blocked/01",
+          "duration_ms": 180
+        },
+        {
+          "frame": "blocked/02",
+          "duration_ms": 180
+        },
+        {
+          "frame": "blocked/03",
+          "duration_ms": 120
+        }
+      ],
+      "end": {
+        "mode": "hold"
+      }
+    }
+  },
+  "decorations": {
+    "count": {
+      "style": "akita_count_v1",
+      "visible_above": 1,
+      "clamp": 10
+    }
+  },
+  "color_space": "srgb"
+}
