@@ -1,5 +1,5 @@
 {
-  "revision": "2026-10-grok-v2-normalized-candidate",
+  "revision": "2026-10-grok-v2-scale-reassessment",
   "status": "review_only",
   "source_archive": {
     "file": "akita-run-grok-v2.zip",
@@ -22,19 +22,23 @@
     "target_anchor_256": [128.0, 228.0],
     "per_frame_fit": false,
     "motion_interpolation": false,
-    "alpha_resampling": "premultiplied"
+    "alpha_resampling": "premultiplied",
+    "role": "diagnostic_only",
+    "reason_not_default": "the historical running envelope is smaller than the ready envelope"
   },
   "outputs": {
-    "preferred_256": "review/frames_256-v2-normalized/",
-    "preferred_manifest": "review/candidate-v2-normalized.json",
+    "preferred_256": "review/frames_256-v2-raw/",
+    "preferred_manifest": "review/frames_256-v2-raw/frames.json",
+    "normalized_diagnostic_256": "review/frames_256-v2-normalized/",
+    "normalized_diagnostic_manifest": "review/candidate-v2-normalized.json",
     "hd_downsample_comparison": "review/frames_256-hd-normalized/",
     "comparison_192px": "review/v2-normalization-compare-192px.png",
     "contact_192px": "review/v2-normalization-contact-192px.png"
   },
   "visual_review": {
     "v2_matte": "promising; fewer semi-transparent edge pixels and lower edge-to-interior colour distance",
-    "scale": "v2 raw is larger/lower than current production; fixed transform corrects the common envelope",
-    "preferred_source": "v2 native 256 rather than HD-downsampled 256",
+    "scale": "the old running state is visibly smaller than ready; do not shrink v2 to the old running union bbox",
+    "preferred_source": "v2 native 256 at source scale; normalized 256 is diagnostic only",
     "production_integration": "not performed",
     "device_verification": "pending"
   },
