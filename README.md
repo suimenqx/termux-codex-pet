@@ -75,6 +75,11 @@ hashes. Import the other generated directories individually to make them
 selectable. A preview is a chance to assess appearance and motion on the device,
 not a claim that its animation has passed human review.
 
+The [community pet integration notes](docs/community-pet-integration.md) record
+how these existing assets were found, converted and imported, which boundaries
+were reused, and what the device checks established. Use this path when adding
+an existing community pet.
+
 The [pet image and animation standards](docs/animation-assets.md) cover character scale and registration, motion timing and in-between frames, agent generation prompts, a production-brief template, and acceptance checks. They also identify the limits of the current artwork and audit tools. The following visual descriptions refer to Akita; all pets share the same state events.
 
 | State | What you see | When it changes |
