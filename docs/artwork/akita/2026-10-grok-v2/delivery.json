@@ -1,0 +1,52 @@
+{
+  "revision": "2026-10-grok-v2-normalized-candidate",
+  "status": "review_only",
+  "source_archive": {
+    "file": "akita-run-grok-v2.zip",
+    "sha256": "8bd86fd3a58d9988a0a219110858f8b948cb62c397961d746b604ab99e06d849"
+  },
+  "input": {
+    "frame_count": 20,
+    "source_size_px": [256, 256],
+    "hd_size_px": [768, 768],
+    "cycle_ms": 834,
+    "durations_ms_pattern": [42, 42, 41],
+    "source_frames": [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]
+  },
+  "normalization": {
+    "script": "source/normalize_v2.py",
+    "source_union_bbox_256": [6, 30, 251, 238],
+    "target_union_bbox_256": [11, 29, 245, 227],
+    "fixed_scale": 0.9521531100478469,
+    "source_anchor_256": [128.5, 239.0],
+    "target_anchor_256": [128.0, 228.0],
+    "per_frame_fit": false,
+    "motion_interpolation": false,
+    "alpha_resampling": "premultiplied"
+  },
+  "outputs": {
+    "preferred_256": "review/frames_256-v2-normalized/",
+    "preferred_manifest": "review/candidate-v2-normalized.json",
+    "hd_downsample_comparison": "review/frames_256-hd-normalized/",
+    "comparison_192px": "review/v2-normalization-compare-192px.png",
+    "contact_192px": "review/v2-normalization-contact-192px.png"
+  },
+  "visual_review": {
+    "v2_matte": "promising; fewer semi-transparent edge pixels and lower edge-to-interior colour distance",
+    "scale": "v2 raw is larger/lower than current production; fixed transform corrects the common envelope",
+    "preferred_source": "v2 native 256 rather than HD-downsampled 256",
+    "production_integration": "not performed",
+    "device_verification": "pending"
+  },
+  "reproducibility_gaps": [
+    "raw video/input frames are not inside the supplied archive",
+    "HD EDSR model path is outside the archive",
+    "process2.py source uses a head-region heuristic rather than an explicit facial-landmark detector"
+  ],
+  "review_files_sha256": {
+    "review/edge-before-after.png": "5e0689eaec0c550b03ca84e9692c193d99e0d706382be8da55df82c8ca08d6e1",
+    "review/consistency-192px.png": "6d38175d1fc8d857d1b61bbecd41f0b206afb9bdf2bebdc02fd9c723d3b170ec",
+    "review/v2-normalization-compare-192px.png": "4e2def1383b6932e60768aa72c44488faaecedd18ce7a65a0f08429c7f8fd66b",
+    "review/v2-normalization-contact-192px.png": "6bf26acb1aeb42d4af853048bddabbb71ff91d9dcaab26b85b8de470e0d0c71e"
+  }
+}
