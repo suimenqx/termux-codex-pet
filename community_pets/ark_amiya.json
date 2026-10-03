@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "id": "ark_amiya",
+  "name": "ArkPets 阿米娅",
+  "canvas": [
+    256,
+    256
+  ],
+  "description": "Original Arknights Amiya Spine3.8 motions,15fps offline export.",
+  "credits": "Original Arknights art copyright Hypergryph; Ark-Models noncommercial terms retained below. Personal offline export only; Spine Runtime has its own license and is not bundled in the app. Official personal-export clarification: https://esotericsoftware.com/forum/d/25551-exporting-animation-frames . Canvas single-page region/mesh subset; tiny triangle seams can differ from upstream WebGL. No clipping, tint or additive models supported. https://github.com/isHarryh/Ark-Models/tree/8a3857c250a5c271429aefa82c660ff35803166e",
+  "sources": {
+    "texture": {
+      "url": "https://raw.githubusercontent.com/isHarryh/Ark-Models/8a3857c250a5c271429aefa82c660ff35803166e/models/002_amiya/build_char_002_amiya.png",
+      "sha256": "618d7ce9cc18e4ef46cb5f513ffebc0b6b7b7e08f8e0f12a7abb3ff93547d7e4"
+    },
+    "skeleton": {
+      "url": "https://raw.githubusercontent.com/isHarryh/Ark-Models/8a3857c250a5c271429aefa82c660ff35803166e/models/002_amiya/build_char_002_amiya.skel",
+      "sha256": "41908ed5c73ed9c5b5616a7c45d61275c29319fbb6a46068df5a4d0c6f5c7bff"
+    },
+    "atlas": {
+      "url": "https://raw.githubusercontent.com/isHarryh/Ark-Models/8a3857c250a5c271429aefa82c660ff35803166e/models/002_amiya/build_char_002_amiya.atlas",
+      "sha256": "696114f96f2a2366fc4a373bd1d08c7569f9eb279305347364ffd629eab9d9b5"
+    },
+    "model-notice": {
+      "url": "https://raw.githubusercontent.com/isHarryh/Ark-Models/8a3857c250a5c271429aefa82c660ff35803166e/README.md",
+      "sha256": "64a0ac702f40d2fa6dff4e10297bf1fb2f72675888b36275f9a688766f052a5c"
+    },
+    "runtime": {
+      "url": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/8b4844bd4b193ba9e54487ed397a777993cbad56/spine-ts/build/spine-canvas.js",
+      "sha256": "250eaf578a4654a63de0aef7dfad0fc4bcb613bcf2b3ea8d0d2822e4b9597ce0"
+    },
+    "spine-license": {
+      "url": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/8b4844bd4b193ba9e54487ed397a777993cbad56/LICENSE",
+      "sha256": "6142ee6cc2c03d3a918793e4750ae772bd3755c534d4a35e559e301acf51ec39"
+    }
+  },
+  "notices": [
+    "model-notice",
+    "spine-license"
+  ],
+  "sequences": {
+    "idle": {
+      "kind": "spine38",
+      "runtime": "runtime",
+      "texture": "texture",
+      "atlas": "atlas",
+      "skeleton": "skeleton",
+      "export_clips": [
+        "Relax",
+        "Move",
+        "Interact",
+        "Sit",
+        "Sleep"
+      ],
+      "fps": 15,
+      "size": 256,
+      "animation": "Relax"
+    },
+    "running": {
+      "kind": "spine38",
+      "runtime": "runtime",
+      "texture": "texture",
+      "atlas": "atlas",
+      "skeleton": "skeleton",
+      "export_clips": [
+        "Relax",
+        "Move",
+        "Interact",
+        "Sit",
+        "Sleep"
+      ],
+      "fps": 15,
+      "size": 256,
+      "animation": "Move"
+    },
+    "needs_input": {
+      "kind": "spine38",
+      "runtime": "runtime",
+      "texture": "texture",
+      "atlas": "atlas",
+      "skeleton": "skeleton",
+      "export_clips": [
+        "Relax",
+        "Move",
+        "Interact",
+        "Sit",
+        "Sleep"
+      ],
+      "fps": 15,
+      "size": 256,
+      "animation": "Sit"
+    },
+    "ready": {
+      "kind": "spine38",
+      "runtime": "runtime",
+      "texture": "texture",
+      "atlas": "atlas",
+      "skeleton": "skeleton",
+      "export_clips": [
+        "Relax",
+        "Move",
+        "Interact",
+        "Sit",
+        "Sleep"
+      ],
+      "fps": 15,
+      "size": 256,
+      "animation": "Interact"
+    },
+    "blocked": {
+      "kind": "spine38",
+      "runtime": "runtime",
+      "texture": "texture",
+      "atlas": "atlas",
+      "skeleton": "skeleton",
+      "export_clips": [
+        "Relax",
+        "Move",
+        "Interact",
+        "Sit",
+        "Sleep"
+      ],
+      "fps": 15,
+      "size": 256,
+      "animation": "Sleep"
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "idle",
+      "end": "loop"
+    },
+    "running": {
+      "sequence": "running",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "needs_input",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "ready",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "blocked",
+      "end": "loop"
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

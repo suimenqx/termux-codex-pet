@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "id": "clawd_tank",
+  "name": "Clawd Tank",
+  "canvas": [
+    192,
+    192
+  ],
+  "description": "MIT Clawd Tank animations: typing, notification, happy, confused.",
+  "credits": "Clawd Tank by Marcio Granzotto Rodrigues, MIT. This is the credited upstream alternative, NOT Clawd on Desk proprietary GIF art. Fixed per-clip coral-body reference width90px and baseline150; no per-frame normalization. Original GIF exposure durations retained. https://github.com/marciogranzotto/clawd-tank/tree/a8942d140eeb8bcf549857ad599f7d62fd29eb01",
+  "sources": {
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/LICENSE",
+      "sha256": "4a42b7de3a543d2fd127e953accd7a7db31d4bf90aecf464e156f1f188797072"
+    },
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/README.md",
+      "sha256": "db8a056806eeb7e70caa10e9c4e64034f438dbcc3e2f8740a5c2b6cca554bf67"
+    },
+    "idle": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/assets/slack-emojis/clawd-idle-living.gif",
+      "sha256": "0a31312108248d80f4428e311308b56f7eb2e5778e6f2cb7e7ef8cfc0439c739"
+    },
+    "running": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/assets/slack-emojis/clawd-working-typing.gif",
+      "sha256": "610ce77a79071ae0697cd101c8f91f5514919ed65276a2f9db2adaebec922f3e"
+    },
+    "needs_input": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/assets/slack-emojis/clawd-notification.gif",
+      "sha256": "8a0d86e689aca9029edc63c40deb19b6db7429e52da238afb8059b554b1ba420"
+    },
+    "ready": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/assets/slack-emojis/clawd-happy.gif",
+      "sha256": "b0ad6bb71837caa0ddf0697523ebe69aa083de359e80b026665e8c3696cc0e0e"
+    },
+    "blocked": {
+      "url": "https://raw.githubusercontent.com/marciogranzotto/clawd-tank/a8942d140eeb8bcf549857ad599f7d62fd29eb01/assets/slack-emojis/clawd-working-confused.gif",
+      "sha256": "7111bd892ff9502182a39da911cf06e170a5f67ad3a94cebb207e4ef28656034"
+    }
+  },
+  "notices": [
+    "LICENSE",
+    "README.md"
+  ],
+  "sequences": {
+    "idle": {
+      "kind": "gif",
+      "source": "idle",
+      "layout": {
+        "size": [
+          109,
+          77
+        ],
+        "offset": [
+          42,
+          79
+        ]
+      }
+    },
+    "running": {
+      "kind": "gif",
+      "source": "running",
+      "layout": {
+        "size": [
+          134,
+          129
+        ],
+        "offset": [
+          34,
+          41
+        ]
+      }
+    },
+    "needs_input": {
+      "kind": "gif",
+      "source": "needs_input",
+      "layout": {
+        "size": [
+          144,
+          148
+        ],
+        "offset": [
+          41,
+          15
+        ]
+      }
+    },
+    "ready": {
+      "kind": "gif",
+      "source": "ready",
+      "layout": {
+        "size": [
+          175,
+          154
+        ],
+        "offset": [
+          6,
+          3
+        ]
+      }
+    },
+    "blocked": {
+      "kind": "gif",
+      "source": "blocked",
+      "layout": {
+        "size": [
+          165,
+          157
+        ],
+        "offset": [
+          -6,
+          10
+        ]
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "idle",
+      "end": "loop"
+    },
+    "running": {
+      "sequence": "running",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "needs_input",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "ready",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "blocked",
+      "end": "loop"
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

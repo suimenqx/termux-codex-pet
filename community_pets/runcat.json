@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "id": "runcat",
+  "name": "RunCat",
+  "canvas": [
+    128,
+    128
+  ],
+  "description": "RunCat365 original game run/jump; black silhouette, best on light backgrounds.",
+  "credits": "RunCat365 by runcat-dev, Apache-2.0 project. Preserve upstream license and credits. Original game interval100ms. No authored idle/input/error poses; those roles reuse original frames. https://github.com/runcat-dev/RunCat365/tree/03b6e2b288c2df5df2433398f5547857bb4d0e2f",
+  "sources": {
+    "cat_running_0": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_running_0.png",
+      "sha256": "9e751335475e861f0ce024f3b568de061ad2b49a2d72a7236cc09a1b47e1b256"
+    },
+    "cat_running_1": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_running_1.png",
+      "sha256": "aae10430d0931b32a6647fee31c04d0f421136659cdde58a4b8a6df4c9e923d7"
+    },
+    "cat_running_2": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_running_2.png",
+      "sha256": "0c2dd7b1ca0a27b2653de6f6cc3f19c063651ff01bd659af444c8faae2e54c21"
+    },
+    "cat_running_3": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_running_3.png",
+      "sha256": "b77cdb8c4794cd902fdb6223685cbf4ccf4226f62d4b76d30542a6e01143405c"
+    },
+    "cat_running_4": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_running_4.png",
+      "sha256": "a82761d6316ff9be59b97f17018497eb5656366b78ed01025e77d9d7b031bd01"
+    },
+    "cat_jumping_0": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_0.png",
+      "sha256": "10abfc039b423f0638ebaf982c05e2cba60ccb59e26c01b2f39ed8c3c75fcf11"
+    },
+    "cat_jumping_1": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_1.png",
+      "sha256": "a53a2fbb65995dcb270868da9f2535d4156059d937960a0366a9ccf05c98524d"
+    },
+    "cat_jumping_2": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_2.png",
+      "sha256": "109ab421fa0a615d5017e21412646cf3c5fa49b9cfcaa244b07f5a70c9441030"
+    },
+    "cat_jumping_3": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_3.png",
+      "sha256": "ebb69274f4d467afd95e509b18788690867e22dc1d769b9b8fe9218d693b303a"
+    },
+    "cat_jumping_4": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_4.png",
+      "sha256": "9298532b710725c06c5bbadfc910916c057038a7052e2d49b9654f7b4153d0ce"
+    },
+    "cat_jumping_5": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_5.png",
+      "sha256": "ff1db845d032f0897ba7c0d117319d3e1f55c6ce7d0b1de7fb2be135bf2643e4"
+    },
+    "cat_jumping_6": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_6.png",
+      "sha256": "755e5b7472d049dd46f69914083a7a9acf63e18b912639c175c5c8641c3ffe13"
+    },
+    "cat_jumping_7": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_7.png",
+      "sha256": "493cfbba724f0cc74aaeb4c8d1ac78ab0174f0938dcc6223bfb8838b369722a8"
+    },
+    "cat_jumping_8": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_8.png",
+      "sha256": "32beda9c15e4f5069342dd3b063208493a3b5c943d50e477145826169266bb73"
+    },
+    "cat_jumping_9": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/RunCat365/resources/game/cat_jumping_9.png",
+      "sha256": "154de3fb2d3f3a16bf0d52f6fbca71e673128fbe66f30c53cf6f158d5969c6cf"
+    },
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/LICENSE",
+      "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+    },
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/runcat-dev/RunCat365/03b6e2b288c2df5df2433398f5547857bb4d0e2f/README.md",
+      "sha256": "51c20892545d356075ddd345106c581c60c346172926aef722b5d30c3baae87d"
+    }
+  },
+  "notices": [
+    "LICENSE",
+    "README.md"
+  ],
+  "sequences": {
+    "running": {
+      "kind": "png_sequence",
+      "sources": [
+        "cat_running_0",
+        "cat_running_1",
+        "cat_running_2",
+        "cat_running_3",
+        "cat_running_4"
+      ],
+      "duration_ms": 100,
+      "layout": {
+        "offset": [
+          4,
+          14
+        ]
+      }
+    },
+    "jumping": {
+      "kind": "png_sequence",
+      "sources": [
+        "cat_jumping_0",
+        "cat_jumping_1",
+        "cat_jumping_2",
+        "cat_jumping_3",
+        "cat_jumping_4",
+        "cat_jumping_5",
+        "cat_jumping_6",
+        "cat_jumping_7",
+        "cat_jumping_8",
+        "cat_jumping_9"
+      ],
+      "duration_ms": 100,
+      "layout": {
+        "offset": [
+          4,
+          14
+        ]
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "running",
+      "end": "hold",
+      "select": [
+        0
+      ],
+      "hold": true
+    },
+    "running": {
+      "sequence": "running",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "jumping",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "jumping",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "jumping",
+      "end": "hold",
+      "select": [
+        4
+      ],
+      "hold": true
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

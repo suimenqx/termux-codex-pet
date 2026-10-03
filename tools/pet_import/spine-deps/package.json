@@ -1,0 +1,7 @@
+{
+  "name": "codex-pet-offline-spine",
+  "private": true,
+  "dependencies": {
+    "@napi-rs/canvas": "1.0.10"
+  }
+}

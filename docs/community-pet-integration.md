@@ -29,6 +29,36 @@ ayangweb/BongoCat 的 Live2D 桌宠。
 [社区调查](research/nonpixel-community-pets.md)还记录了未采用候选；其调查期
 “尚未导出”的描述是历史状态，五包的最终结果以上述接入记录为准。
 
+## 1.1 第二批：从五包脚本收敛到配方
+
+之后扩展了六类来源、13个独立本地包：RunCat、Clawd Tank、VS Code Pets六款、
+eSheep/Buster Bunny/Pingus、ArkPets阿米娅、DSH蓝毛小女仆。完整ID、命令和维护方式见
+[社区配方指南](../community_pets/README.md)。这里的“全部”覆盖六类来源及上述代表角色，
+不是下载VS Code Pets、desktopPet或Ark-Models所有角色。
+
+这次的可复用边界是`tools/pet_import/pipeline.py::build_recipe()`：来源SHA、状态映射、
+固定画布和署名写在JSON；真正的格式差异放在decoder；写包与第一批共用一个实现。
+第一批五包重新导出与原结果逐文件一致，没有因重构改变现有宠物。
+
+新增经验来自实际输入，而不是给每个项目写一套运行时代码：
+
+- GIF必须处理disposal及嵌入曝光；文件名8fps并不准确。Clawd各GIF身体比例不同，
+  校准只能每片段固定一次。Totoro原run是猫巴士，DSH原跑步有趴下，不能承诺成匀速步态。
+- eSheep XML有命名空间、内嵌PNG及重复曝光；现有alpha不能被简单色键遮罩覆盖。
+  只实现已核实的固定曝光子集，随机/物理脚本仍由本项目的语义状态取代。
+- DSH透明WebM默认ffmpeg解码会丢alpha，必须libvpx-vp9；逐帧时长取PTS差及容器尾部，
+  两帧取一时合并曝光，不能只用包内整数duration累积。
+- 阿米娅可在Termux用官方Spine3.8+原生Canvas离线导出。PMA恢复、mesh绘制、统一五动作
+  视野和超采样缺一不可；不支持的附件/混合直接报错，不声称通吃所有模型。
+- 去重的是RGBA内容和文件，保留全部曝光序列。最大单包DSH约53MiB，按解码预算验收。
+- 源许可需追到图片：Clawd on Desk限制跨应用使用，因此明确换MIT的Clawd Tank；
+  企鹅保留Pingus GPL/作者，而非误套desktopPet的MIT。旧编码署名也必须正确解码保留。
+
+构建失败不发布半成品，已有ID拒绝覆盖；源损坏会明确报错。原文件、npm依赖与导出图片
+保存在私有缓存，公开仓库只有配方/工具/记录。实际来源和验证见
+[本批brief](artwork/community_previews/2026-10-popular/brief.md)和
+[验证摘要](artwork/community_previews/2026-10-popular/verification.json)。
+
 ## 2. 搜索到热门项目之后，先检查什么
 
 下一次按“项目 → 具体角色 → 原始文件 → 原始播放定义”的顺序查。第一轮

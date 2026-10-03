@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "id": "esheep_bunny",
+  "name": "Buster Bunny",
+  "canvas": [
+    160,
+    160
+  ],
+  "description": "Original desktopPet XML Buster Bunny sprites; fixed-interval authored cycles.",
+  "credits": "desktopPet engine and pet art have different rights. Original pet README attribution below; eSheep and Buster Bunny image redistribution permission is unverified, so this recipe is for local preview, with no art shipped in this repository. Pingus source art is GPLv3+; original game license/authors retained. Extracts ordered one-cycle frame lists with fixed exposure, not upstream random physics/repeats/actions. https://github.com/Adrianotiger/desktopPet/tree/e2933305157a34818f47d238c74607593d81816d/Pets/bbunny",
+  "sources": {
+    "xml": {
+      "url": "https://raw.githubusercontent.com/Adrianotiger/desktopPet/e2933305157a34818f47d238c74607593d81816d/Pets/bbunny/animations.xml",
+      "sha256": "2574139d35da412fa2a99b0341a5d10c18d8bfd04f02ff8890168b7e5b935339"
+    },
+    "pet-readme": {
+      "url": "https://raw.githubusercontent.com/Adrianotiger/desktopPet/e2933305157a34818f47d238c74607593d81816d/Pets/bbunny/README.md",
+      "sha256": "f0a4e6b1c130cebf7fbb56cc1c8f01d859e33e8143bbf7c74501f362280b8790"
+    }
+  },
+  "notices": [
+    "pet-readme"
+  ],
+  "sequences": {
+    "walk": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "3",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    },
+    "drag": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "1",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    },
+    "border": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "7",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "walk",
+      "end": "hold",
+      "select": [
+        0
+      ],
+      "hold": true
+    },
+    "running": {
+      "sequence": "walk",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "drag",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "border",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "drag",
+      "end": "loop"
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

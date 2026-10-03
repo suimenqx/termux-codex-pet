@@ -46,6 +46,21 @@ Pet 是一个约 64dp 的悬浮形象。默认秋田犬采用透明的 256 × 25
 切换命令与真机验证。`codex-pet pet import /path/to/pack` 可校验并复制本项目
 格式的包，再用 `pet use <id>` 切换；上游原始下载包需先按其格式转换。
 
+[统一社区配方导入器](community_pets/README.md)另外提供13个独立本地预览：RunCat、
+Clawd Tank、VS Code Pets六款、eSheep、Buster Bunny、Pingus、ArkPets阿米娅和
+DSH蓝毛小女仆。运行`python tools/import_pets.py --list`查看ID；来源哈希、原始
+时序、固定布局和状态映射在JSON配方维护，同格式新角色不必改daemon。
+DSH和阿米娅的ffmpeg、Node/Canvas只用于离线转换，安装后的包沿用现有渲染和拖动。
+Clawd Tank是对受限Clawd on Desk素材的明确替代，各来源使用条款见导入指南。
+这批保留原画风，不保证每只都是非像素；例如绵羊和企鹅仍是经典低分辨率素材。
+
+```sh
+codex-pet pet list
+codex-pet pet use ark_amiya   # 已导入后切换
+codex-pet pet use dsh_pet
+codex-pet pet use akita      # 回到原来的秋田犬
+```
+
 [宠物图片与动画制作规范](docs/animation-assets.md)包含角色尺度与定位、动作时间与补帧、agent 生成提示词、制作单模板和验收方法，也说明了现有素材与审计工具的适用边界。
 
 | 状态 | 显示内容 | 触发与持续时间 |

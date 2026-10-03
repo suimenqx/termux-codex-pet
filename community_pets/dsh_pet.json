@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "id": "dsh_pet",
+  "name": "DSH 蓝毛小女仆",
+  "canvas": [
+    160,
+    160
+  ],
+  "description": "DSH original blue-haired maid: run, think, celebrate, breathe, blocked.",
+  "credits": "Original DSH Pet main character 蓝毛小女仆. Upstream says Doubao-generated hand-drawn style; open-source use allowed, commercial use prohibited. Runtime code MIT does not override the image clause. Original24fps VP9-alpha sampled every2frames, exact cycle durations retained; fixed source crop(116,0,476,360),160square. https://github.com/PC2005-cloud/dsh-pet/tree/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920",
+  "sources": {
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/README.md",
+      "sha256": "f000f5bbcce7a6d1b5304a592b6d2f05aad9fe5646a993c4ef8348c476811614"
+    },
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/LICENSE",
+      "sha256": "22757dc9c895b2729a2fc684d227cadfb54d5af3dd300029926839e8c4e269ce"
+    },
+    "idle": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/dsh-pet/assets/webm/%E5%BE%85%E6%9C%BA%E5%91%BC%E5%90%B8%E4%BC%91%E9%97%B2.webm",
+      "sha256": "deb965d05a85dacf5ff4a20faa757846f0d11679598c3ec578a5571487660395"
+    },
+    "running": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/dsh-pet/assets/webm/%E5%8E%9F%E5%9C%B0%E5%B7%A6%E8%BD%AC%E5%A5%94%E8%B7%91.webm",
+      "sha256": "79882aedd7b77caaacce1a34dece68e2f001a3dbfa5f9d049c1ce2fc04518d52"
+    },
+    "needs_input": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/dsh-pet/assets/webm/%E5%B7%A5%E4%BD%9C%E7%8A%B6%E6%80%81-%E6%80%9D%E8%80%83%E5%86%92%E6%B3%A1.webm",
+      "sha256": "b4a36cfa28ea5d7089e362a01972c6e880297c6dcd0d39f1994efd889a3c1be5"
+    },
+    "ready": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/dsh-pet/assets/webm/%E5%B7%A5%E4%BD%9C%E7%8A%B6%E6%80%81-%E9%9B%80%E8%B7%83%E5%BA%86%E7%A5%9D.webm",
+      "sha256": "3ff681051a0bb4f152d7535d64b7f3194c30298bf56d41e521216a278f135d3e"
+    },
+    "blocked": {
+      "url": "https://raw.githubusercontent.com/PC2005-cloud/dsh-pet/51041a7eb78e4b8e1df5c0a1dc4576ea481f8920/dsh-pet/assets/webm/%E5%B7%A5%E4%BD%9C%E7%8A%B6%E6%80%81-%E5%9E%82%E5%A4%B4%E5%8F%B9%E6%B0%94%E5%86%92%E6%B1%97.webm",
+      "sha256": "ab00c844e62221905574b4c070e0d7b6fa14fb2afa1064c27a160f10e25f7196"
+    }
+  },
+  "notices": [
+    "README.md",
+    "LICENSE"
+  ],
+  "sequences": {
+    "idle": {
+      "kind": "vp9_alpha",
+      "source": "idle",
+      "source_size": [
+        640,
+        360
+      ],
+      "frame_count": 241,
+      "duration_ms": 10042,
+      "step": 2,
+      "layout": {
+        "crop": [
+          116,
+          0,
+          476,
+          360
+        ],
+        "size": [
+          160,
+          160
+        ]
+      }
+    },
+    "running": {
+      "kind": "vp9_alpha",
+      "source": "running",
+      "source_size": [
+        640,
+        360
+      ],
+      "frame_count": 241,
+      "duration_ms": 10042,
+      "step": 2,
+      "layout": {
+        "crop": [
+          116,
+          0,
+          476,
+          360
+        ],
+        "size": [
+          160,
+          160
+        ]
+      }
+    },
+    "needs_input": {
+      "kind": "vp9_alpha",
+      "source": "needs_input",
+      "source_size": [
+        640,
+        360
+      ],
+      "frame_count": 241,
+      "duration_ms": 10042,
+      "step": 2,
+      "layout": {
+        "crop": [
+          116,
+          0,
+          476,
+          360
+        ],
+        "size": [
+          160,
+          160
+        ]
+      }
+    },
+    "ready": {
+      "kind": "vp9_alpha",
+      "source": "ready",
+      "source_size": [
+        640,
+        360
+      ],
+      "frame_count": 241,
+      "duration_ms": 10042,
+      "step": 2,
+      "layout": {
+        "crop": [
+          116,
+          0,
+          476,
+          360
+        ],
+        "size": [
+          160,
+          160
+        ]
+      }
+    },
+    "blocked": {
+      "kind": "vp9_alpha",
+      "source": "blocked",
+      "source_size": [
+        640,
+        360
+      ],
+      "frame_count": 118,
+      "duration_ms": 4917,
+      "step": 2,
+      "layout": {
+        "crop": [
+          116,
+          0,
+          476,
+          360
+        ],
+        "size": [
+          160,
+          160
+        ]
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "idle",
+      "end": "loop"
+    },
+    "running": {
+      "sequence": "running",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "needs_input",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "ready",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "blocked",
+      "end": "loop"
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

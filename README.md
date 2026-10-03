@@ -75,6 +75,17 @@ hashes. Import the other generated directories individually to make them
 selectable. A preview is a chance to assess appearance and motion on the device,
 not a claim that its animation has passed human review.
 
+The [recipe-based importer](community_pets/README.md) adds 13 more independent
+local previews: RunCat, Clawd Tank, six VS Code Pets (Clippy, Cockatiel, Crab,
+Fox, Rubber Duck, Totoro), eSheep, Buster Bunny, Pingus, ArkPets Amiya, and the
+DSH blue-haired maid. Run `python tools/import_pets.py --list` for IDs. Pinned
+sources, format conversion, timing, layout and attribution live in JSON recipes;
+new characters using those formats do not require daemon changes. GIF/PNG/XML
+conversion uses Pillow; DSH and Amiya need optional **offline** ffmpeg or
+Node/Canvas dependencies. Generated packs use the existing renderer and controls.
+Clawd Tank is the permitted source alternative to Clawd on Desk's restricted GIFs.
+These are local comparisons, with per-source terms; they are not all non-pixel art.
+
 The [community pet integration notes](docs/community-pet-integration.md) record
 how these existing assets were found, converted and imported, which boundaries
 were reused, and what the device checks established. Use this path when adding

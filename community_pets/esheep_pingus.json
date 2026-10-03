@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "id": "esheep_pingus",
+  "name": "Pingus",
+  "canvas": [
+    160,
+    160
+  ],
+  "description": "Original desktopPet XML Pingus sprites; fixed-interval authored cycles.",
+  "credits": "desktopPet engine and pet art have different rights. Original pet README attribution below; eSheep and Buster Bunny image redistribution permission is unverified, so this recipe is for local preview, with no art shipped in this repository. Pingus source art is GPLv3+; original game license/authors retained. Extracts ordered one-cycle frame lists with fixed exposure, not upstream random physics/repeats/actions. https://github.com/Adrianotiger/desktopPet/tree/e2933305157a34818f47d238c74607593d81816d/Pets/pingus",
+  "sources": {
+    "xml": {
+      "url": "https://raw.githubusercontent.com/Adrianotiger/desktopPet/e2933305157a34818f47d238c74607593d81816d/Pets/pingus/animations.xml",
+      "sha256": "4695fe82103a6a392e8b3a864444cec411003c6821eaf090594878285f311d62"
+    },
+    "pet-readme": {
+      "url": "https://raw.githubusercontent.com/Adrianotiger/desktopPet/e2933305157a34818f47d238c74607593d81816d/Pets/pingus/README.md",
+      "sha256": "d5392dbcef20b9f173a36a77ec657734fad0408e471af5c3b89e855d0ad4981e"
+    },
+    "pingus-README.md": {
+      "url": "https://raw.githubusercontent.com/Pingus/pingus/7d9bc4adf2735023fd1bf13b86b384d9f29e7bdb/README.md",
+      "sha256": "492cf1810a747e91de2fce9d389a8e5061a207fcfc7fa14d71fc9b666d5932df"
+    },
+    "pingus-AUTHORS": {
+      "url": "https://raw.githubusercontent.com/Pingus/pingus/7d9bc4adf2735023fd1bf13b86b384d9f29e7bdb/AUTHORS",
+      "sha256": "7545c4d2b5f38d6e1b402e8cf34edef229b6d059e79bf9443d8ffb4a2c47411c",
+      "encoding": "latin-1"
+    },
+    "pingus-LICENSE.txt": {
+      "url": "https://raw.githubusercontent.com/Pingus/pingus/7d9bc4adf2735023fd1bf13b86b384d9f29e7bdb/LICENSE.txt",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    }
+  },
+  "notices": [
+    "pet-readme",
+    "pingus-README.md",
+    "pingus-AUTHORS",
+    "pingus-LICENSE.txt"
+  ],
+  "sequences": {
+    "walk": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "1",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    },
+    "wait": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "5",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    },
+    "read": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "16",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    },
+    "superman": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "13",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    },
+    "stop": {
+      "kind": "esheep",
+      "source": "xml",
+      "animation": "28",
+      "layout": {
+        "size": [
+          128,
+          128
+        ],
+        "offset": [
+          16,
+          16
+        ]
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "wait",
+      "end": "loop"
+    },
+    "running": {
+      "sequence": "walk",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "read",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "superman",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "stop",
+      "end": "loop"
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

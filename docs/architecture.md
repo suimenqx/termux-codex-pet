@@ -46,6 +46,16 @@ preflight still validates only shipped assets. Missing local directories or a
 malformed catalog fall back to the normal default. The material is local user
 data, outside immutable releases; reinstall/rollback/uninstall preserve it.
 
+Community source conversion is an offline boundary in `tools/pet_import/`.
+`build_recipe()` owns hash-locked acquisition, fixed layout, pixel deduplication,
+validated pack publication and provenance; format decoders handle PNG sequences,
+composed GIFs, a documented eSheep XML subset, VP9 alpha and a restricted Spine3.8
+Canvas export. `community_pets/*.json` owns character/source/state choices.
+`tools/import_pets.py` exposes this boundary; the earlier five-pack importer
+shares its pack writer with unchanged outputs. Optional ffmpeg and Node/Canvas
+stay outside installed releases and daemon imports. No source-specific runtime,
+renderer, IPC or touch branches are added. See [recipe maintenance](../community_pets/README.md).
+
 Offline preview/audit choices use the combined catalog. Pixel Dog (`pixel_dog`)
 adds a separate bundled 64×64 PNG-directory pack:
 20 unscaled poses from a CC0 sheet, including the original five-pose 650 ms run.

@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "id": "vscode_fox",
+  "name": "VS Code Fox",
+  "canvas": [
+    160,
+    160
+  ],
+  "description": "Original VS Code Pets Fox GIFs; retains authored cadence.",
+  "credits": "VS Code Pets by Anthony Shaw and contributors; original media and contributor notices preserved below. MIT project license is not a trademark/character-rights grant. GIF timings are read from files, not filenames. Totoro run is the original Catbus; swipe includes several characters. https://github.com/tonybaloney/vscode-pets/tree/2c91214beb922288cca1938cddb607abc5f806b7",
+  "sources": {
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/tonybaloney/vscode-pets/2c91214beb922288cca1938cddb607abc5f806b7/LICENSE",
+      "sha256": "8be0fb13263891df85550e2cbba449afcc9283e356805e44caeb323f0ac37242"
+    },
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/tonybaloney/vscode-pets/2c91214beb922288cca1938cddb607abc5f806b7/README.md",
+      "sha256": "b1be364d4554cd02955150807ea66b6259d85f64101e01808cf974c7660d85ec"
+    },
+    "idle": {
+      "url": "https://raw.githubusercontent.com/tonybaloney/vscode-pets/2c91214beb922288cca1938cddb607abc5f806b7/media/fox/red_idle_8fps.gif",
+      "sha256": "7a352ee273b8a05ea616db42a661001e6217f93370d66133addd682ac6056684"
+    },
+    "run": {
+      "url": "https://raw.githubusercontent.com/tonybaloney/vscode-pets/2c91214beb922288cca1938cddb607abc5f806b7/media/fox/red_run_8fps.gif",
+      "sha256": "0e9e364f591dcaf55a838f514a0880905500009936a65f9cc91908cd3e555039"
+    },
+    "swipe": {
+      "url": "https://raw.githubusercontent.com/tonybaloney/vscode-pets/2c91214beb922288cca1938cddb607abc5f806b7/media/fox/red_swipe_8fps.gif",
+      "sha256": "9e424f76156d744c9d4fb01f3ef193fae9dc704ec7c5b0ff451dbaf877033cb1"
+    },
+    "with_ball": {
+      "url": "https://raw.githubusercontent.com/tonybaloney/vscode-pets/2c91214beb922288cca1938cddb607abc5f806b7/media/fox/red_with_ball_8fps.gif",
+      "sha256": "369b9326fc88ee045315c835013c82bc53e7b55bdd4628c25a646869c2b93a7a"
+    }
+  },
+  "notices": [
+    "LICENSE",
+    "README.md"
+  ],
+  "sequences": {
+    "idle": {
+      "kind": "gif",
+      "source": "idle",
+      "layout": {
+        "size": [
+          136,
+          111
+        ],
+        "offset": [
+          12,
+          37
+        ]
+      }
+    },
+    "run": {
+      "kind": "gif",
+      "source": "run",
+      "layout": {
+        "size": [
+          136,
+          111
+        ],
+        "offset": [
+          12,
+          37
+        ]
+      }
+    },
+    "swipe": {
+      "kind": "gif",
+      "source": "swipe",
+      "layout": {
+        "size": [
+          136,
+          111
+        ],
+        "offset": [
+          12,
+          37
+        ]
+      }
+    },
+    "with_ball": {
+      "kind": "gif",
+      "source": "with_ball",
+      "layout": {
+        "size": [
+          136,
+          111
+        ],
+        "offset": [
+          12,
+          37
+        ]
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "sequence": "idle",
+      "end": "loop"
+    },
+    "running": {
+      "sequence": "run",
+      "end": "loop"
+    },
+    "needs_input": {
+      "sequence": "swipe",
+      "end": "loop"
+    },
+    "ready": {
+      "sequence": "with_ball",
+      "end": "idle"
+    },
+    "blocked": {
+      "sequence": "swipe",
+      "end": "hold",
+      "select": [
+        -1
+      ],
+      "hold": true
+    }
+  },
+  "roles": {
+    "idle": "idle",
+    "running": "running",
+    "needs_input": "needs_input",
+    "ready": "ready",
+    "blocked": "blocked"
+  }
+}

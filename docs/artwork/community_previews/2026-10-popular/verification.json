@@ -1,0 +1,414 @@
+{
+  "packs": {
+    "ark_amiya": {
+      "manifest_sha256": "7d1a195303365dd8a9921427f33b137b9e712eaed6b56ff8c61bac3567b57fe8",
+      "frames": 212,
+      "unique_pngs": 201,
+      "decoded_bytes": 52690944,
+      "sequences": {
+        "idle": {
+          "frames": 15,
+          "duration_ms": 1000
+        },
+        "running": {
+          "frames": 17,
+          "duration_ms": 1133
+        },
+        "needs_input": {
+          "frames": 120,
+          "duration_ms": 8000
+        },
+        "ready": {
+          "frames": 15,
+          "duration_ms": 1000
+        },
+        "blocked": {
+          "frames": 45,
+          "duration_ms": 3000
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "clawd_tank": {
+      "manifest_sha256": "2062c9cc34254e0a985ca3600a9929353d14b139bfc48121f6a0ed2cefe4dd78",
+      "frames": 172,
+      "unique_pngs": 147,
+      "decoded_bytes": 21676032,
+      "sequences": {
+        "idle": {
+          "frames": 60,
+          "duration_ms": 15600
+        },
+        "running": {
+          "frames": 18,
+          "duration_ms": 1440
+        },
+        "needs_input": {
+          "frames": 35,
+          "duration_ms": 3870
+        },
+        "ready": {
+          "frames": 24,
+          "duration_ms": 1920
+        },
+        "blocked": {
+          "frames": 35,
+          "duration_ms": 5870
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "dsh_pet": {
+      "manifest_sha256": "9c652ba5cbbdbf8f9e8a5a011a48db8960873636b8d166f4aa389b5bb6f8ae86",
+      "frames": 543,
+      "unique_pngs": 543,
+      "decoded_bytes": 55603200,
+      "sequences": {
+        "idle": {
+          "frames": 121,
+          "duration_ms": 10042
+        },
+        "running": {
+          "frames": 121,
+          "duration_ms": 10042
+        },
+        "needs_input": {
+          "frames": 121,
+          "duration_ms": 10042
+        },
+        "ready": {
+          "frames": 121,
+          "duration_ms": 10042
+        },
+        "blocked": {
+          "frames": 59,
+          "duration_ms": 4917
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "esheep": {
+      "manifest_sha256": "a6602e1c794bb7306abd44f28bf6d5b421a204dc6cb0580f2fc180cebbfe90a5",
+      "frames": 30,
+      "unique_pngs": 18,
+      "decoded_bytes": 1843200,
+      "sequences": {
+        "walk": {
+          "frames": 2,
+          "duration_ms": 400
+        },
+        "run": {
+          "frames": 3,
+          "duration_ms": 300
+        },
+        "drag": {
+          "frames": 6,
+          "duration_ms": 600
+        },
+        "boing": {
+          "frames": 11,
+          "duration_ms": 1100
+        },
+        "sleep": {
+          "frames": 8,
+          "duration_ms": 1600
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "esheep_bunny": {
+      "manifest_sha256": "89a9256caa722297d0cf0e67bf55238a873f8ba2a87c475d296db66f13b7bf4f",
+      "frames": 11,
+      "unique_pngs": 11,
+      "decoded_bytes": 1126400,
+      "sequences": {
+        "walk": {
+          "frames": 6,
+          "duration_ms": 720
+        },
+        "drag": {
+          "frames": 2,
+          "duration_ms": 300
+        },
+        "border": {
+          "frames": 3,
+          "duration_ms": 300
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "esheep_pingus": {
+      "manifest_sha256": "774264d79a8d3478fff03e907d1448cf6dab3e0e842b8bb9d04bbc8c81cb08dc",
+      "frames": 41,
+      "unique_pngs": 33,
+      "decoded_bytes": 3379200,
+      "sequences": {
+        "walk": {
+          "frames": 8,
+          "duration_ms": 800
+        },
+        "wait": {
+          "frames": 6,
+          "duration_ms": 1200
+        },
+        "read": {
+          "frames": 8,
+          "duration_ms": 800
+        },
+        "superman": {
+          "frames": 8,
+          "duration_ms": 800
+        },
+        "stop": {
+          "frames": 11,
+          "duration_ms": 1100
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "runcat": {
+      "manifest_sha256": "dc5269f9c5504356815453a2fabae9925a93cdcdef4eeb2ab9361670ab873ac0",
+      "frames": 15,
+      "unique_pngs": 15,
+      "decoded_bytes": 983040,
+      "sequences": {
+        "running": {
+          "frames": 5,
+          "duration_ms": 500
+        },
+        "jumping": {
+          "frames": 10,
+          "duration_ms": 1000
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "vscode_clippy": {
+      "manifest_sha256": "2ba01cea48ae44b4345169fd6416488f9488ab9900575a3ef9f7ca1a97a025d9",
+      "frames": 18,
+      "unique_pngs": 12,
+      "decoded_bytes": 1228800,
+      "sequences": {
+        "idle": {
+          "frames": 4,
+          "duration_ms": 520
+        },
+        "run": {
+          "frames": 4,
+          "duration_ms": 520
+        },
+        "swipe": {
+          "frames": 6,
+          "duration_ms": 780
+        },
+        "with_ball": {
+          "frames": 4,
+          "duration_ms": 520
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "vscode_cockatiel": {
+      "manifest_sha256": "9741a433e4d8ca213377d6d89b45fd519e121af93f820091eba54f0ee6e0309c",
+      "frames": 16,
+      "unique_pngs": 14,
+      "decoded_bytes": 1433600,
+      "sequences": {
+        "idle": {
+          "frames": 6,
+          "duration_ms": 2000
+        },
+        "run": {
+          "frames": 4,
+          "duration_ms": 1000
+        },
+        "swipe": {
+          "frames": 4,
+          "duration_ms": 600
+        },
+        "with_ball": {
+          "frames": 2,
+          "duration_ms": 500
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "vscode_crab": {
+      "manifest_sha256": "ff8e4a00e0cbeb265c075599b350a7d90fde6c4b38aea6fe09b59cc93b4f6040",
+      "frames": 22,
+      "unique_pngs": 19,
+      "decoded_bytes": 1945600,
+      "sequences": {
+        "idle": {
+          "frames": 5,
+          "duration_ms": 1300
+        },
+        "run": {
+          "frames": 6,
+          "duration_ms": 780
+        },
+        "swipe": {
+          "frames": 8,
+          "duration_ms": 1040
+        },
+        "with_ball": {
+          "frames": 3,
+          "duration_ms": 780
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "vscode_duck": {
+      "manifest_sha256": "3995d06dbc44073a815d283d81da919ec37ace98ff6e69fdaaf3aa40704b202f",
+      "frames": 24,
+      "unique_pngs": 10,
+      "decoded_bytes": 1024000,
+      "sequences": {
+        "idle": {
+          "frames": 8,
+          "duration_ms": 1040
+        },
+        "run": {
+          "frames": 4,
+          "duration_ms": 520
+        },
+        "swipe": {
+          "frames": 4,
+          "duration_ms": 520
+        },
+        "with_ball": {
+          "frames": 8,
+          "duration_ms": 1040
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "vscode_fox": {
+      "manifest_sha256": "90ac60103d87c17cea14aa8cdbd30f6fa7ec804ed6a3ae4ebb3027bb27103608",
+      "frames": 27,
+      "unique_pngs": 20,
+      "decoded_bytes": 2048000,
+      "sequences": {
+        "idle": {
+          "frames": 5,
+          "duration_ms": 600
+        },
+        "run": {
+          "frames": 6,
+          "duration_ms": 720
+        },
+        "swipe": {
+          "frames": 11,
+          "duration_ms": 1320
+        },
+        "with_ball": {
+          "frames": 5,
+          "duration_ms": 600
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    },
+    "vscode_totoro": {
+      "manifest_sha256": "9069b770fa6be54fd0dc88c77bf827a5d1c1395b9184b386a8028c1c8c91c30c",
+      "frames": 142,
+      "unique_pngs": 28,
+      "decoded_bytes": 7340032,
+      "sequences": {
+        "idle": {
+          "frames": 56,
+          "duration_ms": 5600
+        },
+        "run": {
+          "frames": 3,
+          "duration_ms": 450
+        },
+        "swipe": {
+          "frames": 27,
+          "duration_ms": 3900
+        },
+        "with_ball": {
+          "frames": 56,
+          "duration_ms": 5600
+        }
+      },
+      "reproducible": true,
+      "isolated_five_states_pass": true,
+      "restored_config": true,
+      "gui_error": "",
+      "renderer": "png"
+    }
+  },
+  "legacy_five_packs": "byte-identical to pre-refactor export",
+  "network_download": "empty-cache RunCat CLI download and conversion passed",
+  "human_acceptance": "New13 visual smoothness/phone transparent edges/physical drag not manually confirmed; no screenshot or ADB permission. Existing touch implementation unchanged. No attended gallery run without response.",
+  "software": {
+    "unittest": "221 tests passed,165.756s",
+    "mypy": "29 source files passed",
+    "device": "Huawei Mate60Pro+ / ALN-AL10, Android API31",
+    "binding": "0.1.6",
+    "plugin": 7,
+    "renderer": "png",
+    "pillow": "12.3.0",
+    "node": "26.4.0",
+    "canvas": "@napi-rs/canvas@1.0.10 via npm ci lock",
+    "ffmpeg": "ffmpeg version 8.1.3 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "deployment": {
+    "release": "/data/data/com.termux/files/home/.local/share/codex-pet/releases/20261003T013316Z-647d3feb",
+    "all_13_imported": true,
+    "previous_packs_unchanged": true,
+    "selection_and_position_restored": true,
+    "final_appearance": "akita",
+    "daemon_pid": 3042,
+    "recent_log_errors": 0
+  },
+  "contact_sheet": "Private cache: ~/.cache/codex-pet/popular-import/contact.png; reviewed all65 state cells. DSH original run includes lying down; Totoro changes to Catbus; RunCat low contrast on dark backgrounds."
+}
