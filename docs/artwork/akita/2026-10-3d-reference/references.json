@@ -23,14 +23,14 @@
     },
     "recording_evidence": {
       "file": "recording-evidence.json",
-      "source": "docs/artwork/akita/2026-10-continuity/recording-evidence.json",
+      "source": "recording-evidence.json",
       "sha256": "956146eb074a7457480082fab84cc3ba7e1a4dbbd4d809d388b0dde5183f7978"
     }
   },
   "canonical": [
     {
       "file": "canonical/idle-highres.png",
-      "source": "docs/artwork/akita/2026-10-collar/idle-source.png",
+      "source": "canonical/idle-highres.png",
       "size_px": [
         1254,
         1254
@@ -46,7 +46,7 @@
     },
     {
       "file": "canonical/running-highres.png",
-      "source": "docs/artwork/akita/2026-10-local-motion/running-source.png",
+      "source": "canonical/running-highres.png",
       "size_px": [
         1254,
         1254
@@ -63,7 +63,7 @@
     },
     {
       "file": "canonical/ready-04-highres.png",
-      "source": "docs/artwork/akita/2026-10-collar/ready-04-source.png",
+      "source": "canonical/ready-04-highres.png",
       "size_px": [
         1254,
         1254

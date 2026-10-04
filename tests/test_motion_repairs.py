@@ -1,14 +1,9 @@
-import json
-from pathlib import Path
-import tempfile
 import unittest
 
 from tools.historical_animation import (AKITA_FRAME_INTERVALS, AnimationTimeline,
                                  akita_artwork_frame, playback_frames)
 from tools.historical_art import _decode_rgba_png, _png
-from tools.prepare_motion_repairs import export, replace_region
-
-ROOT = Path(__file__).resolve().parents[1]
+from tools.prepare_motion_repairs import replace_region
 
 
 class MotionRepairTests(unittest.TestCase):
@@ -77,51 +72,6 @@ class MotionRepairTests(unittest.TestCase):
         self.assertGreater(result[i+3], 0)
         self.assertLess(result[i+3], 255)
         self.assertEqual(result[(8 * 16 + 8) * 4 + 3], 0)
-
-    def test_production_patch_protects_head_torso_tail_and_hindlegs(self):
-        folder = ROOT / 'docs/artwork/akita/2026-10-local-motion'
-        original = _decode_rgba_png((folder / 'running-original.png').read_bytes())[2]
-        with tempfile.TemporaryDirectory() as temp:
-            output = Path(temp) / 'export'
-            export(folder / 'export.json', output)
-            repaired = _decode_rgba_png((output / 'running/02.png').read_bytes())[2]
-            changes = 0
-            for y in range(256):
-                for x in range(256):
-                    i = (y * 256 + x) * 4
-                    if not (126 <= x < 256 and 174 <= y < 242):
-                        self.assertEqual(original[i:i+4], repaired[i:i+4])
-                    elif original[i:i+4] != repaired[i:i+4]:
-                        changes += 1
-            self.assertGreater(changes, 0)
-
-    def test_exports_reproduce_the_shipped_assets(self):
-        folder = ROOT / 'docs/artwork/akita/2026-10-local-motion'
-        historical_targets = {
-            'running/02.png': ROOT / 'docs/artwork/akita/2026-10-collar/originals/running/02.png',
-            'ready/05.png': ROOT / 'codex_pet/assets/akita/frames/ready/05.png',
-            'ready/06.png': ROOT / 'docs/artwork/akita/2026-10-continuity/originals/ready/06.png',
-        }
-        with tempfile.TemporaryDirectory() as temp:
-            output = Path(temp) / 'export'
-            export(folder / 'export.json', output)
-            for item in json.loads((folder / 'export.json').read_text())['exports']:
-                target = historical_targets[item['output']]
-                self.assertEqual(
-                    _decode_rgba_png((output / item['output']).read_bytes()),
-                    _decode_rgba_png(target.read_bytes()),
-                )
-            with self.assertRaises(ValueError):
-                export(folder / 'export.json', output)
-
-    def test_settle_preserves_the_running_face_and_original_scale(self):
-        folder = ROOT / 'docs/artwork/akita/2026-10-local-motion'
-        original = _decode_rgba_png((folder / 'settle-original.png').read_bytes())[2]
-        with tempfile.TemporaryDirectory() as temp:
-            output = Path(temp) / 'export'
-            export(folder / 'export.json', output)
-            settled = _decode_rgba_png((output / 'ready/05.png').read_bytes())[2]
-            self.assertEqual(original[:174 * 256 * 4], settled[:174 * 256 * 4])
 
     def test_preview_and_audit_include_the_contextual_entry(self):
         from tools.preview_animation import _timeline

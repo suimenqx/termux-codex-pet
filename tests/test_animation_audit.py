@@ -1,7 +1,4 @@
-import hashlib
-from png_fingerprint import historical_png_sha256
 import json
-import runpy
 from pathlib import Path
 import struct
 import tempfile
@@ -10,7 +7,6 @@ import unittest
 from tools.historical_art import rgba_icon
 from tools.audit_animation import render_audit, write_audit
 from tools.historical_animation import AKITA_FRAME_INTERVALS
-from tools.prepare_running_frames import split_sheet
 from tools.preview_animation import _timeline
 
 
@@ -111,23 +107,6 @@ class AnimationAuditTests(unittest.TestCase):
                 self.assertEqual([r["to_physical"] for r in rows], physical[1:] + physical[:1])
                 for row in rows:
                     self.assertEqual("chord_speed_dp_s" in row, row["visible"])
-
-    def test_rejected_sheet_remains_reproducible_from_its_archived_manifest(self) -> None:
-        root = Path(__file__).resolve().parents[1]
-        directory = root / "docs/artwork/akita/2026-10-gallop"
-        exporter = runpy.run_path(str(directory / "export_candidate.py"))
-        manifest = json.loads((directory / "manifest.json").read_text())
-        for index, item in enumerate(manifest["frames"]):
-            frame = exporter["export_frame"](index)
-            self.assertEqual(historical_png_sha256(frame), item["sha256"])
-
-    def test_archived_running_sheet_still_reproduces_the_user_baseline(self) -> None:
-        root = Path(__file__).resolve().parents[1]
-        baseline = json.loads((root / "docs/artwork/akita/accepted-baseline.json").read_text())
-        frames = split_sheet((root / "docs/artwork/running-gait-sheet.png").read_bytes())
-        for index, frame in enumerate(frames):
-            self.assertEqual(historical_png_sha256(frame),
-                             baseline["sha256"][f"frames/running/{index:02}.png"])
 
     def test_running_head_has_no_jump_at_phase_or_cycle_boundary(self) -> None:
         head_tops = []

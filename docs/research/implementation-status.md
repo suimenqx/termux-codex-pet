@@ -40,9 +40,9 @@ Validation: 540 Robot paths match the pre-refactor pixel/exposure fingerprints i
 
 ## T08 / #9 — complete Akita pack
 
-Both pets now use PetRuntime and the compiled integer timeline. Akita's transitions, loop entries and final holds are manifest data; physical assets retain their original bytes. The old face-only blink is exported once, with its source rectangle and PNG/RGBA fingerprints in `docs/artwork/akita/2026-10-pack/`. Offline timing now consumes the same compiled schedule; temporary historical indices are the next migration target.
+Both pets now use PetRuntime and the compiled integer timeline. Akita's transitions, loop entries and final holds are manifest data; physical assets retain their current production bytes. The face-only blink is recorded in `codex_pet/assets/akita/pet.json` and checked by the production-art tests. Offline timing consumes the same compiled schedule; obsolete artwork experiment indices are no longer part of the repository baseline.
 
-Validation: all 1080 baseline paths / 8694 exposures match decoded RGBA and duration. Additional exact-boundary, count reset, interruption, cross-pet, 1 h/24 h and static-hold checks pass. Missing/corrupt derived assets are rejected before activation. Exported blink reproduces byte-for-byte. All original artwork fingerprints remain asserted; the two file-set checks now explicitly include the recorded derived file. Final full suite: 179 tests passed (100.888 s); GUI: 29 passed; five affected modules pass mypy. Resume observations are recorded in `docs/experiments/2026-10-renderer/compiled-timeline.json` and are not timing guarantees.
+Validation: compiled schedules, asset decoding, exact boundaries, count reset, interruption, cross-pet, long resume and static holds are covered by the current full suite. The current Akita running delivery is verified against its v2 hash manifest; obsolete artwork experiment fingerprints are no longer part of the baseline.
 
 Deployed release `20261002T220332Z-085d6799`, PID 11854, passed the isolated full-state demonstration with zero remaining sessions and GUI ready. No new GUI errors. New production visual/gesture acceptance remains pending human observation.
 

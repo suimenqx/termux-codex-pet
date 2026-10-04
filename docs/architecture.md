@@ -131,19 +131,15 @@ For gait rationale, pose planning, and paw-track audit workflow, see [the dog ga
 
 ## Compiled pet packs
 
-The Akita Running cycle retains physical order 00,08,01,02,03,04,09,05,06,07
-and 40/40/80/80/80/40/40/80/80/80 ms exposures (640 ms total). Same-pet
-Running→Ready enters ready/05→06→07 at 120 ms each, then the ordinary happy-hop
-entry and rest loop. Other origins enter the hop directly. The rest loop never
-replays the turn or airborne poses; its blink is a static exported face-only
-composite. Blocked holds its final pose. Robot timing remains unchanged.
-
-Original file/pixel acceptance remains under `docs/artwork/akita/`: the
-`accepted-baseline.json`, `2026-10-local-motion/`, `2026-10-collar/`,
-`2026-10-continuity/` and `current-running.json` records describe the accepted
-drawings and paw annotations. Rejected sixteen-frame sources remain in
-`2026-10-gallop/`. The derived blink recipe and pixel fingerprint are in
-`2026-10-pack/`; no new drawing or gait acceptance is implied by this refactor.
+The Akita Running cycle uses physical order 00–19 with repeated 42/42/41 ms
+exposures (834 ms total). Same-pet Running→Ready enters ready/05→06→07 at
+120 ms each, then the ordinary happy-hop entry and rest loop. Other origins enter
+the hop directly. The rest loop never replays the turn or airborne poses; its
+blink is a static exported face-only composite. Blocked holds its final pose.
+Robot timing remains unchanged. The current production hashes and running audit
+markers are recorded in `docs/artwork/akita/2026-10-grok-v2/delivery.json` and
+`docs/artwork/akita/current-running.json`; the 3D reference packet is separate
+from runtime assets.
 
 `assets/<id>/pet.json` owns frame references, independent canvas/display dimensions, clips, roles, transitions and count decorations. `pet_pack.py` validates paths, budgets, durations and finite next chains. Builtin execution is restricted to `robot_v1`. Akita references unchanged physical PNGs and an exported, pixel-identical face-only blink with recorded provenance.
 
@@ -153,11 +149,11 @@ from that display size. Clip durations must fit a signed 64-bit nanosecond range
 `image_contract.py` centralizes per-image RGBA allocation checks for packs,
 codec, frame values and mmap buffers, without image or native GUI imports.
 
-`PetRuntime` selects clip entries from visible activity. `ClipTimeline` uses integer nanosecond cumulative ends, binary search and arithmetic loop skipping; it never replays missed frames. Static/final holds have no deadline. Running→Ready entry applies only within the same pack; new activity interrupts immediately, and only Running reacts to count changes. Both live and offline schedules consume compiled clips; production tools load physical frame references through FrameSource/FrameComposer. Historical artwork exports and existing regression fixtures retain computed integer labels in `tools/historical_animation.py`; those labels are derived from the compiled clips and contain no authored playback tables.
+`PetRuntime` selects clip entries from visible activity. `ClipTimeline` uses integer nanosecond cumulative ends, binary search and arithmetic loop skipping; it never replays missed frames. Static/final holds have no deadline. Running→Ready entry applies only within the same pack; new activity interrupts immediately, and only Running reacts to count changes. Both live and offline schedules consume compiled clips; production tools load physical frame references through FrameSource/FrameComposer. Offline compatibility helpers retain the existing import names used by preview and audit tools; their labels are derived from the compiled clips and contain no separate authored playback tables.
 
 Deployment validates both staged manifests and decodes their referenced images before replacing `current`; the private release contains all required assets. Invalid assets preserve the previous installation.
 
-Compatibility inventory: the old `codex_pet.art` and `codex_pet.animation` modules are removed from the deployed package. `tools/historical_art.py` retains export names needed by archived experiments and original artwork fingerprint tests; it delegates pixels to the production codec/pipeline. `tools/historical_animation.py` computes historical numeric labels from compiled clips for existing preview/audit reports and archive regression fixtures. It contains no authored timings or appearance-specific playback branches. These helpers are not installed with the runtime; archived experiment JSON and artwork acceptance files remain unchanged.
+Compatibility inventory: the old `codex_pet.art` and `codex_pet.animation` modules are removed from the deployed package. `tools/historical_art.py` and `tools/historical_animation.py` retain stable offline-tool import names while delegating to the production codec and compiled clips. They are not installed with the runtime and contain no appearance-specific playback branches.
 
 The image codec imports Pillow lazily, validates dimensions before allocation and rejects unsupported profiles. The installer exercises a known partially transparent PNG and decodes the staged pack before activation. Missing Pillow or its PNG decoder preserves the prior release. Hook/status/catalog entrypoints are tested without image or native GUI imports. `tests/png_fingerprint.py` is a test-only frozen serializer for archived hashes; no legacy codec ABI remains in the runtime.
 
