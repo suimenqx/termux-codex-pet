@@ -73,6 +73,10 @@ codex-pet pet use akita      # 回到原来的秋田犬
 
 本集成的多会话选择顺序为 Needs input、Blocked、Unknown、Running、Ready、Idle。正在工作的会话优先于其他会话已停止的回合，因此 Ready 不会遮盖仍在进行的工作。两个及以上已确认的运行会话会显示数量徽标，`status` 分别报告运行和就绪会话数。
 
+CLI hooks 通过本次开机、PID 和进程启动时间识别所属 Codex 进程。状态和授权项同时按会话与进程隔离：两个 CLI 进程恢复同一线程时，轮次、工具结果和 SessionEnd 不会互相覆盖。本地 app-server 子进程归属于它的 CLI 客户端；失去客户端的孤立 server 不会变成新的客户端实例。daemon 为每个进程监听一个内核退出描述符，因此 CLI 被强杀后，无需最终 hook 或其他会话更新就能清理。退出证据先持久保存再清理，daemon 重启后仍可拒绝该退出进程的迟到 hook。长任务不会按时间过期。
+
+`codex-pet status` 区分会话数、进程实例数和运行中的会话实例数。**pending approvals total** 是所有条目的授权总数，**selected** 是当前显示条目的数量；逐实例明细列出 PID、会话 ID、项目、状态、可信度和待授权数。明细数量受 IPC 字节预算限制，截断时明确提示，总数仍覆盖全部条目。缺少进程身份的手动或旧版事件继续受支持，并标注 `tracking=legacy`；它们不能删除已有进程身份的条目。若内核退出监听或进程身份无法核实，该条目显示 Unknown，`status` 会说明原因。
+
 **状态准确性：**官方公开了这四种活动状态及其优先级，但当前 Termux 版本通过 hooks 接收事件，拿不到桌面端相同的内部状态流。hooks 会报告 prompt、工具权限、工具、停止、中断和会话生命周期事件，但不会报告回合最终是成功还是失败、活动是否未读，也不会报告 Codex 是否在文本中向用户提问。权限请求若被拒绝且没有工具结果，Needs input 可能会保持到下一条 hook 事件。因此本项目不会根据看起来像错误的工具结果猜测 Blocked。Ready 会以图标形式保持显示，直到后续事件改变该会话状态或会话结束。其他 Stop hook 可能要求 Codex 继续执行，Pet 会在收到下一条 prompt 事件后切回 Running，中间可能短暂显示 Ready。若要获得明确的失败回合事件，所有 CLI 会话都需要使用同一个 App Server 事件流；当前 hooks 版本尚未接入。
 
 **Ready 只表示回合停止，成功或失败未知；Needs input 表示观察到授权请求，且尚未匹配到对应工具完成。**授权 hook 发生在其他 hooks 自动批准或拒绝之前，所以它无法证明授权提示仍然打开。由 hooks 驱动的 Needs input 因此附带 **?** 徽标和 `confidence=requested`，明确表示等待状态尚未确认。并发工具只解除匹配输入的待授权项，其他待授权项独立保留；乱序到达也不会相互覆盖。工具输入仅保存关联哈希，不保存命令参数。缺少轮次 ID 的事件不会覆盖已知活动轮次。daemon 恢复的旧证据、尚未补收完的事件或无法判定的更新显示 **Unknown**：待机姿态附带灰色 **?** 徽标，直到新生命周期事件重新确认该会话。Unknown 不会按超时变为 Idle，长任务也不会被猜测为已完成。
@@ -94,7 +98,7 @@ codex-pet status
 
 ## Hooks 与自动恢复
 
-安装器注册 `SessionStart`、`UserPromptSubmit`、`PermissionRequest`、`PostToolUse`、`Stop`、`Interrupt` 和 `SessionEnd`。它们都调用 `codex-pet-event`，并将 Codex JSON 传给它。即使 Pet 出错，hook helper 也会正常退出，不阻断 Codex。启动锁等待计入启动总时限；GUI 暂停消费唤醒时仍可接收事件。原生握手与回复读取有总时限，EOF、半包或非法回复会关闭连接后重连。Android 回收 daemon 后，下一个 Codex 事件会重新启动它，无需 Termux:Boot。`SessionEnd` 会移除对应会话。运行时 socket 和轮转日志位于 `~/.cache/codex-pet/`。
+安装器注册 `SessionStart`、`UserPromptSubmit`、`PermissionRequest`、`PostToolUse`、`Stop`、`Interrupt` 和 `SessionEnd`。它们都调用 `codex-pet-event`，并将 Codex JSON 传给它。即使 Pet 出错，hook helper 也会正常退出，不阻断 Codex。启动锁等待计入启动总时限；GUI 暂停消费唤醒时仍可接收事件。原生握手与回复读取有总时限，EOF、半包或非法回复会关闭连接后重连。Android 回收 daemon 后，下一个 Codex 事件会重新启动它，无需 Termux:Boot。`SessionEnd` 只移除该事件所属进程在对应会话中的条目。运行时 socket 和轮转日志位于 `~/.cache/codex-pet/`。
 
 ## 故障排查
 

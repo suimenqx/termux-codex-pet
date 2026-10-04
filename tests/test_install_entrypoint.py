@@ -107,6 +107,72 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         finally:
             self.temp.cleanup()
 
+    def test_real_process_owners_share_thread_without_exit_or_approval_crosstalk(self):
+        self.run_command(['bash', self.source / 'install.sh'])
+        executable = self.root / 'codex'
+        shutil.copy2(sys.executable, executable)
+        executable.chmod(0o700)
+        producer = self.root / 'owner.py'
+        producer.write_text('''import json, subprocess, sys
+for line in sys.stdin:
+    result = subprocess.run([sys.argv[1]], input=line, text=True, capture_output=True)
+    print(json.dumps({'returncode': result.returncode}), flush=True)
+''')
+        owners = [subprocess.Popen([str(executable), str(producer), str(self.event)], env=self.env,
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   text=True) for _ in range(2)]
+        def emit(owner, name, turn='turn'):
+            raw = {'hook_event_name': name, 'session_id': 'shared-thread',
+                   'turn_id': turn, 'cwd': '/probe/same-project',
+                   'tool_name': 'Bash', 'tool_input': {'command': 'true'}}
+            owner.stdin.write(json.dumps(raw) + '\n')
+            owner.stdin.flush()
+            reply = json.loads(owner.stdout.readline())
+            self.assertEqual(reply['returncode'], 0)
+        try:
+            for index, owner in enumerate(owners):
+                emit(owner, 'UserPromptSubmit', 'turn-' + str(index))
+                emit(owner, 'PermissionRequest', 'turn-' + str(index))
+            state = self.request({'action': 'status'})
+            self.assertEqual((state['session_count'], state['instance_count'], state['entry_count']), (1, 2, 2))
+            self.assertEqual((state['pending_approvals'], state['selected_pending_approvals']), (2, 1))
+            self.assertEqual({row['producer_pid'] for row in state['instances']}, {owner.pid for owner in owners})
+            cli = self.run_command([self.cli, 'status']).stdout
+            self.assertIn('pending approvals total=2; selected=1', cli)
+            for owner in owners:
+                self.assertIn(f'pid={owner.pid}; session=shared-thread', cli)
+            emit(owners[0], 'SessionEnd', '')
+            state = self.request({'action': 'status'})
+            self.assertEqual(state['instance_count'], 1)
+            self.assertEqual(state['state'], 'needs_input')
+            self.assertEqual(state['turn_id'], 'turn-1')
+            emit(owners[0], 'UserPromptSubmit', 'new-turn')
+            emit(owners[0], 'PermissionRequest', 'new-turn')
+            checkpoint = self.home / '.cache/codex-pet/state.json'
+            saved_owner = next(value for value in json.loads(checkpoint.read_text())['state']['sessions'].values()
+                               if value['producer_pid'] == owners[0].pid)
+            emit(owners[1], 'PostToolUse', 'turn-1')
+            owners[0].kill()
+            owners[0].wait(timeout=3)
+            # Read files only: no hook or IPC request can wake the daemon here.
+            self.wait_for(lambda: all(value['producer_pid'] != owners[0].pid for value in
+                                      json.loads(checkpoint.read_text())['state']['sessions'].values()))
+            state = self.request({'action': 'status'})
+            self.assertEqual((state['state'], state['instance_count']), ('running', 1))
+            replay = {'kind': 'tool_finished', 'state': 'running', 'session_id': 'shared-thread',
+                      'turn_id': 'new-turn', **{key: saved_owner[key] for key in
+                                              ('instance_id', 'producer_pid', 'producer_start_ticks', 'producer_boot_id')}}
+            self.assertFalse(self.request({'action': 'event', 'event': replay})['applied'])
+            self.run_command([self.cli, 'restart'])
+            self.assertFalse(self.request({'action': 'event', 'event': replay})['applied'])
+            emit(owners[1], 'PostToolUse', 'turn-1')
+            self.assertEqual(self.request({'action': 'status'})['state'], 'running')
+        finally:
+            for owner in owners:
+                if owner.poll() is None:
+                    owner.kill()
+                owner.communicate(timeout=3)
+
     def test_install_repeat_move_checkout_failed_upgrade_rollback_and_uninstall(self):
         foreign = self.prefix / 'bin/codex-pet-event'
         foreign.write_text('user-owned command\n')

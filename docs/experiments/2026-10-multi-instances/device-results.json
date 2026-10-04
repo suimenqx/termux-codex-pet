@@ -1,0 +1,64 @@
+{
+  "date_utc": "2026-10-04T16:57:24Z",
+  "release": "20261004T165550Z-e907641e",
+  "renderer": {
+    "binding_version": "0.1.6",
+    "plugin_version": 7,
+    "transport": "png",
+    "reason": "shared device acceptance pending",
+    "fallback_reason": "",
+    "last_connection_error": ""
+  },
+  "shared_thread_process_isolation": {
+    "passed": true,
+    "owners": 2
+  },
+  "approval_scope_and_cli_details": {
+    "passed": true,
+    "total": 2,
+    "selected": 1
+  },
+  "kernel_exit_cleanup": {
+    "passed": true,
+    "without_hook_or_ipc_wake": true,
+    "observed_commit_ms": 47.30364598799497
+  },
+  "closed_owner_replay_rejected": true,
+  "concurrent_owned_processes": {
+    "passed": true,
+    "processes": 8,
+    "one_daemon": true,
+    "pidfds_before": 1,
+    "pidfds_during": 9,
+    "pidfds_after": 1
+  },
+  "own_session_turn_and_process_preserved": true,
+  "isolated_state_demo": {
+    "passed": true,
+    "output": "Codex Pet running (pid 9689, GUI ready, idle)\nidle (1.4s)\nrunning (3s)\nneeds_input (3s)\nready icon (persistent until the next event)\nblocked (2.5s)\nTest complete; Pet returned to idle\n",
+    "own_session_turn_and_process_restored": true
+  },
+  "recent_log_errors": [],
+  "limitations": [
+    "These are controlled CLI producer processes using the installed helper; no model/API calls are made.",
+    "Native submission evidence does not measure Android screen presentation.",
+    "Images and touch code are unchanged; physical gestures were not repeated."
+  ],
+  "software_validation": {
+    "full_unittest_suite": {
+      "passed": true,
+      "tests": 250,
+      "duration_seconds": 227.265
+    },
+    "mypy": {
+      "passed": true,
+      "source_files": 32
+    },
+    "diff_check": {
+      "passed": true
+    },
+    "isolated_restart_rejects_closed_owner_replay": {
+      "passed": true
+    }
+  }
+}

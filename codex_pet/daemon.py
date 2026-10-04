@@ -21,6 +21,7 @@ from .preferences import save_appearance, selected_appearance
 from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, RUNTIME, EVENT_WAKE, directories, notification
 from .delivery import EventJournal
 from .notifications import NotificationDispatcher
+from .processes import ProcessIdentity, ProcessWatcher
 from .state import SessionStore
 from .adapters.codex import BOOT_ID, direct_event
 from .renderer.policy import RendererPolicy
@@ -48,6 +49,7 @@ class Daemon:
         self.received_monotonic = 0.0
         self.delivery_error = ''
         self.delivery_pending = False
+        self.processes = ProcessWatcher()
         self.signal_read, self.signal_write = socket.socketpair()
         self.signal_write.setblocking(False)
         self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status, policy=renderer_policy)
@@ -88,10 +90,41 @@ class Daemon:
             self.receipts[event['event_id']] = receipt
         return receipt
 
+    def _reconcile_processes(self) -> None:
+        with self.lock:
+            owners = {value.instance_id: ProcessIdentity(value.producer_pid, value.producer_start_ticks,
+                                                         value.producer_boot_id)
+                      for value in self.sessions.sessions.values()
+                      if value.instance_id and value.producer_pid and value.producer_start_ticks and value.producer_boot_id}
+        closed, errors = self.processes.sync(owners)
+        changed = False
+        with self.lock:
+            for value in self.sessions.sessions.values():
+                error = errors.get(value.instance_id, '')
+                changed = changed or value.monitor_error != error
+                value.monitor_error = error
+        for owner, identity in closed.items():
+            event = direct_event({'kind': 'instance_end', 'state': 'end', 'source': 'process',
+                                  'session_id': 'process-exit', 'event_id': 'process-exit:' + identity.instance_id,
+                                  **identity.fields(), 'instance_id': owner})
+            assert event is not None
+            if self.journal is not None:
+                if event['event_id'] not in self.receipts:
+                    self.journal.publish(event)
+                    self.delivery_pending = True
+            else:
+                self._apply_event(event)
+            changed = True
+        if changed:
+            self.gui.wake()
+            self._fallback()
+
     def drain_events(self) -> None:
         if self.journal is None:
+            self._reconcile_processes()
             return
         try:
+            self._reconcile_processes()
             was_pending = self.delivery_pending
             pending = self.journal.pending()
             self.delivery_pending = len(pending) == 256
@@ -111,6 +144,7 @@ class Daemon:
                 self.journal.remove(event)
             self.receipts = dict(list(self.receipts.items())[-2048:])
             self.delivery_error = ''
+            self._reconcile_processes()
             self.gui.wake()
             self._fallback()
         except (OSError, ValueError, TypeError) as exc:
@@ -214,6 +248,7 @@ class Daemon:
                     return {'ok': False, 'error': self.delivery_error or 'event retained for retry'}
             else:
                 receipt = self.receipts.get(event['event_id']) or self._apply_event(event)
+                self._reconcile_processes()
             self.gui.wake()
             self._fallback()
             return {"ok": True, **receipt, 'event_id': event['event_id'],
@@ -271,7 +306,7 @@ class Daemon:
                 self.gui.start()
                 LOGGING.info("Daemon started pid=%s", os.getpid())
                 while not self.stopping:
-                    readable, _, _ = select.select([listener, self.signal_read, event_wake], [], [],
+                    readable, _, _ = select.select([listener, self.signal_read, event_wake, *self.processes.descriptors], [], [],
                                                     (1.0 if self.delivery_error else 0.0) if self.delivery_pending else None)
                     if event_wake in readable:
                         try:
@@ -288,6 +323,7 @@ class Daemon:
                 self.stopping = True
                 self.gui.stop()
                 self.notifications.stop()
+                self.processes.close()
                 listener.close()
                 event_wake.close()
                 EVENT_WAKE.unlink(missing_ok=True)

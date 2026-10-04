@@ -10,6 +10,7 @@ import traceback
 
 from .runtime import LOG, directories, notification, send_event
 from .adapters.codex import STATES, direct_event, event_from_hook
+from .processes import discover_owner
 
 
 def _log_hook_error(exc: BaseException) -> None:
@@ -38,6 +39,8 @@ def event_main() -> None:
             if len(raw) > 65536:
                 return
             event = event_from_hook(json.loads(raw)) if raw.strip() else None
+            if event is not None:
+                event.update(discover_owner())
         if event is None:
             return
         if not send_event(event, quick=True):

@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import fcntl
+import json
 import os
 from pathlib import Path
 import shutil
@@ -407,8 +408,9 @@ def install_application(source: Path, home: Path, prefix: Path) -> Path:
             restart_attempted = True
             _require([local_cli, "restart"])
             _require([local_cli, "status"])
-            _require([local_event, "--state", "idle", "--session-id", SMOKE_SESSION,
-                      "--project", "Codex Pet"])
+            _require([local_event], input_text=json.dumps({
+                'hook_event_name': 'SessionStart', 'session_id': SMOKE_SESSION,
+                'cwd': '/Codex Pet'}) + '\n')
             _require([local_cli, "status"])
             _require([local_event], input_text=(
                 '{"hook_event_name":"SessionEnd","session_id":"install-smoke"}\n'

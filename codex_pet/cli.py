@@ -87,7 +87,7 @@ def _test() -> int:
         if observed is None or not observed.get("gui_ready"):
             print(f"GUI failed at {state}; see {LOG}", file=sys.stderr)
             return 1
-        if observed["session_count"] == 1 and observed["state"] != state:
+        if observed.get('entry_count', observed['session_count']) == 1 and observed["state"] != state:
             print(f"Unexpected state at {state}: {observed['state']}", file=sys.stderr)
             return 1
         if not isinstance(observed.get("overlay"), dict):
@@ -97,7 +97,7 @@ def _test() -> int:
             print(f"{state} icon (persistent until the next event)", flush=True)
             time.sleep(seconds)
             after = _status()
-            if after is not None and after["session_count"] == 1 and after["state"] != "ready":
+            if after is not None and after.get('entry_count', after['session_count']) == 1 and after["state"] != "ready":
                 print("Ready did not remain visible through the test interval", file=sys.stderr)
                 return 1
             continue
@@ -205,11 +205,23 @@ def main() -> None:
             print(f"Codex Pet running; pid={result['pid']}; GUI={gui}; state={result['state']}; "
                   f"pet={result.get('appearance', DEFAULT_APPEARANCE)}; "
                   f"project={result['project']}; sessions={result['session_count']}; "
+                  f"instances={result.get('instance_count', result['session_count'])}; "
                   f"running={running_count}")
             print(f"State evidence={result.get('state_evidence', 'unavailable')}; "
                   f"confidence={result.get('confidence', 'unknown')}; "
                   f"ready={result.get('ready_count', 0)}; "
-                  f"pending approvals={result.get('pending_approvals', 0)}")
+                  f"pending approvals total={result.get('pending_approvals', 0)}; "
+                  f"selected={result.get('selected_pending_approvals', result.get('pending_approvals', 0))}")
+            for row in result.get('instances', []):
+                owner = row['instance_id'][:12] or 'legacy'
+                print(f"Instance {owner}; pid={row['producer_pid'] or 'unknown'}; "
+                      f"session={row['session_id']}; project={row['project']}; state={row['state']}; "
+                      f"confidence={row['confidence']}; approvals={row['pending_approvals']}; "
+                      f"tracking={row['process_tracking']}")
+                if row['state_reason']:
+                    print(f"  Evidence uncertainty: {row['state_reason']}")
+            if result.get('instances_truncated'):
+                print(f"Instance details truncated; totals cover all {result.get('entry_count')} entries.")
             if result.get('state_reason'):
                 print(f"State uncertainty: {result['state_reason']}")
             submitted = result.get('submitted')

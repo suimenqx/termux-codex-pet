@@ -33,7 +33,7 @@ HOOK_KINDS = {"SessionStart": "session_start", "UserPromptSubmit": "turn_start",
 KIND_STATES = {"session_start": {"idle"}, "turn_start": {"running"},
                "approval_request": {"needs_input"}, "tool_finished": {"running"},
                "activity": {"running", "needs_input"}, "turn_end": {"ready", "idle"},
-               "session_end": {"end"}, "manual": STATES}
+               "session_end": {"end"}, "instance_end": {"end"}, "manual": STATES}
 
 
 def clean_text(value: Any, limit: int = 160) -> str:
@@ -56,6 +56,15 @@ def _delivery_fields(raw: dict[str, Any]) -> dict[str, Any]:
     return {'event_id': clean_text(raw.get('event_id'), 80) or uuid.uuid4().hex,
             'timestamp': stamp, 'emitted_monotonic_ns': monotonic,
             'boot_id': clean_text(raw.get('boot_id'), 80) or BOOT_ID}
+
+
+def _instance_fields(raw: dict[str, Any]) -> dict[str, Any]:
+    pid, ticks = raw.get('producer_pid'), raw.get('producer_start_ticks')
+    return {'instance_id': clean_text(raw.get('instance_id'), 80),
+            'producer_pid': pid if type(pid) is int and 0 < pid < 2**31 else 0,
+            'producer_start_ticks': ticks if type(ticks) is int and 0 < ticks < 2**63 else 0,
+            'producer_boot_id': clean_text(raw.get('producer_boot_id'), 80),
+            'instance_tracking': 'orphan' if raw.get('instance_tracking') == 'orphan' else ''}
 
 
 def _tool_key(raw: dict[str, Any]) -> str:
@@ -107,6 +116,7 @@ def event_from_hook(raw: Any) -> dict[str, Any] | None:
         "hook_event_name": name,
         "tool_key": _tool_key(raw),
         "tool_use_id": clean_text(raw.get('tool_use_id'), 120),
+        **_instance_fields(raw),
         **_delivery_fields(raw),
     }
 
@@ -139,5 +149,6 @@ def direct_event(raw: Any) -> dict[str, Any] | None:
         "hook_event_name": hook_name,
         "tool_key": clean_text(raw.get('tool_key'), 64),
         "tool_use_id": clean_text(raw.get('tool_use_id'), 120),
+        **_instance_fields(raw),
         **_delivery_fields(raw),
     }

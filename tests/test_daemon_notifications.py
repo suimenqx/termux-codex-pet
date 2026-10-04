@@ -29,6 +29,7 @@ def isolated_daemon():
             yield instance
         finally:
             instance.notifications.stop()
+            instance.processes.close()
             instance.signal_read.close()
             instance.signal_write.close()
 
