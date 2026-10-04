@@ -65,7 +65,7 @@ python docs/artwork/akita/2026-10-gallop/build_comparison.py
 python tools/audit_animation.py --state running --cycles 2 --output "$HOME/.cache/codex-pet/artwork-review/gallop-integrated"
 ```
 
-`export_candidate.py` 输出十六帧及候选帧表，不自动替换生产图片；`manifest.json` 记录生产对应指纹。Running 回退图与 00.png 相同。新旧原速同步、慢放、逐帧、明暗背景及 Ready 对照见 [comparison.html](comparison.html)。显示尺寸可切换 192 / 64 CSS px，不能把它视为 Android dp 的测量。
+`export_candidate.py` 输出十六帧及候选帧表，不自动替换生产图片；`manifest.json` 记录生产对应指纹。Running 回退图与 00.png 相同。新旧原速同步、慢放、逐帧、明暗背景及 Ready 对照属于临时审查输出，已清理；显示尺寸曾可切换 192 / 64 CSS px，不能把它视为 Android dp 的测量。
 
 ## 验证记录
 

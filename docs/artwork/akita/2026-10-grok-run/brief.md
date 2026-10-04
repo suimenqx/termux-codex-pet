@@ -12,7 +12,7 @@
 - 原视频帧：73–92，共 20 帧；无插帧、无混合帧。
 - 处理记录：`source/process.py`、`source/matte.py`、`source/pet-clips-running.json`。
 - 候选时序：`source/frames.json`，可用 `tools/preview_animation.py --candidate` 重放。
-- 视觉复核：`review/contact.png` 和 `review/display-192px.png`。后者包含浅色/深色背景下的实际 192 px 审查尺寸。
+- 视觉复核：曾在浅色/深色背景下按 192 px 审查；对应临时联系图已清理。
 
 ## 视觉复核结论
 
@@ -22,22 +22,22 @@
 
 ## 高清重绘试作（未接入）
 
-为验证“直接把当前低分辨率帧重新绘制成统一高清图”这条路线，使用内置 imagegen 以当前 `running/00` 作为动作参考，以已有高清跑姿和 Idle 高清图作为角色风格参考，生成了 [`review/redraw-prototype-running-00.png`](review/redraw-prototype-running-00.png)。结果为 1254×1254 RGBA 透明图：边缘和毛发细节比当前帧更干净，但前后腿姿势被模型改成了收腿/悬空姿势，不能作为 Running/00 直接替换。
+本轮验证了“直接把当前低分辨率帧重新绘制成统一高清图”这条路线。结果虽然细节更清楚，但生成器改变了前后腿姿势，不能作为 Running/00 直接替换。相关临时栅格试作已在 v2 设备确认后清理，结论保留在本制作单中。
 
 这次试作说明：单张重绘适合验证高清风格，不适合直接重建连续奔跑。完整重绘必须以整段动作序列、统一角色母版或 3D/骨骼渲染为约束；当前候选只作视觉参考，不进入 `pet.json` 或生产帧。
 
 ### 姿势锁定第二次试作（仍未接入）
 
-又以当前 `running/00.png` 作为唯一参考图，明确要求锁定透明轮廓、每条腿的位置/弯曲/遮挡、爪子落点、尾巴卷曲、头部角度、画布和基线，只允许重绘轮廓内部的毛发、眼睛、嘴和抗锯齿细节，生成 [`review/redraw-prototype-running-00-pose-locked.png`](review/redraw-prototype-running-00-pose-locked.png)。结果仍然把四肢改成了另一种收腿/站立姿势，虽然细节较清晰，但不能替换原帧。
+又以当前 `running/00.png` 作为唯一参考图，要求锁定透明轮廓、四肢、尾巴、头部角度、画布和基线，只重绘内部细节。结果仍然改变了四肢姿势，不能替换原帧。
 
 这次实验确认：当前内置 imagegen 的参考图是软约束，不具备像素轮廓或骨骼姿势锁定；“保持动作不变”不是提示词写得不够严格，而是当前生成方式无法保证。要同时保留动作和提高画质，应改用固定 alpha/骨架的内部重绘、带 edge/pose/lineart 控制的图生图，或直接用统一 3D/骨骼模型渲染整段序列。两张试作都只保留作路线评估，不进入生产。
 
 ## 固定 alpha 的内部重绘试验（仅 Running/00，未接入）
 
-先按可行的近期方案做了一个单帧验证：用 imagegen 生成高清内部细节，再运行 `source/fixed_alpha_redraw.py`，把原始 `running/00.png` 的 alpha 作为不可变轮廓，并以预乘 alpha 方式缩回 256×256。生成源和完整提示词分别保存在 `source/redraw-pose-locked-generated.png` 与 `source/redraw-pose-locked-prompt.txt`。
+先按可行的近期方案做了一个单帧验证：用 imagegen 生成高清内部细节，再运行 `source/fixed_alpha_redraw.py`，把原始 `running/00.png` 的 alpha 作为不可变轮廓，并以预乘 alpha 方式缩回 256×256。生成源和完整提示词曾保存在本轮工作目录，临时图像已清理。
 
 - 直接把生成图套上原始 alpha 的版本能做到 256 px alpha 和原图逐字节一致，但生成图自身的内部姿势/边缘颜色仍会带入接缝，不能直接使用。
-- 更保守的 `fixed-detail` 版本只在轮廓内侧以 30% 混合生成细节，并保护轮廓安全带；但用户在 [`review/fixed-detail-compare-192px.png`](review/fixed-detail-compare-192px.png) 中发现右侧仍有重影，白边也没有获得可见改善，因此视觉复核失败。
+- 更保守的 `fixed-detail` 版本只在轮廓内侧以 30% 混合生成细节，并保护轮廓安全带；用户发现右侧仍有重影，白边也没有获得可见改善，因此视觉复核失败。
 - 这次实验只证明“原始 alpha 可以锁定”，没有证明“直接混合未配准的生成 RGB”可行。重影来自两套未对齐的内部轮廓叠加；白边来自原帧的半透明边缘颜色，当前配方保留了它。要继续，必须把 matte 边缘去污染和内部纹理生成拆开，并先完成几何配准；不能批量套用本候选。
 
 因此本轮将 `fixed-detail` 标为失败候选，不替换生产 `running/00`，也不把单帧结果宣称为整圈动画已通过。

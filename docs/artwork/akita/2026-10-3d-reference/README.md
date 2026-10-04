@@ -7,10 +7,10 @@
 1. `canonical/idle-highres.png`：当前身份、脸部、正面体量和项圈的最高优先级参考。
 2. `canonical/running-highres.png`：斜侧朝右的高分辨率身份和跑姿体量参考；当前低分辨率 Running 动画的逐帧版本另见本包的 `production-frames/running/`。
 3. `canonical/ready-04-highres.png`：正面偏斜、下蹲和胸腹关系的辅助参考。
-4. `canonical/production-*.png` 与 `production-frames/`：当前已经接入的 256×256 生产帧，用于核对轮廓、锚点、动作和状态表现；其中 Running 已同步为 `2026-10-grok-run` 的20帧、834ms循环。
+4. `canonical/production-*.png` 与 `production-frames/`：当前已经接入的 256×256 生产帧，用于核对轮廓、锚点、动作和状态表现；其中 Running 已同步为 `2026-10-grok-v2` 的20帧、834ms循环。
 5. `generated/`：本轮新生成的正面、纯侧面、背面和面部候选，只用于补充深度、背面结构和面部细节；它们不能覆盖现有斜侧身份或直接作为生产帧。
 
-`current-pet.json` 是当前实际播放清单的副本；`recording-evidence.json` 是仓库已有的录屏证据元数据副本；Running 的来源和逐帧处理证据见 [`../2026-10-grok-run/brief.md`](../2026-10-grok-run/brief.md)。
+`current-pet.json` 是当前实际播放清单的副本；`recording-evidence.json` 是仓库已有的录屏证据元数据副本；Running 的来源和逐帧处理证据见 [`../2026-10-grok-v2/brief.md`](../2026-10-grok-v2/brief.md)。
 
 ## 固定身份
 

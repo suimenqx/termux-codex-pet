@@ -67,13 +67,6 @@ provenance. Akita remains the default; installing additional packs preserves the
 saved appearance and position. No renderer, session or touch branch is needed
 for this pet.
 
-The rejected Akita cutout experiment is archived under
-`docs/artwork/akita/2026-10-cutout/`. Its optional NumPy/Pillow authoring code
-exported ordinary PNG frames into a separate local pack. After the user found
-no improvement, that pack was withdrawn from the device catalog. Original
-Akita assets and timing remain unchanged. The experiment adds no rig, dependency
-or animation branch to the runtime; its tests are opt-in in the archive.
-
 ## Contracts to preserve
 
 - **Fail open at the hook boundary.** `codex-pet-event` reads at most 64 KiB of hook JSON, tolerates missing fields, exits successfully on Pet failure, and never changes a Codex permission or execution decision. It attempts a short socket request, starts a missing daemon under `start.lock`, retries, then falls back to a notification for needs-input/ready. Keep hook work bounded.

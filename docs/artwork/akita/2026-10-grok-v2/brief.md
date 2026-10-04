@@ -6,7 +6,7 @@ v2 的抠图方法比接入前的旧生产版明显更好，值得作为当前 R
 
 因此本轮不缩小 v2。v2 的原始 256×256 帧作为首选版本；之前按旧 running 包围框生成的固定缩放版只保留作对照。现在已将原尺寸 v2 接入生产 `running`，正在等待设备上的实际尺寸和 Running→Ready 人工复核。
 
-推荐先看 [`review/v2-normalization-compare-192px.png`](review/v2-normalization-compare-192px.png)：它按浅色和深色背景并排显示接入前旧生产、v2 原始、固定缩放 v2，以及从 v2 HD 下采样的结果。三帧抽查见 [`review/v2-normalization-contact-192px.png`](review/v2-normalization-contact-192px.png)。原尺寸首选候选在 [`review/frames_256-v2-raw/`](review/frames_256-v2-raw/)。
+当前保留的检查图是 [`review/consistency-192px.png`](review/consistency-192px.png)，原尺寸首选候选在 [`review/frames_256-v2-raw/`](review/frames_256-v2-raw/)。此前用于比较固定缩放和 HD 下采样的临时图已在设备确认后清理。
 
 ## 输入复核
 
@@ -36,15 +36,12 @@ v2 的抠图方法比接入前的旧生产版明显更好，值得作为当前 R
 - 固定缩放 v2 256：边缘 RGB 距离均值 19.35，仍明显优于当前生产；
 - 固定缩放 v2 HD 再下采样：边缘 RGB 距离均值 41.06，反而重新引入更多抗锯齿/半透明边缘。
 
-因此当前首选候选是原尺寸 `frames_256-v2-raw/`，不是 `frames_256-v2-normalized/`，也不是 `frames_256-hd-normalized/`。HD 帧仍可作为归档或未来更大显示尺寸的源，但不能因为“分辨率更高”就默认 256 px 结果更好。
+因此当前首选候选是原尺寸 `frames_256-v2-raw/`。固定缩放和 HD 下采样只用于本轮诊断，确认不作为生产输入后已删除；不能因为“分辨率更高”就默认 256 px 结果更好。
 
 ## 候选输出与接入边界
 
 - `review/frames_256-v2-raw/`：从输入 v2 归档原样保留的 20 张 256×256 RGBA 帧，未缩放、未重采样；`frames.json` 保留 834 ms 的原时序。
-- [`candidate-v2-normalized.json`](review/candidate-v2-normalized.json)：可用 `tools/preview_animation.py --state running --candidate ... --cycles 2` 预览；它仍可用于观察缩小后的差异，但现在只是诊断对照，不是首选候选。
-- `review/frames_256-v2-normalized/`：v2 清洁 256 帧经过一次固定整圈变换的候选。
-- `review/frames_256-hd-normalized/`：v2 HD 经过同一固定变换并下采样的对照候选，不推荐当前 256 生产使用。
 - `source/normalize_v2.py`：不逐帧拟合、不改动作，仅根据两套 20 帧 union bbox 计算一套固定变换，并采用预乘 alpha 重采样。
-- `review/edge-before-after.png`、`review/consistency-192px.png`：v2 原包自带的复核图，已保留在候选目录。
+- `review/edge-before-after.png`、`review/consistency-192px.png`：保留的边缘与实际显示尺寸复核图。
 
 本次已将原尺寸 v2 的 20 帧写入 `codex_pet/assets/akita/frames/running/`，并同步更新回退图、`pet.json` 的运行版本、来源哈希和跑步审计标记；播放时序仍为 834 ms。下一步应在 192 px/64 dp 实际显示尺寸下检查原尺寸 v2 与 `ready` 及 Running→Ready 过渡；若出现跳变，应以稳定的头部/面部参照重新求一套固定变换，而不是继续沿用旧 running 的整体包围框。设备检查失败时恢复接入前的生产提交即可。

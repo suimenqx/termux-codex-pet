@@ -105,7 +105,7 @@ codex-pet status
 
 在源码目录运行 `python tools/review_recording.py 录屏.mp4`，生成总览和原始帧时间表。加上 `--crop x,y,width,height` 和可重复的 `--window 名称:开始秒:结束秒`，生成宠物局部原速/慢放、逐帧页面和带时间标注的联系表。结果默认放在 `~/.cache/codex-pet/recordings/`，保留原视频，不上传。完整步骤、坐标说明和下一次录屏的对照方式见[可复用录屏流程](docs/recording-review.md)。
 
-[当前生产版本](docs/artwork/akita/2026-10-continuity/brief.md)使用十姿势跑步和三张停止过渡。最新录屏确认停止后进入Ready，但跑步补帧的四肢形体与整圈节奏仍有问题。[整圈重绘候选与原速对照](docs/artwork/akita/2026-10-rhythm/review.md)已保存；候选后腿回收路径未通过审查，尚未替换手机上的动画。`tools/audit_animation.py`新增每段曝光、脚掌位移与弦长速度诊断；测试通过不代表步态自然。
+[当前生产版本](docs/artwork/akita/2026-10-grok-v2/brief.md)使用20帧、834ms的原尺寸透明奔跑循环和三张停止过渡。设备状态演示已通过；`tools/audit_animation.py`仍提供每段曝光、脚掌位移与弦长速度诊断，但测试通过不代表步态自然。旧候选联系表和临时重绘图已清理，生产帧、v2原始帧和3D参考资料保留。
 
 ## 卸载
 

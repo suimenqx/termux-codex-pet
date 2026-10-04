@@ -50,7 +50,7 @@
     "visual_status": "offline review passed; device shell smoke passed; on-screen observation pending"
   },
   "prototype_redraw": {
-    "file": "review/redraw-prototype-running-00.png",
+    "file": null,
     "generator": "built-in imagegen",
     "size_px": [1254, 1254],
     "format": "RGBA8 with transparent background",
@@ -63,7 +63,7 @@
     "result": "higher detail and cleaner edges, but leg pose changed; rejected for direct running integration"
   },
   "prototype_pose_locked": {
-    "file": "review/redraw-prototype-running-00-pose-locked.png",
+    "file": null,
     "generator": "built-in imagegen",
     "size_px": [1254, 1254],
     "format": "RGBA8 with transparent background",
@@ -81,24 +81,24 @@
   "fixed_alpha_experiment": {
     "scope": "running/00 only; review candidate, not production",
     "source_frame": "codex_pet/assets/akita/frames/running/00.png",
-    "generated_source": "source/redraw-pose-locked-generated.png",
+    "generated_source": null,
     "prompt": "source/redraw-pose-locked-prompt.txt",
     "recipe": "source/fixed_alpha_redraw.py",
     "generator": "built-in imagegen",
     "generated_source_size_px": [1254, 1254],
     "generated_source_sha256": "a2886f4d6277780add58cfdc8d3234ddfbd7893f7d93a1c92124f99c0e80d5a8",
     "hard_mask": {
-      "highres_file": "review/fixed-alpha-redraw-running-00-1254.png",
-      "production_size_file": "review/fixed-alpha-redraw-running-00-256.png",
-      "comparison_file": "review/fixed-alpha-compare-192px.png",
+      "highres_file": null,
+      "production_size_file": null,
+      "comparison_file": null,
       "production_sha256": "8e664b170b3a886f5ade0abc279be1ed154fc625dacc3b315e24588a2e04a7bc",
       "alpha_equal_to_source_at_256": true,
       "result": "exact outer alpha, but generated internal anatomy and edge colours can create seams; rejected"
     },
     "detail_only": {
-      "highres_file": "review/fixed-detail-redraw-running-00-1254.png",
-      "production_size_file": "review/fixed-detail-redraw-running-00-256.png",
-      "comparison_file": "review/fixed-detail-compare-192px.png",
+      "highres_file": null,
+      "production_size_file": null,
+      "comparison_file": null,
       "production_sha256": "e14e9b927999f52e7f0277392f8f35ed926bc0facdde973d75a3e0c44fda74b1",
       "blend_strength": 0.3,
       "protected_contour_band_source_px": 2,

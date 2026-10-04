@@ -29,11 +29,8 @@
   "outputs": {
     "preferred_256": "review/frames_256-v2-raw/",
     "preferred_manifest": "review/frames_256-v2-raw/frames.json",
-    "normalized_diagnostic_256": "review/frames_256-v2-normalized/",
-    "normalized_diagnostic_manifest": "review/candidate-v2-normalized.json",
-    "hd_downsample_comparison": "review/frames_256-hd-normalized/",
-    "comparison_192px": "review/v2-normalization-compare-192px.png",
-    "contact_192px": "review/v2-normalization-contact-192px.png"
+    "edge_review": "review/edge-before-after.png",
+    "display_review": "review/consistency-192px.png"
   },
   "visual_review": {
     "v2_matte": "promising; fewer semi-transparent edge pixels and lower edge-to-interior colour distance",
@@ -77,8 +74,6 @@
   ],
   "review_files_sha256": {
     "review/edge-before-after.png": "5e0689eaec0c550b03ca84e9692c193d99e0d706382be8da55df82c8ca08d6e1",
-    "review/consistency-192px.png": "6d38175d1fc8d857d1b61bbecd41f0b206afb9bdf2bebdc02fd9c723d3b170ec",
-    "review/v2-normalization-compare-192px.png": "4e2def1383b6932e60768aa72c44488faaecedd18ce7a65a0f08429c7f8fd66b",
-    "review/v2-normalization-contact-192px.png": "6bf26acb1aeb42d4af853048bddabbb71ff91d9dcaab26b85b8de470e0d0c71e"
+    "review/consistency-192px.png": "6d38175d1fc8d857d1b61bbecd41f0b206afb9bdf2bebdc02fd9c723d3b170ec"
   }
 }
