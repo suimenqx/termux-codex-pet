@@ -20,6 +20,7 @@ SOCKET = RUNTIME / "pet.sock"
 LOG = RUNTIME / "pet.log"
 START_LOCK = RUNTIME / "start.lock"
 DAEMON_LOCK = RUNTIME / "daemon.lock"
+EVENT_WAKE = RUNTIME / 'events.sock'
 
 
 def directories() -> None:
@@ -56,6 +57,21 @@ def request(payload: dict[str, Any], timeout: float = 0.25) -> dict[str, Any]:
 
 
 def send_event(event: dict[str, Any], quick: bool = False) -> bool:
+    from .adapters.codex import direct_event
+    from .delivery import EventJournal
+    normalized = direct_event(event)
+    if normalized is None:
+        return False
+    # Publication precedes the wake/request. A timed-out caller never owns the
+    # only copy, and both attempts retain exactly the same identity and time.
+    EventJournal(RUNTIME).publish(normalized)
+    event = normalized
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as wake:
+        wake.setblocking(False)
+        try:
+            wake.sendto(b'x', str(EVENT_WAKE))
+        except OSError:
+            pass
     timeout = 0.2 if quick else 0.5
     try:
         reply = request({"action": "event", "event": event}, timeout)
@@ -128,10 +144,19 @@ def start_daemon(wait: float = 0.8) -> dict[str, Any] | None:
 
 
 def notification(state: str, project: str, message: str = "") -> None:
+    if state == 'clear':
+        command = shutil.which('termux-notification-remove')
+        if command is not None:
+            try:
+                subprocess.run([command, '99177'], stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL, timeout=2, check=False)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+        return
     command = shutil.which("termux-notification")
     if command is None or state not in ("needs_input", "ready"):
         return
-    title = "Codex needs input" if state == "needs_input" else "Codex ready"
+    title = "Codex approval requested" if state == "needs_input" else "Codex turn stopped"
     content = project + (" · " + message[:90] if message else "")
     try:
         subprocess.run(

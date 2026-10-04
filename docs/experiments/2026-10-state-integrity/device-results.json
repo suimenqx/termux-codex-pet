@@ -1,0 +1,255 @@
+{
+  "date_utc": "2026-10-04T15:23:26Z",
+  "release": "20261004T152244Z-21849b6f",
+  "renderer": {
+    "binding_version": "0.1.6",
+    "plugin_version": 7,
+    "transport": "png",
+    "reason": "shared device acceptance pending",
+    "fallback_reason": "",
+    "last_connection_error": ""
+  },
+  "isolated_state_demo": {
+    "passed": true,
+    "output": "Codex Pet running (pid 5033, GUI ready, idle)\nidle (1.4s)\nrunning (3s)\nneeds_input (3s)\nready icon (persistent until the next event)\nblocked (2.5s)\nTest complete; Pet returned to idle\n"
+  },
+  "controlled_hook_replay": {
+    "count": 19,
+    "passed": true,
+    "latency": {
+      "source_to_submit_ms": {
+        "min": 23.999479017220438,
+        "median": 32.44427090976387,
+        "max": 97.73281204979867
+      },
+      "ingest_to_submit_ms": {
+        "min": 7.599479053169489,
+        "median": 16.179166035726666,
+        "max": 83.83802103344351
+      },
+      "helper_launch_to_submit_ms": {
+        "min": 182.49114602804184,
+        "median": 239.59895805455744,
+        "max": 312.2187500121072
+      }
+    },
+    "events": [
+      {
+        "hook": "UserPromptSubmit",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 28.317188029177487,
+        "ingest_to_submit_ms": 12.528124963864684,
+        "helper_launch_to_submit_ms": 182.49114602804184
+      },
+      {
+        "hook": "PermissionRequest",
+        "expected": "needs_input",
+        "observed": "needs_input",
+        "confidence": "requested",
+        "revision_matched": true,
+        "source_to_submit_ms": 97.73281204979867,
+        "ingest_to_submit_ms": 83.83802103344351,
+        "helper_launch_to_submit_ms": 291.36614594608545
+      },
+      {
+        "hook": "PostToolUse",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 36.42499994020909,
+        "ingest_to_submit_ms": 21.34791691787541,
+        "helper_launch_to_submit_ms": 276.8088539596647
+      },
+      {
+        "hook": "Stop",
+        "expected": "ready",
+        "observed": "ready",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 92.17031195294112,
+        "ingest_to_submit_ms": 76.8666670192033,
+        "helper_launch_to_submit_ms": 312.2187500121072
+      },
+      {
+        "hook": "UserPromptSubmit",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 56.85937497764826,
+        "ingest_to_submit_ms": 40.65052093937993,
+        "helper_launch_to_submit_ms": 227.7744800085202
+      },
+      {
+        "hook": "PermissionRequest",
+        "expected": "needs_input",
+        "observed": "needs_input",
+        "confidence": "requested",
+        "revision_matched": true,
+        "source_to_submit_ms": 34.4968750141561,
+        "ingest_to_submit_ms": 16.179166035726666,
+        "helper_launch_to_submit_ms": 253.80104104988277
+      },
+      {
+        "hook": "PostToolUse",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 54.648958961479366,
+        "ingest_to_submit_ms": 18.01510399673134,
+        "helper_launch_to_submit_ms": 228.62499998882413
+      },
+      {
+        "hook": "Stop",
+        "expected": "ready",
+        "observed": "ready",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 26.430729078128934,
+        "ingest_to_submit_ms": 10.65781305078417,
+        "helper_launch_to_submit_ms": 239.59895805455744
+      },
+      {
+        "hook": "UserPromptSubmit",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 34.2114579398185,
+        "ingest_to_submit_ms": 17.393750022165477,
+        "helper_launch_to_submit_ms": 266.5052079828456
+      },
+      {
+        "hook": "PermissionRequest",
+        "expected": "needs_input",
+        "observed": "needs_input",
+        "confidence": "requested",
+        "revision_matched": true,
+        "source_to_submit_ms": 27.9390619834885,
+        "ingest_to_submit_ms": 10.896353982388973,
+        "helper_launch_to_submit_ms": 256.63854100275785
+      },
+      {
+        "hook": "PostToolUse",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 30.64999997150153,
+        "ingest_to_submit_ms": 14.962500077672303,
+        "helper_launch_to_submit_ms": 189.7854160051793
+      },
+      {
+        "hook": "Stop",
+        "expected": "ready",
+        "observed": "ready",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 27.965104090981185,
+        "ingest_to_submit_ms": 12.098437990061939,
+        "helper_launch_to_submit_ms": 215.5140630202368
+      },
+      {
+        "hook": "UserPromptSubmit",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 28.860416961833835,
+        "ingest_to_submit_ms": 13.956249924376607,
+        "helper_launch_to_submit_ms": 229.8552090069279
+      },
+      {
+        "hook": "PermissionRequest",
+        "expected": "needs_input",
+        "observed": "needs_input",
+        "confidence": "requested",
+        "revision_matched": true,
+        "source_to_submit_ms": 30.158854089677334,
+        "ingest_to_submit_ms": 13.747917022556067,
+        "helper_launch_to_submit_ms": 278.806250076741
+      },
+      {
+        "hook": "PostToolUse",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 32.44427090976387,
+        "ingest_to_submit_ms": 18.44322995748371,
+        "helper_launch_to_submit_ms": 261.9567709043622
+      },
+      {
+        "hook": "Stop",
+        "expected": "ready",
+        "observed": "ready",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 23.999479017220438,
+        "ingest_to_submit_ms": 7.599479053169489,
+        "helper_launch_to_submit_ms": 229.21093797776848
+      },
+      {
+        "hook": "UserPromptSubmit",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 26.552603929303586,
+        "ingest_to_submit_ms": 11.271875002421439,
+        "helper_launch_to_submit_ms": 231.60364595241845
+      },
+      {
+        "hook": "Stop",
+        "expected": "unknown",
+        "observed": "unknown",
+        "confidence": "uncertain",
+        "revision_matched": true,
+        "source_to_submit_ms": 32.482291921041906,
+        "ingest_to_submit_ms": 17.292708973400295,
+        "helper_launch_to_submit_ms": 230.06718792021275
+      },
+      {
+        "hook": "PostToolUse",
+        "expected": "running",
+        "observed": "running",
+        "confidence": "observed",
+        "revision_matched": true,
+        "source_to_submit_ms": 41.73333407379687,
+        "ingest_to_submit_ms": 24.54843802843243,
+        "helper_launch_to_submit_ms": 279.5963541138917
+      }
+    ]
+  },
+  "restoration": {
+    "own_session_and_turn_preserved": true,
+    "gui_ready": true,
+    "processed_equals_submitted": true
+  },
+  "recent_log_errors": [],
+  "limitations": [
+    "Timing ends at native command submission, not Android screen presentation.",
+    "Controlled payload replay includes helper startup, not Codex engine hook dispatch.",
+    "The question-mark badge has not been visually accepted by a person on the device.",
+    "Physical touch gestures were not rechecked; touch implementation is unchanged."
+  ],
+  "software_validation": {
+    "full_unittest_suite": {
+      "passed": true,
+      "tests": 231,
+      "duration_seconds": 118.666
+    },
+    "mypy": {
+      "passed": true,
+      "source_files": 31
+    },
+    "diff_check": {
+      "passed": true
+    }
+  }
+}

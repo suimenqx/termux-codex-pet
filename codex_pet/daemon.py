@@ -12,21 +12,25 @@ import select
 import signal
 import socket
 import threading
+import time
 from typing import Any
 
-from .gui import GuiWorker
+from .gui import GuiWorker, SubmittedStatus
 from .pets import appearance_catalog
 from .preferences import save_appearance, selected_appearance
-from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, directories, notification
+from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, RUNTIME, EVENT_WAKE, directories, notification
+from .delivery import EventJournal
+from .notifications import NotificationDispatcher
 from .state import SessionStore
-from .adapters.codex import direct_event
+from .adapters.codex import BOOT_ID, direct_event
 from .renderer.policy import RendererPolicy
 
 LOGGING = logging.getLogger(__name__)
 
 
 class Daemon:
-    def __init__(self, *, renderer_policy: RendererPolicy | None = None) -> None:
+    def __init__(self, *, renderer_policy: RendererPolicy | None = None,
+                 journal: EventJournal | None = None) -> None:
         self.sessions = SessionStore()
         self.lock = threading.RLock()
         self.gui_ready = False
@@ -36,21 +40,95 @@ class Daemon:
         # Acquire notification_lock only after lock; never hold either for the command.
         self.notification_lock = threading.Lock()
         self.last_notification: tuple[str, str, str] | None = None
+        self.notifications = NotificationDispatcher(lambda *args: notification(*args))
+        self.journal = journal
+        self.receipts: dict[str, dict[str, Any]] = {}
+        self.revision = 0
+        self.last_event: dict[str, Any] = {}
+        self.received_monotonic = 0.0
+        self.delivery_error = ''
+        self.delivery_pending = False
         self.signal_read, self.signal_write = socket.socketpair()
         self.signal_write.setblocking(False)
         self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status, policy=renderer_policy)
 
     def snapshot(self) -> dict[str, Any]:
         with self.lock:
-            return {**self.sessions.snapshot(), "appearance": self.appearance}
+            state = self.sessions.snapshot()
+            if self.delivery_error:
+                state.update(state='unknown', confidence='uncertain', state_reason=self.delivery_error)
+            elif self.delivery_pending:
+                state.update(state='unknown', confidence='uncertain', state_reason='retained events are still replaying')
+            return {**state, "appearance": self.appearance, 'state_revision': self.revision,
+                    'event_id': self.last_event.get('event_id', ''),
+                    'event_timestamp': self.last_event.get('timestamp', 0),
+                    'event_emitted_monotonic': self.last_event.get('emitted_monotonic_ns', 0) / 1_000_000_000
+                    if self.last_event.get('boot_id') == BOOT_ID else 0,
+                    'event_received_monotonic': self.received_monotonic}
+
+    def restore_events(self) -> None:
+        assert self.journal is not None
+        try:
+            saved, self.receipts = self.journal.load()
+            self.sessions = SessionStore.restore(saved)
+        except (OSError, ValueError, TypeError, KeyError) as exc:
+            self.delivery_error = f'session checkpoint unavailable: {exc}'[:180]
+            self.receipts = {}
+            LOGGING.exception('Session checkpoint could not be restored')
+        self.revision = max((receipt.get('revision', 0) for receipt in self.receipts.values()), default=0)
+        self.drain_events()
+
+    def _apply_event(self, event: dict[str, Any]) -> dict[str, Any]:
+        with self.lock:
+            applied = self.sessions.apply(event)
+            self.revision += 1
+            self.last_event = event
+            self.received_monotonic = time.monotonic()
+            receipt = {'applied': applied, 'revision': self.revision}
+            self.receipts[event['event_id']] = receipt
+        return receipt
+
+    def drain_events(self) -> None:
+        if self.journal is None:
+            return
+        try:
+            was_pending = self.delivery_pending
+            pending = self.journal.pending()
+            self.delivery_pending = len(pending) == 256
+            if not pending:
+                if was_pending:
+                    self.gui.wake()
+                return
+            for raw in pending:
+                event = direct_event(raw)
+                if event is None:
+                    raise ValueError('Invalid retained event')
+                if event['event_id'] not in self.receipts:
+                    self._apply_event(event)
+            self.journal.commit(self.sessions.checkpoint(), self.receipts)
+            # A crash between commit and unlink is fenced by persisted receipts.
+            for event in pending:
+                self.journal.remove(event)
+            self.receipts = dict(list(self.receipts.items())[-2048:])
+            self.delivery_error = ''
+            self.gui.wake()
+            self._fallback()
+        except (OSError, ValueError, TypeError) as exc:
+            error = f'event delivery awaiting recovery: {exc}'[:180]
+            if error != self.delivery_error:
+                LOGGING.exception('Could not checkpoint retained events')
+            self.delivery_error = error
+            self.delivery_pending = True
+            self.gui.wake()
+            self._fallback()
 
     def gui_status(self, ready: bool, error: str) -> None:
         with self.lock:
             self.gui_ready = ready
             self.gui_error = error
             if ready:
-                with self.notification_lock:
-                    self.last_notification = None
+                self._clear_fallback()
+                self.notifications.submit(('clear', '', ''))
         if ready:
             LOGGING.info("Termux:GUI overlay ready")
         else:
@@ -60,30 +138,44 @@ class Daemon:
     def _fallback(self) -> None:
         with self.lock:
             if self.gui_ready or self.gui_error == "starting":
+                self._clear_fallback()
                 return
-            snapshot = self.sessions.snapshot()
+            snapshot = self.snapshot()
             if snapshot["state"] not in ("needs_input", "ready"):
+                self._clear_fallback()
                 return
             key = (snapshot["state"], snapshot["project"], snapshot["message"])
             with self.notification_lock:
                 if key == self.last_notification:
                     return
                 self.last_notification = key
-        notification(*key)
+            self.notifications.submit(key)
+
+    def _clear_fallback(self) -> None:
+        with self.notification_lock:
+            if self.last_notification is None:
+                return
+            self.last_notification = None
+        self.notifications.submit(('clear', '', ''))
 
     def status(self) -> dict[str, Any]:
         with self.lock:
-            state = {**self.sessions.snapshot(), "appearance": self.appearance}
+            state = self.snapshot()
             overlay_status = self.gui.overlay_status
             overlay = asdict(overlay_status) if overlay_status is not None else None
+            submitted: SubmittedStatus | None = getattr(self.gui, 'submitted_status', None)
             return {"ok": True, "pid": os.getpid(), "gui_ready": self.gui_ready,
                     "overlay": overlay, "renderer": asdict(self.gui.renderer_status),
-                    "gui_error": self.gui_error, **state}
+                    "gui_error": self.gui_error, **state,
+                    'submitted': asdict(submitted) if submitted is not None else None,
+                    'last_event_applied': self.receipts.get(self.last_event.get('event_id', ''), {}).get('applied'),
+                    'delivery_pending': self.delivery_pending, 'delivery_error': self.delivery_error}
 
     def process(self, payload: Any) -> dict[str, Any]:
         if not isinstance(payload, dict):
             return {"ok": False, "error": "invalid request"}
         action = payload.get("action")
+        self.drain_events()
         if action == "status":
             return self.status()
         if action == "reconnect":
@@ -114,14 +206,18 @@ class Daemon:
             event = direct_event(payload.get("event"))
             if event is None:
                 return {"ok": False, "error": "invalid event"}
-            with self.lock:
-                applied = self.sessions.apply(event)
-                snapshot = self.sessions.snapshot()
-                ready = self.gui_ready
+            if self.journal is not None:
+                self.journal.publish(event)
+                self.drain_events()
+                receipt = self.receipts.get(event['event_id'])
+                if receipt is None or self.delivery_error:
+                    return {'ok': False, 'error': self.delivery_error or 'event retained for retry'}
+            else:
+                receipt = self.receipts.get(event['event_id']) or self._apply_event(event)
             self.gui.wake()
             self._fallback()
-            return {"ok": True, "applied": applied,
-                    "gui_ready": ready, "state": snapshot["state"]}
+            return {"ok": True, **receipt, 'event_id': event['event_id'],
+                    "gui_ready": self.gui_ready, "state": self.snapshot()['state']}
         return {"ok": False, "error": "unknown action"}
 
     def _serve_one(self, listener: socket.socket) -> None:
@@ -158,17 +254,32 @@ class Daemon:
             except FileNotFoundError:
                 pass
             listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            event_wake = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
             inode = None
             try:
                 listener.bind(str(SOCKET))
                 listener.listen(16)
                 inode = SOCKET.stat().st_ino
+                EVENT_WAKE.unlink(missing_ok=True)
+                event_wake.bind(str(EVENT_WAKE))
+                event_wake.setblocking(False)
+                if self.journal is None:
+                    self.journal = EventJournal(RUNTIME)
+                self.restore_events()
                 signal.signal(signal.SIGTERM, self._signal)
                 signal.signal(signal.SIGINT, self._signal)
                 self.gui.start()
                 LOGGING.info("Daemon started pid=%s", os.getpid())
                 while not self.stopping:
-                    readable, _, _ = select.select([listener, self.signal_read], [], [], None)
+                    readable, _, _ = select.select([listener, self.signal_read, event_wake], [], [],
+                                                    (1.0 if self.delivery_error else 0.0) if self.delivery_pending else None)
+                    if event_wake in readable:
+                        try:
+                            while event_wake.recv(4096):
+                                pass
+                        except BlockingIOError:
+                            pass
+                    self.drain_events()
                     if listener in readable:
                         self._serve_one(listener)
                     if self.signal_read in readable:
@@ -176,7 +287,10 @@ class Daemon:
             finally:
                 self.stopping = True
                 self.gui.stop()
+                self.notifications.stop()
                 listener.close()
+                event_wake.close()
+                EVENT_WAKE.unlink(missing_ok=True)
                 try:
                     if inode is not None and SOCKET.stat().st_ino == inode:
                         SOCKET.unlink()

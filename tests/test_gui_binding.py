@@ -100,6 +100,30 @@ def render(renderer, snapshot, frame=0):
 
 
 class GuiBindingTests(unittest.TestCase):
+    def test_unknown_is_visibly_marked_and_submission_diagnostics_wait_for_success(self):
+        snapshot = {'appearance': 'akita', 'state': 'unknown', 'state_revision': 1}
+        frames = []
+        worker = gui.GuiWorker(None, lambda: snapshot, lambda *_: None)
+        worker.ui = SimpleNamespace(present=lambda frame: frames.append(frame))
+        try:
+            worker.refresh(0)
+            self.assertEqual(frames[-1].key[-1], '?')
+            base = worker.source.frame(*frames[-1].key[:3])
+            self.assertNotEqual(frames[-1].pixels, base.pixels)
+            self.assertEqual(worker.submitted_status.revision, 1)
+            snapshot.update(state='running', state_revision=2)
+            worker.ui.present = lambda frame: (_ for _ in ()).throw(OSError('lost connection'))
+            with self.assertRaises(OSError):
+                worker.refresh(.1)
+            self.assertEqual(worker.submitted_status.revision, 1)
+            worker.ui.present = lambda frame: frames.append(frame)
+            worker.refresh(.2)
+            self.assertEqual(worker.submitted_status.revision, 2)
+            self.assertEqual(worker.submitted_status.state, 'running')
+            self.assertEqual(len(frames[-1].key), 3)
+        finally:
+            worker.stop()
+
     def test_hook_wakes_do_not_resend_unchanged_png_frames(self) -> None:
         connection = FakeConnection()
         with tempfile.TemporaryDirectory() as directory, \

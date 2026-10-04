@@ -34,6 +34,16 @@ class OverlayStatus:
     last_touch: str
 
 
+@dataclass(frozen=True)
+class SubmittedStatus:
+    revision: int
+    event_id: str
+    state: str
+    submitted_at: float
+    ingest_to_submit_ms: float | None
+    source_to_submit_ms: float | None
+
+
 class GuiWorker:
     def __init__(self, config_path: Path, snapshot: Callable[[], dict[str, Any]],
                  on_status: Callable[[bool, str], None], *, transport: str = "auto",
@@ -54,6 +64,7 @@ class GuiWorker:
             target=self._run, name="codex-pet-gui", daemon=True)
         self.ui: TermuxGuiRenderer | None = None
         self.overlay_status: OverlayStatus | None = None
+        self.submitted_status: SubmittedStatus | None = None
         self.runtime: PetRuntime | None = None
         self.cache = FrameCache()
         self.source = FrameSource(self.cache)
@@ -146,6 +157,7 @@ class GuiWorker:
                         LOG.exception("Could not close overlay")
                     self.ui = None
                     self.overlay_status = None
+                    self.submitted_status = None
                 if connection is not None:
                     connection.close()
             # Keep retrying a lost GUI connection at a low rate; a Codex event
@@ -196,7 +208,8 @@ class GuiWorker:
     def refresh(self, now: float) -> None:
         """Resolve the latest visible state and submit only its current frame."""
         assert self.ui is not None
-        visual = PetVisual.from_snapshot(self.snapshot())
+        snapshot = self.snapshot()
+        visual = PetVisual.from_snapshot(snapshot)
         if self.runtime is None:
             self.runtime = PetRuntime(visual, now)
         else:
@@ -205,7 +218,19 @@ class GuiWorker:
         request = self.runtime.current()
         base = self.source.frame(
             request.pack_id, request.revision, request.reference)
-        self.ui.present(self.composer.compose(base, request.count))
+        self.ui.present(self.composer.compose(base, request.count, request.marker))
+        submitted_at = time.monotonic()
+        received = snapshot.get('event_received_monotonic', 0)
+        emitted = snapshot.get('event_emitted_monotonic', 0)
+        status = SubmittedStatus(
+            snapshot.get('state_revision', 0), snapshot.get('event_id', ''), visual.state,
+            submitted_at, max(0, (submitted_at - received) * 1000) if received else None,
+            max(0, (submitted_at - emitted) * 1000) if emitted else None)
+        previous = self.submitted_status
+        if previous is None or (previous.revision, previous.state) != (status.revision, status.state):
+            self.submitted_status = status
+            LOG.info('State submitted revision=%s state=%s ingest_ms=%s source_ms=%s',
+                     status.revision, status.state, status.ingest_to_submit_ms, status.source_to_submit_ms)
 
     def handle_input(self, event: TouchInput) -> None:
         """Apply normalized input to position and persistence, on the GUI owner."""

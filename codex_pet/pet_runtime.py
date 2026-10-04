@@ -12,11 +12,13 @@ class PetVisual:
     appearance: str
     state: str
     count: int = 0
+    marker: str = ''
 
     @classmethod
     def from_snapshot(cls, snapshot: dict[str, Any]) -> PetVisual:
         return cls(appearance_for(snapshot.get('appearance')).id,
-                   snapshot['state'], snapshot.get('running_count', 0))
+                   snapshot['state'], snapshot.get('running_count', 0),
+                   '?' if snapshot.get('confidence', 'observed') != 'observed' else '')
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class FrameRequest:
     revision: str
     reference: str
     count: int
+    marker: str = ''
 
 
 class PetRuntime:
@@ -61,4 +64,5 @@ class PetRuntime:
 
     def current(self) -> FrameRequest:
         count = max(0, min(self.visual.count, 10)) if self.visual.state == 'running' else 0
-        return FrameRequest(self.pack.id, self.pack.revision, self.timeline.reference, count if count > 1 else 0)
+        return FrameRequest(self.pack.id, self.pack.revision, self.timeline.reference,
+                            count if count > 1 else 0, self.visual.marker or ('?' if self.visual.state == 'unknown' else ''))

@@ -28,6 +28,7 @@ def isolated_daemon():
         try:
             yield instance
         finally:
+            instance.notifications.stop()
             instance.signal_read.close()
             instance.signal_write.close()
 
@@ -83,10 +84,12 @@ class DaemonNotificationTests(unittest.TestCase):
         with isolated_daemon() as instance, patch.object(daemon, "notification") as notification:
             instance.sessions.apply(needs_input_event())
             instance.gui_status(False, "disconnected")
+            self.assertTrue(instance.notifications.flush(1))
             instance.gui_status(True, "")
             instance.gui_status(False, "disconnected")
+            self.assertTrue(instance.notifications.flush(1))
 
-            self.assertEqual(notification.call_count, 2)
+            self.assertEqual(sum(call.args[0] == 'needs_input' for call in notification.call_args_list), 2)
             self.assertEqual(instance.last_notification,
                              ("needs_input", "repo", "Approve this"))
 
@@ -95,8 +98,9 @@ class DaemonNotificationTests(unittest.TestCase):
             instance.sessions.apply(needs_input_event())
             instance.gui_status(True, "")
             instance._fallback()
+            self.assertTrue(instance.notifications.flush(1))
 
-        notification.assert_not_called()
+        self.assertTrue(all(call.args[0] == 'clear' for call in notification.call_args_list))
 
 
 if __name__ == "__main__":

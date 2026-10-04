@@ -1,5 +1,5 @@
 """Immutable frame loading and decoration through one managed byte budget."""
-from .drawing import robot_pixels, robot_badge, akita_badge
+from .drawing import robot_pixels, robot_badge, akita_badge, uncertainty_badge
 from .frame_cache import FrameCache
 from .pet_pack import bundled_pack
 from .image_codec import decode_png, MAX_DECODE_BYTES
@@ -37,7 +37,14 @@ class FrameComposer:
     def __init__(self, cache: FrameCache | None = None):
         self.cache = cache if cache is not None else FrameCache()
 
-    def compose(self, base: RgbaFrame, count: int) -> RgbaFrame:
+    def compose(self, base: RgbaFrame, count: int, marker: str = '') -> RgbaFrame:
+        if marker:
+            key = (*base.key, marker)
+            pixels = self.cache.get(('derived', key))
+            if pixels is None:
+                pixels = uncertainty_badge(base.width, base.height, base.pixels)
+                self.cache.put(('derived', key), pixels)
+            return RgbaFrame(key, base.width, base.height, pixels)
         if count <= 1:
             return base
         pack, revision, reference = base.key

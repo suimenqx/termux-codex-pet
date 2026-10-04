@@ -2,7 +2,17 @@
 from __future__ import annotations
 import os
 import time
+import hashlib
+import json
+import math
+import uuid
+from pathlib import Path
 from typing import Any
+
+try:
+    BOOT_ID = Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+except OSError:
+    BOOT_ID = ''
 
 # User-facing activity states follow the four states documented for Codex Pets.
 # ``idle`` means there is no active Pet activity; ``end`` is an internal event.
@@ -18,9 +28,10 @@ HOOK_STATES = {
 STATES = {"idle", "running", "needs_input", "ready", "blocked", "end"}
 
 HOOK_KINDS = {"SessionStart": "session_start", "UserPromptSubmit": "turn_start",
-              "PermissionRequest": "activity", "PostToolUse": "activity",
+              "PermissionRequest": "approval_request", "PostToolUse": "tool_finished",
               "Stop": "turn_end", "Interrupt": "turn_end", "SessionEnd": "session_end"}
 KIND_STATES = {"session_start": {"idle"}, "turn_start": {"running"},
+               "approval_request": {"needs_input"}, "tool_finished": {"running"},
                "activity": {"running", "needs_input"}, "turn_end": {"ready", "idle"},
                "session_end": {"end"}, "manual": STATES}
 
@@ -29,6 +40,35 @@ def clean_text(value: Any, limit: int = 160) -> str:
     if not isinstance(value, str):
         return ""
     return " ".join(value.split())[:limit]
+
+
+def _delivery_fields(raw: dict[str, Any]) -> dict[str, Any]:
+    stamp = raw.get('timestamp')
+    try:
+        stamp = float(stamp) if isinstance(stamp, (float, int)) and not isinstance(stamp, bool) else 0
+    except OverflowError:
+        stamp = 0
+    if not math.isfinite(stamp) or stamp <= 0 or stamp > time.time() + 60:
+        stamp = time.time()
+    monotonic = raw.get('emitted_monotonic_ns')
+    if type(monotonic) is not int or not 0 <= monotonic <= 2**63 - 1:
+        monotonic = time.monotonic_ns()
+    return {'event_id': clean_text(raw.get('event_id'), 80) or uuid.uuid4().hex,
+            'timestamp': stamp, 'emitted_monotonic_ns': monotonic,
+            'boot_id': clean_text(raw.get('boot_id'), 80) or BOOT_ID}
+
+
+def _tool_key(raw: dict[str, Any]) -> str:
+    name = clean_text(raw.get('tool_name'), 120)
+    if not name:
+        return ''
+    value = raw.get('tool_input')
+    if isinstance(value, dict):
+        value = {key: val for key, val in value.items() if key != 'description'}
+    # Correlate the actual input, never persist commands or tool secrets.
+    encoded = json.dumps([name, value], sort_keys=True, ensure_ascii=False,
+                         separators=(',', ':')).encode()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def event_from_hook(raw: Any) -> dict[str, Any] | None:
@@ -65,7 +105,9 @@ def event_from_hook(raw: Any) -> dict[str, Any] | None:
         "message": message,
         "starts_turn": name == "UserPromptSubmit",
         "hook_event_name": name,
-        "timestamp": time.time(),
+        "tool_key": _tool_key(raw),
+        "tool_use_id": clean_text(raw.get('tool_use_id'), 120),
+        **_delivery_fields(raw),
     }
 
 
@@ -95,6 +137,7 @@ def direct_event(raw: Any) -> dict[str, Any] | None:
         "message": clean_text(raw.get("message"), 140),
         "starts_turn": kind == "turn_start",
         "hook_event_name": hook_name,
-        "timestamp": time.time(),
+        "tool_key": clean_text(raw.get('tool_key'), 64),
+        "tool_use_id": clean_text(raw.get('tool_use_id'), 120),
+        **_delivery_fields(raw),
     }
-

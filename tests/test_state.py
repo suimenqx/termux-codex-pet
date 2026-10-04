@@ -69,7 +69,7 @@ class StateSynchronizationTests(unittest.TestCase):
         self.assertEqual(store.snapshot()["state"], "running")
         self.assertEqual(store.sessions["thread-1"].turn_id, "turn-2")
 
-    def test_session_priority_matches_official_pet_order(self) -> None:
+    def test_session_priority_preserves_attention_and_live_work(self) -> None:
         store = SessionStore()
         for state, sid in (("running", "run"), ("ready", "ready"),
                            ("blocked", "blocked"), ("needs_input", "input")):
@@ -78,7 +78,7 @@ class StateSynchronizationTests(unittest.TestCase):
         store.sessions.pop("input")
         self.assertEqual(store.snapshot()["state"], "blocked")
         store.sessions.pop("blocked")
-        self.assertEqual(store.snapshot()["state"], "ready")
+        self.assertEqual(store.snapshot()["state"], "running")
 
     def test_hook_payloads_do_not_infer_blocked_from_tool_exit_status(self) -> None:
         parsed = event_from_hook({"hook_event_name": "PostToolUse", "session_id": "thread-1",

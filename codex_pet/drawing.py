@@ -2,6 +2,30 @@
 SIZE = 64
 
 
+def uncertainty_badge(width: int, height: int, source: bytes) -> bytes:
+    """A neutral '?' on the icon distinguishes missing evidence from idle."""
+    pixels = bytearray(source)
+    scale = max(1, round(min(width, height) / 64))
+    cx, cy, radius = width - 9 * scale, 9 * scale, 8 * scale
+    for y in range(max(0, cy - radius), min(height, cy + radius + 1)):
+        for x in range(max(0, cx - radius), min(width, cx + radius + 1)):
+            if (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2:
+                at = (y * width + x) * 4
+                pixels[at:at + 4] = bytes((55, 61, 70, 255))
+    glyph = ('111', '001', '011', '010', '000', '010')
+    for row, line in enumerate(glyph):
+        for col, bit in enumerate(line):
+            if bit != '1':
+                continue
+            for dy in range(scale):
+                for dx in range(scale):
+                    x, y = cx + (col - 1) * scale + dx, cy + (row - 3) * scale + dy
+                    if 0 <= x < width and 0 <= y < height:
+                        at = (y * width + x) * 4
+                        pixels[at:at + 4] = bytes((245, 247, 250, 255))
+    return bytes(pixels)
+
+
 def robot_pixels(state: str, frame: int = 0) -> bytes:
     pixels = bytearray(SIZE * SIZE * 4)
 

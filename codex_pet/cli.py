@@ -206,6 +206,21 @@ def main() -> None:
                   f"pet={result.get('appearance', DEFAULT_APPEARANCE)}; "
                   f"project={result['project']}; sessions={result['session_count']}; "
                   f"running={running_count}")
+            print(f"State evidence={result.get('state_evidence', 'unavailable')}; "
+                  f"confidence={result.get('confidence', 'unknown')}; "
+                  f"ready={result.get('ready_count', 0)}; "
+                  f"pending approvals={result.get('pending_approvals', 0)}")
+            if result.get('state_reason'):
+                print(f"State uncertainty: {result['state_reason']}")
+            submitted = result.get('submitted')
+            if isinstance(submitted, dict):
+                print(f"State revision={result.get('state_revision')}; "
+                      f"submitted revision={submitted.get('revision')}; "
+                      f"source-to-submit ms={submitted.get('source_to_submit_ms')}")
+            if result.get('state') == 'ready':
+                print('Ready means the turn stopped; its success/failure is unknown.')
+            elif result.get('state') == 'needs_input':
+                print('An approval was requested; hooks do not confirm whether a prompt is still open.')
             renderer = result.get('renderer')
             if isinstance(renderer, dict):
                 print(f"Renderer={renderer.get('transport')}; binding={renderer.get('binding_version')}; "

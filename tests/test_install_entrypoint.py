@@ -1,5 +1,6 @@
 """Real installation, hooks, IPC, native-wire output and rollback in a temp home."""
 import hashlib
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -49,6 +50,9 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         notification = self.prefix / 'bin/termux-notification'
         notification.write_text(f'#!{sys.executable}\n')
         notification.chmod(0o700)
+        remover = self.prefix / 'bin/termux-notification-remove'
+        remover.write_text(f'#!{sys.executable}\n')
+        remover.chmod(0o700)
         self.env = {**os.environ, 'HOME': str(self.home), 'PREFIX': str(self.prefix),
                     'PATH': str(self.prefix / 'bin') + os.pathsep + os.environ['PATH'],
                     'PYTHONPATH': str(ROOT), 'PET_TEST_ROOT': str(self.root)}
@@ -228,8 +232,12 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
                 {'action': 'status'})['state'], state)
             from PIL import Image
             with Image.open(self.source / f'codex_pet/assets/akita/frames/{physical}.png') as img:
+                pixels = img.convert('RGBA').tobytes()
+                if state == 'needs_input':
+                    from codex_pet.drawing import uncertainty_badge
+                    pixels = uncertainty_badge(*img.size, pixels)
                 expected = hashlib.sha256(
-                    img.convert('RGBA').tobytes()).hexdigest()
+                    pixels).hexdigest()
             self.wait_for(lambda: any(row.get('rgba_sha256') ==
                           expected for row in self.frames()[offset:]))
         hook('PostToolUse')
@@ -258,6 +266,39 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         hook('SessionEnd', 't2')
         self.assertEqual(self.request({'action': 'status'})[
                          'session_count'], 0)
+
+    def test_retained_stop_replays_without_a_second_hook_and_retry_is_idempotent(self):
+        self.run_command(['bash', self.source / 'install.sh'])
+        self.run_command([self.event], input=json.dumps({
+            'hook_event_name': 'UserPromptSubmit', 'session_id': 'durable', 'turn_id': 't1'}))
+        self.run_command([self.cli, 'stop'])
+        runtime = self.home / '.cache/codex-pet'
+        with (runtime / 'start.lock').open('a+b') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            result = self.run_command([self.event], input=json.dumps({
+                'hook_event_name': 'Stop', 'session_id': 'durable', 'turn_id': 't1'}))
+            self.assertEqual(result.returncode, 0)
+            pending = list((runtime / 'events').glob('*.json'))
+            self.assertEqual(len(pending), 1)
+            stop = json.loads(pending[0].read_text())
+        self.run_command([self.cli, 'start'])
+        ready = self.request({'action': 'status'})
+        self.assertEqual(ready['state'], 'ready')
+        self.assertEqual(list((runtime / 'events').glob('*.json')), [])
+        repeated = self.request({'action': 'event', 'event': stop})
+        self.assertEqual(repeated['revision'], ready['state_revision'])
+        self.assertEqual(repeated['state'], 'ready')
+        self.run_command([self.cli, 'restart'])
+        recovered = self.request({'action': 'status'})
+        self.assertEqual(recovered['state'], 'unknown')
+        self.assertEqual(recovered['confidence'], 'recovered')
+        self.run_command([self.event], input=json.dumps({
+            'hook_event_name': 'UserPromptSubmit', 'session_id': 'durable', 'turn_id': 't2'}))
+        self.wait_for(lambda: self.request({'action': 'status'})['submitted']['revision'] ==
+                      self.request({'action': 'status'})['state_revision'])
+        observed = self.request({'action': 'status'})
+        self.assertEqual(observed['state'], 'running')
+        self.assertIsNotNone(observed['submitted']['source_to_submit_ms'])
 
 
 if __name__ == '__main__':
