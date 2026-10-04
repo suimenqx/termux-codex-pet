@@ -2,11 +2,11 @@
 
 ## 当前结论
 
-v2 的抠图方法比当前生产版明显更好，值得作为下一版的边缘处理基础。重新把 `idle`、`ready`、旧 `running` 和 v2 原尺寸帧放在同一尺度下比较后，不能再把旧 `running` 的包围框当成缩放真值：旧 running 本身就比 ready 偏小。
+v2 的抠图方法比接入前的旧生产版明显更好，值得作为当前 Running 的边缘处理基础。重新把 `idle`、`ready`、旧 `running` 和 v2 原尺寸帧放在同一尺度下比较后，不能再把旧 `running` 的包围框当成缩放真值：旧 running 本身就比 ready 偏小。
 
-因此本轮不缩小 v2。v2 的原始 256×256 帧作为首选评审候选；之前按旧 running 包围框生成的固定缩放版只保留作对照，不作为接入版本。生产素材仍未替换。
+因此本轮不缩小 v2。v2 的原始 256×256 帧作为首选版本；之前按旧 running 包围框生成的固定缩放版只保留作对照。现在已将原尺寸 v2 接入生产 `running`，正在等待设备上的实际尺寸和 Running→Ready 人工复核。
 
-推荐先看 [`review/v2-normalization-compare-192px.png`](review/v2-normalization-compare-192px.png)：它按浅色和深色背景并排显示当前生产、v2 原始、固定缩放 v2，以及从 v2 HD 下采样的结果。三帧抽查见 [`review/v2-normalization-contact-192px.png`](review/v2-normalization-contact-192px.png)。原尺寸首选候选在 [`review/frames_256-v2-raw/`](review/frames_256-v2-raw/)。
+推荐先看 [`review/v2-normalization-compare-192px.png`](review/v2-normalization-compare-192px.png)：它按浅色和深色背景并排显示接入前旧生产、v2 原始、固定缩放 v2，以及从 v2 HD 下采样的结果。三帧抽查见 [`review/v2-normalization-contact-192px.png`](review/v2-normalization-contact-192px.png)。原尺寸首选候选在 [`review/frames_256-v2-raw/`](review/frames_256-v2-raw/)。
 
 ## 输入复核
 
@@ -17,7 +17,7 @@ v2 的抠图方法比当前生产版明显更好，值得作为下一版的边�
 
 ## 测量结果
 
-当前生产 20 帧的 alpha union bbox 为 `[11,29,245,227]`；v2 原始 256 帧为 `[6,30,251,238]`。v2 的 union 宽度/高度分别为 246/209 px，生产为 235/199 px；这只能说明旧 running 的整圈包围框更小，不能证明 v2 应该缩小。
+接入前旧生产 20 帧的 alpha union bbox 为 `[11,29,245,227]`；v2 原始 256 帧为 `[6,30,251,238]`。v2 的 union 宽度/高度分别为 246/209 px，旧生产为 235/199 px；这只能说明旧 running 的整圈包围框更小，不能证明 v2 应该缩小。
 
 抽查同一首帧的有效 alpha 面积如下：
 
@@ -31,7 +31,7 @@ v2 的抠图方法比当前生产版明显更好，值得作为下一版的边�
 
 边缘诊断使用半透明像素到最近不透明内部像素的 RGB 距离，仅用于候选比较，不代替视觉验收：
 
-- 当前生产：半透明像素平均约 2102 个，边缘 RGB 距离均值 68.42；
+- 接入前旧生产：半透明像素平均约 2102 个，边缘 RGB 距离均值 68.42；
 - v2 原始 256：平均约 391 个，边缘 RGB 距离均值 3.74；
 - 固定缩放 v2 256：边缘 RGB 距离均值 19.35，仍明显优于当前生产；
 - 固定缩放 v2 HD 再下采样：边缘 RGB 距离均值 41.06，反而重新引入更多抗锯齿/半透明边缘。
@@ -47,4 +47,4 @@ v2 的抠图方法比当前生产版明显更好，值得作为下一版的边�
 - `source/normalize_v2.py`：不逐帧拟合、不改动作，仅根据两套 20 帧 union bbox 计算一套固定变换，并采用预乘 alpha 重采样。
 - `review/edge-before-after.png`、`review/consistency-192px.png`：v2 原包自带的复核图，已保留在候选目录。
 
-这批候选先验证“v2 边缘方案 + 原尺寸尺度”的组合，未替换 `codex_pet/assets/akita/frames/running/`，未做设备验证，也不能替代人工确认 Running→Ready 的相位衔接。下一步应在 192 px 实际显示尺寸下检查原尺寸 v2 与 `ready` 及 Running→Ready 过渡；若仍有跳变，应以稳定的头部/面部参照重新求一套固定变换，而不是继续沿用旧 running 的整体包围框。
+本次已将原尺寸 v2 的 20 帧写入 `codex_pet/assets/akita/frames/running/`，并同步更新回退图、`pet.json` 的运行版本、来源哈希和跑步审计标记；播放时序仍为 834 ms。下一步应在 192 px/64 dp 实际显示尺寸下检查原尺寸 v2 与 `ready` 及 Running→Ready 过渡；若出现跳变，应以稳定的头部/面部参照重新求一套固定变换，而不是继续沿用旧 running 的整体包围框。设备检查失败时恢复接入前的生产提交即可。

@@ -85,7 +85,7 @@ class AnimationRhythmTests(unittest.TestCase):
         derived = json.loads((ROOT / 'docs/artwork/akita/2026-10-pack/derived-blink.json').read_text())
         blink = production / 'derived/ready-blink.png'
         self.assertEqual(hashlib.sha256(blink.read_bytes()).hexdigest(), derived['png_sha256'])
-        current = json.loads((ROOT / 'docs/artwork/akita/2026-10-grok-run/delivery.json').read_text())
+        current = json.loads((ROOT / 'docs/artwork/akita/2026-10-grok-v2/delivery.json').read_text())
         self.assertEqual(
             hashlib.sha256((production / 'frames/running/19.png').read_bytes()).hexdigest(),
             current['sha256']['frames/running/19.png'],

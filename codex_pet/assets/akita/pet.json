@@ -11,7 +11,7 @@
   ],
   "source": {
     "kind": "png_directory",
-    "running_revision": "2026-10-grok-run",
+    "running_revision": "2026-10-grok-v2",
     "running_cycle_ms": 834,
     "running_source_fps": 24
   },

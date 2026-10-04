@@ -36,8 +36,13 @@ class AkitaBaselineTests(unittest.TestCase):
             *(f'frames/running/{frame:02}.png' for frame in range(20)),
             'running.png',
         })
+        v2 = json.loads((root / 'docs/artwork/akita/2026-10-grok-v2/delivery.json').read_text())
+        self.assertEqual(set(v2['sha256']), {
+            *(f'frames/running/{frame:02}.png' for frame in range(20)),
+            'running.png',
+        })
         self.assertEqual(actual, {**baseline['sha256'], **changes, **collars['sha256'],
-                                  **continuity['sha256'], **grok['sha256'],
+                                  **continuity['sha256'], **grok['sha256'], **v2['sha256'],
                                   'derived/ready-blink.png': derived['png_sha256']})
         original = root / 'docs/artwork/akita/2026-10-local-motion/running-original.png'
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), baseline['sha256']['frames/running/02.png'])

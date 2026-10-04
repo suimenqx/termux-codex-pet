@@ -1,6 +1,6 @@
 {
   "revision": "2026-10-grok-v2-scale-reassessment",
-  "status": "review_only",
+  "status": "integrated_pending_device_review",
   "source_archive": {
     "file": "akita-run-grok-v2.zip",
     "sha256": "8bd86fd3a58d9988a0a219110858f8b948cb62c397961d746b604ab99e06d849"
@@ -39,8 +39,36 @@
     "v2_matte": "promising; fewer semi-transparent edge pixels and lower edge-to-interior colour distance",
     "scale": "the old running state is visibly smaller than ready; do not shrink v2 to the old running union bbox",
     "preferred_source": "v2 native 256 at source scale; normalized 256 is diagnostic only",
-    "production_integration": "not performed",
+    "production_integration": "native v2 256 frames integrated into codex_pet/assets/akita/frames/running and running.png; device visual review pending",
     "device_verification": "pending"
+  },
+  "sha256": {
+    "frames/running/00.png": "89ae95c563e553a3f5f6b11e25edf9a7ceb979f693a03071773e322f50e20f48",
+    "frames/running/01.png": "7448b25df59f146e70dd805fdacc22b7957abf3da11af35a3867ffe62be8dba6",
+    "frames/running/02.png": "3544659329323933c1627306116461cccad870f001a2a50fc5dcaa3f7d035dcb",
+    "frames/running/03.png": "02a41c5dc7fe257badbfa9fa37ee246af6183c8483d9b53e10e7e1a06d2cffe5",
+    "frames/running/04.png": "23ef5910f99bfe96b1ea182204f52b1ffd8609c600f939f75295b1f2521fabd1",
+    "frames/running/05.png": "d0b0956cc3ead091b225e58c5d043c438029babfe1f619b8f55c69f818c37496",
+    "frames/running/06.png": "88575b1baacebd1c44d5909466c985279c2f318ca78d87a7e4a604c7c31f9b65",
+    "frames/running/07.png": "be7941eb6f11a7cba3f38f9e1164c2c4a9feb6b65b78d356706ca6e047e74b8b",
+    "frames/running/08.png": "b18c342a89820b7b0ede1e66111dc7c702207b47c791c41348955dcb53c4d779",
+    "frames/running/09.png": "0199e8cf125bda2622868fbba272949e809d0689e24b9d642cd84a632b2de4da",
+    "frames/running/10.png": "f6d93ec66485b8dbf85c249358a68c863f59f11bc200d8b0e56a0d5e4ed93453",
+    "frames/running/11.png": "6aa02a0d5d15cfba1ec6cc2c2234c32b2c1f58bda11e5a8dbbd3df8a3193340d",
+    "frames/running/12.png": "a98f60e6ae18766e4095f709affbaf37cd72c82a781d12bcb84a7c68651df70a",
+    "frames/running/13.png": "8a8a329417eadff9eb17e9984c57cb6230d76290f2e02485e88147d439eae617",
+    "frames/running/14.png": "da9b2523cb0514aaace16130ca4913630ab08a54857fcc5b8b8ec21d3ec31505",
+    "frames/running/15.png": "2e41e1b2023c3b2b8486a1306d7f218138ed8b2896ae415dbd6577154d785712",
+    "frames/running/16.png": "9a761e9758e8ca72d46f15cd5361a32cb8bc3717ce42cb94eb664fcba5691974",
+    "frames/running/17.png": "a666baf64934bb017f20a7ce968afa85030d3fe6a6d5c396630b318a06953432",
+    "frames/running/18.png": "63f902ce5dc1a6b8a77291b0fa5f8bcdd46a74a935cc260a1ce8b94d43d91a72",
+    "frames/running/19.png": "884b559a33b2de6ac73501cf0f7f19d484330fd88da876e7310575d6a008cb1f",
+    "running.png": "89ae95c563e553a3f5f6b11e25edf9a7ceb979f693a03071773e322f50e20f48"
+  },
+  "rollback": {
+    "previous_production_revision": "2026-10-grok-run",
+    "previous_production_commit": "6b8c343",
+    "scope": "restore only the running frames, running.png, pet.json revision and current-running.json audit record if device review fails"
   },
   "reproducibility_gaps": [
     "raw video/input frames are not inside the supplied archive",
