@@ -73,7 +73,7 @@ codex-pet pet use akita      # 回到原来的秋田犬
 
 本集成的多会话选择顺序为 Needs input、Blocked、Unknown、Running、Ready、Idle。正在工作的会话优先于其他会话已停止的回合，因此 Ready 不会遮盖仍在进行的工作。两个及以上已确认的运行会话会显示数量徽标，`status` 分别报告运行和就绪会话数。
 
-CLI hooks 通过本次开机、PID 和进程启动时间识别所属 Codex 进程。状态和授权项同时按会话与进程隔离：两个 CLI 进程恢复同一线程时，轮次、工具结果和 SessionEnd 不会互相覆盖。本地 app-server 子进程归属于它的 CLI 客户端；失去客户端的孤立 server 不会变成新的客户端实例。daemon 为每个进程监听一个内核退出描述符，因此 CLI 被强杀后，无需最终 hook 或其他会话更新就能清理。退出证据先持久保存再清理，daemon 重启后仍可拒绝该退出进程的迟到 hook。长任务不会按时间过期。
+Hooks 通过本次开机、PID 和进程启动时间识别所属 Codex 进程。状态和授权项同时按会话与进程隔离：两个独立 CLI 进程恢复同一线程时，轮次、工具结果和 SessionEnd 不会互相覆盖。本地 app-server 子进程归属于它的 CLI 客户端；失去客户端的孤立本地 server 不会变成新的客户端实例。Codex 的共享后台 `app-server --managed-daemon` 则直接拥有其 hooks，状态明细标注 `tracking=shared`。同一后台的不同会话分别保存轮次和授权；多个客户端连接同一共享线程时，对应同一份执行状态。共享模式无需添加 `--no-daemon`。终端断开不能证明共享会话已经结束，它的状态随后续 hooks、SessionEnd 或共享后台的已确认退出改变。daemon 为每个事件生产进程监听一个内核退出描述符，因此独立 CLI 或共享后台被强杀后，无需最终 hook 或其他会话更新就能清理。退出证据先持久保存再清理，daemon 重启后仍可拒绝该退出进程的迟到 hook。长任务不会按时间过期。
 
 `codex-pet status` 区分会话数、进程实例数和运行中的会话实例数。**pending approvals total** 是所有条目的授权总数，**selected** 是当前显示条目的数量；逐实例明细列出 PID、会话 ID、项目、状态、可信度和待授权数。明细数量受 IPC 字节预算限制，截断时明确提示，总数仍覆盖全部条目。缺少进程身份的手动或旧版事件继续受支持，并标注 `tracking=legacy`；它们不能删除已有进程身份的条目。若内核退出监听或进程身份无法核实，该条目显示 Unknown，`status` 会说明原因。
 
@@ -107,6 +107,7 @@ codex-pet status
 - **Pet 消失：**先运行 `codex-pet status`；如果已停止，运行 `codex-pet start`。下一个 Codex 事件也会尝试自动拉起 daemon。
 - **显示 `GUI=unavailable`：**检查 Termux:GUI 的悬浮窗权限及两个 App 的签名来源，然后运行 `codex-pet restart`。仍失败时查看 `~/.cache/codex-pet/pet.log`。
 - **`codex-pet test` 正常，但提交 prompt 后没反应：**重启 Codex，运行 `/hooks` 并信任 Pet hooks。根据 `~/.config/codex-pet/install.json` 中的 `hooks_mode` 检查对应配置文件。`codex features list` 应显示 `hooks` 已启用。
+- **Codex 0.160 共享模式下 Pet 一直 Idle、会话数为 0：**在当前源码仓库运行 `bash ./install.sh`。旧版本会把共享后台的 hooks 误判为孤立进程并拒绝接收。部署后下一条 hook 即可更新状态，`status` 明细会显示 `tracking=shared`；单独重启 Pet 不会更新已安装代码。
 - **更新源码后还是旧界面：**在源码仓库中运行 `bash ./install.sh`，部署新版本并重启 daemon。单独运行 `codex-pet restart` 只会重启当前已安装版本。
 - **秋田犬边缘出现彩色噪点：**更新源码后运行 `bash ./install.sh`，部署 PNG 渲染修复并重启 daemon。旧安装版本仍会使用原来的共享缓冲区渲染路径，直到重新部署。
 - **拖动不稳定：**用 `codex-pet status` 确认 `GUI=ready`，再运行 `codex-pet restart`。从 Pet 图标任意位置开始拖动，移动约 6dp 即可。

@@ -107,6 +107,77 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         finally:
             self.temp.cleanup()
 
+    def test_managed_server_hooks_update_independent_threads_and_track_server_exit(self):
+        from codex_pet.adapters.codex import BOOT_ID, event_from_hook
+        from codex_pet.processes import ProcessIdentity, process_stat
+
+        self.run_command(['bash', self.source / 'install.sh'])
+        executable = self.root / 'codex.bin'
+        shutil.copy2(sys.executable, executable)
+        executable.chmod(0o700)
+        # Preserve the real /proc executable and argv contract of a shared
+        # server; the helper, installer, daemon, journal and GUI peer are real.
+        (self.root / 'app-server').write_text('''import json, subprocess, sys
+for line in sys.stdin:
+    result = subprocess.run([sys.argv[-1]], input=line, text=True, capture_output=True)
+    print(json.dumps({'returncode': result.returncode}), flush=True)
+''')
+        server = subprocess.Popen([str(executable), 'app-server', '--listen', 'unix://',
+                                   '--managed-daemon', str(self.event)], cwd=self.root, env=self.env,
+                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  text=True)
+
+        def emit(session, name):
+            raw = {'hook_event_name': name, 'session_id': session, 'turn_id': 'turn',
+                   'cwd': '/probe/shared-server', 'tool_name': 'Bash',
+                   'tool_input': {'command': 'true'}}
+            server.stdin.write(json.dumps(raw) + '\n')
+            server.stdin.flush()
+            self.assertEqual(json.loads(server.stdout.readline())['returncode'], 0)
+
+        try:
+            for session in ('shared-first', 'shared-second'):
+                emit(session, 'UserPromptSubmit')
+                emit(session, 'PermissionRequest')
+            state = self.request({'action': 'status'})
+            self.assertEqual((state['session_count'], state['instance_count'], state['entry_count']), (2, 1, 2))
+            self.assertEqual(state['pending_approvals'], 2)
+            self.assertEqual({row['producer_pid'] for row in state['instances']}, {server.pid})
+            self.assertEqual({row['process_tracking'] for row in state['instances']}, {'shared'})
+            self.assertIn('tracking=shared', self.run_command([self.cli, 'status']).stdout)
+
+            emit('shared-first', 'PostToolUse')
+            self.assertEqual(self.request({'action': 'status'})['pending_approvals'], 1)
+            emit('shared-first', 'SessionEnd')
+            self.assertEqual(self.request({'action': 'status'})['session_id'], 'shared-second')
+            self.run_command([self.cli, 'restart'])
+            restored = self.request({'action': 'status'})
+            self.assertEqual(restored['state'], 'unknown')
+            self.assertEqual(restored['instances'][0]['process_tracking'], 'shared')
+            emit('shared-second', 'PostToolUse')
+            self.assertEqual(self.request({'action': 'status'})['state'], 'running')
+            emit('shared-second', 'Stop')
+            self.wait_for(lambda: self.request({'action': 'status'}).get('submitted', {}).get('state') == 'ready')
+
+            _, ticks, _ = process_stat(server.pid)
+            identity = ProcessIdentity(server.pid, ticks, BOOT_ID)
+            late = event_from_hook({'hook_event_name': 'UserPromptSubmit', 'session_id': 'shared-second',
+                                    'turn_id': 'late', **identity.fields(shared=True)})
+            server.kill()
+            server.wait(timeout=3)
+            self.wait_for(lambda: self.request({'action': 'status'})['entry_count'] == 0)
+            saved = json.loads((self.home / '.cache/codex-pet/state.json').read_text())
+            self.assertIn(identity.fields(shared=True)['instance_id'], saved['state']['closed_instances'])
+            self.run_command([self.cli, 'restart'])
+            self.assertFalse(self.request({'action': 'event', 'event': late})['applied'])
+            self.assertEqual(self.request({'action': 'status'})['entry_count'], 0)
+        finally:
+            if server.poll() is None:
+                server.kill()
+            server.wait(timeout=3)
+            for stream in (server.stdin, server.stdout, server.stderr):
+                stream.close()
+
     def test_real_process_owners_share_thread_without_exit_or_approval_crosstalk(self):
         self.run_command(['bash', self.source / 'install.sh'])
         executable = self.root / 'codex'

@@ -1,0 +1,99 @@
+{
+  "checked_at_utc": "2026-10-05T14:58:39.478056+00:00",
+  "codex_version": "0.160.0",
+  "tracking": "shared",
+  "shared_producer_pid": 16141,
+  "live_hook": {
+    "state": "running",
+    "state_evidence": "PostToolUse",
+    "confidence": "observed",
+    "last_event_applied": true,
+    "session_count": 1,
+    "instance_count": 1,
+    "state_revision": 680,
+    "submitted": {
+      "revision": 680,
+      "event_id": "2b52c7f8f71043ec90905f5563ac0706",
+      "state": "running",
+      "submitted_at": 882255.565786729,
+      "ingest_to_submit_ms": 13.517188024707139,
+      "source_to_submit_ms": 31.448959023691714
+    }
+  },
+  "previous_release_checkpoint_reader": "passed",
+  "controlled_shared_hooks": [
+    {
+      "hook": "SessionStart",
+      "state": "idle",
+      "revision": 682,
+      "submitted_revision": 682,
+      "source_to_submit_ms": 31.933854101225734
+    },
+    {
+      "hook": "UserPromptSubmit",
+      "state": "running",
+      "revision": 683,
+      "submitted_revision": 683,
+      "source_to_submit_ms": 30.485416995361447
+    },
+    {
+      "hook": "PermissionRequest",
+      "state": "needs_input",
+      "revision": 684,
+      "submitted_revision": 684,
+      "source_to_submit_ms": 78.01250007469207
+    },
+    {
+      "hook": "PostToolUse",
+      "state": "running",
+      "revision": 685,
+      "submitted_revision": 685,
+      "source_to_submit_ms": 34.49895896483213
+    },
+    {
+      "hook": "Stop",
+      "state": "ready",
+      "revision": 686,
+      "submitted_revision": 686,
+      "source_to_submit_ms": 88.7250000378117
+    }
+  ],
+  "five_state_demo": {
+    "returncode": 0,
+    "isolated": true,
+    "output": [
+      "Codex Pet running (pid 22693, GUI ready, idle)",
+      "idle (1.4s)",
+      "running (3s)",
+      "needs_input (3s)",
+      "ready icon (persistent until the next event)",
+      "blocked (2.5s)",
+      "Test complete; Pet returned to idle"
+    ]
+  },
+  "physical_touch_rechecked": false,
+  "screen_presentation_observed_by_person": false,
+  "current_session_restored": {
+    "state": "running",
+    "same_turn_id": true,
+    "same_instance_id": true
+  },
+  "automated_validation": {
+    "command": "python -m unittest discover -s tests -v",
+    "tests": 254,
+    "result": "passed",
+    "diff_check": "passed"
+  },
+  "original_reproduction": {
+    "before": {
+      "instance_tracking": "orphan",
+      "applied": false,
+      "state": "idle"
+    },
+    "after": {
+      "process_tracking": "shared",
+      "applied": true,
+      "state": "running"
+    }
+  }
+}

@@ -5,7 +5,7 @@ from dataclasses import asdict, dataclass, field
 import json
 import time
 from typing import Any
-from .adapters.codex import BOOT_ID
+from .adapters.codex import BOOT_ID, SHARED_INSTANCE_PREFIX
 
 PRIORITY = {'needs_input': 6, 'blocked': 5, 'unknown': 4,
             'running': 3, 'ready': 2, 'idle': 1}
@@ -247,7 +247,9 @@ class SessionStore:
                    'confidence': 'uncertain' if value.monitor_error else value.confidence,
                    'state_reason': value.monitor_error or value.reason, 'state_evidence': value.evidence,
                    'pending_approvals': sum(len(times) for times in value.pending_permissions.values()),
-                   'process_tracking': 'unavailable' if value.monitor_error else 'identified' if value.producer_pid else 'legacy'}
+                   'process_tracking': 'unavailable' if value.monitor_error else
+                   'shared' if value.producer_pid and value.instance_id.startswith(SHARED_INSTANCE_PREFIX) else
+                   'identified' if value.producer_pid else 'legacy'}
             size = len(json.dumps(row).encode())
             if len(details) >= 32 or budget + size > 32768:
                 break

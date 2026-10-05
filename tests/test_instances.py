@@ -93,6 +93,42 @@ class InstanceStateTests(unittest.TestCase):
         for key in ('instance_id', 'producer_pid', 'producer_start_ticks', 'producer_boot_id'):
             self.assertEqual(copied[key], original[key])
 
+    def test_shared_server_sessions_keep_independent_approvals_and_session_end(self):
+        instance_id = 'shared:server'
+        owner = dict(instance_tracking='shared', producer_pid=123,
+                     producer_start_ticks=456, producer_boot_id=BOOT_ID)
+        store = SessionStore()
+        for session in ('first', 'second'):
+            store.apply(event('UserPromptSubmit', instance_id, session=session, **owner))
+            store.apply(event('PermissionRequest', instance_id, session=session,
+                              tool_name='Bash', tool_input={'command': 'true'}, **owner))
+        store.apply(event('PostToolUse', instance_id, session='first',
+                          tool_name='Bash', tool_input={'command': 'true'}, **owner))
+        snapshot = store.snapshot()
+        self.assertEqual((snapshot['session_count'], snapshot['instance_count'],
+                          snapshot['pending_approvals']), (2, 1, 1))
+        self.assertEqual({row['process_tracking'] for row in snapshot['instances']}, {'shared'})
+        store.apply(event('SessionEnd', instance_id, '', session='first', **owner))
+        self.assertEqual(store.snapshot()['session_id'], 'second')
+        self.assertEqual(store.snapshot()['state'], 'needs_input')
+        store.close_instance(instance_id)
+        self.assertEqual(store.snapshot()['entry_count'], 0)
+        self.assertFalse(store.apply(event('PostToolUse', instance_id, session='second', **owner)))
+
+    def test_shared_tracking_survives_normalization_and_checkpoint_recovery(self):
+        original = event('UserPromptSubmit', 'shared:server', instance_tracking='shared',
+                         producer_pid=123, producer_start_ticks=456, producer_boot_id=BOOT_ID)
+        copied = direct_event(original)
+        self.assertEqual(copied['instance_tracking'], 'shared')
+        store = SessionStore()
+        store.apply(copied)
+        restored = SessionStore.restore(store.checkpoint())
+        self.assertEqual(restored.snapshot()['instances'][0]['process_tracking'], 'shared')
+        self.assertEqual(restored.snapshot()['state'], 'unknown')
+        restored.apply(event('PostToolUse', 'shared:server', instance_tracking='shared',
+                             producer_pid=123, producer_start_ticks=456, producer_boot_id=BOOT_ID))
+        self.assertEqual(restored.snapshot()['state'], 'running')
+
     def test_legacy_checkpoint_is_upgraded_without_a_ghost_session(self):
         old = SessionStore()
         old.apply(event('UserPromptSubmit', ''))
@@ -129,6 +165,29 @@ class InstanceStateTests(unittest.TestCase):
 
 
 class ProcessOwnershipTests(unittest.TestCase):
+    def test_managed_server_owns_hooks_before_and_after_launcher_exits(self):
+        for parent in (1, 10):
+            with self.subTest(server_parent=parent):
+                stats = {30: (20, 300, 'S'), 20: (parent, 200, 'S'), 10: (1, 100, 'S')}
+                def executable(path):
+                    return '/bin/python' if '/30/' in str(path) else '/bin/codex.bin'
+                def cmdline(path):
+                    return (b'codex\0app-server\0--listen\0unix://\0--managed-daemon\0'
+                            if '/20/' in str(path) else b'codex\0resume\0')
+                with patch('codex_pet.processes.os.getppid', return_value=30), \
+                        patch('codex_pet.processes.process_stat', side_effect=lambda pid: stats[pid]), \
+                        patch('codex_pet.processes.os.readlink', side_effect=executable), \
+                        patch('codex_pet.processes.Path.read_bytes', cmdline):
+                    found = discover_owner()
+                self.assertEqual(found.get('producer_pid'), 20)
+                self.assertEqual(found.get('producer_start_ticks'), 200)
+                self.assertEqual(found.get('instance_tracking'), 'shared')
+                store = SessionStore()
+                value = event('UserPromptSubmit', '', session='live-shared-thread')
+                value.update(found)
+                self.assertTrue(store.apply(direct_event(value)))
+                self.assertEqual(store.snapshot()['state'], 'running')
+
     def test_discovery_selects_cli_client_instead_of_app_server_or_hook_helper(self):
         stats = {30: (20, 300, 'S'), 20: (10, 200, 'S'), 10: (1, 100, 'S')}
         def executable(path):

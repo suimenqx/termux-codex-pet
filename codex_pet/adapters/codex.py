@@ -26,6 +26,7 @@ HOOK_STATES = {
     "SessionEnd": "end",
 }
 STATES = {"idle", "running", "needs_input", "ready", "blocked", "end"}
+SHARED_INSTANCE_PREFIX = 'shared:'
 
 HOOK_KINDS = {"SessionStart": "session_start", "UserPromptSubmit": "turn_start",
               "PermissionRequest": "approval_request", "PostToolUse": "tool_finished",
@@ -64,7 +65,7 @@ def _instance_fields(raw: dict[str, Any]) -> dict[str, Any]:
             'producer_pid': pid if type(pid) is int and 0 < pid < 2**31 else 0,
             'producer_start_ticks': ticks if type(ticks) is int and 0 < ticks < 2**63 else 0,
             'producer_boot_id': clean_text(raw.get('producer_boot_id'), 80),
-            'instance_tracking': 'orphan' if raw.get('instance_tracking') == 'orphan' else ''}
+            'instance_tracking': raw['instance_tracking'] if raw.get('instance_tracking') in ('orphan', 'shared') else ''}
 
 
 def _tool_key(raw: dict[str, Any]) -> str:
