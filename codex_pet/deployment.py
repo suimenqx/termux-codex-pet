@@ -415,6 +415,9 @@ def install_application(source: Path, home: Path, prefix: Path) -> Path:
             _require([local_event], input_text=(
                 '{"hook_event_name":"SessionEnd","session_id":"install-smoke"}\n'
             ))
+            # The smoke session may be the last one. Leave an explicit idle
+            # start for installation/status checks after its automatic exit.
+            _require([local_cli, "start"])
             print("Install and IPC smoke test complete. Review/trust hooks with /hooks in a new Codex session.")
             return release
         except BaseException as install_error:

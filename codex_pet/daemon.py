@@ -37,6 +37,7 @@ class Daemon:
         self.gui_ready = False
         self.gui_error = "starting"
         self.stopping = False
+        self.observed_lifecycle = False
         self.appearance = selected_appearance(CONFIG)
         # Acquire notification_lock only after lock; never hold either for the command.
         self.notification_lock = threading.Lock()
@@ -83,12 +84,24 @@ class Daemon:
     def _apply_event(self, event: dict[str, Any]) -> dict[str, Any]:
         with self.lock:
             applied = self.sessions.apply(event)
+            if event['kind'] != 'manual':
+                self.observed_lifecycle = True
             self.revision += 1
             self.last_event = event
             self.received_monotonic = time.monotonic()
             receipt = {'applied': applied, 'revision': self.revision}
             self.receipts[event['event_id']] = receipt
         return receipt
+
+    def _should_stop_automatically(self) -> bool:
+        with self.lock:
+            return (self.observed_lifecycle and not self.sessions.sessions
+                    and not self.delivery_pending and not self.delivery_error)
+
+    def _stop_if_sessions_ended(self) -> None:
+        if self._should_stop_automatically():
+            LOGGING.info('All observed Codex sessions ended; stopping daemon')
+            self.stopping = True
 
     def _reconcile_processes(self) -> None:
         with self.lock:
@@ -199,6 +212,7 @@ class Daemon:
             overlay = asdict(overlay_status) if overlay_status is not None else None
             submitted: SubmittedStatus | None = getattr(self.gui, 'submitted_status', None)
             return {"ok": True, "pid": os.getpid(), "gui_ready": self.gui_ready,
+                    "stopping": self.stopping or self._should_stop_automatically(),
                     "overlay": overlay, "renderer": asdict(self.gui.renderer_status),
                     "gui_error": self.gui_error, **state,
                     'submitted': asdict(submitted) if submitted is not None else None,
@@ -301,6 +315,9 @@ class Daemon:
                 if self.journal is None:
                     self.journal = EventJournal(RUNTIME)
                 self.restore_events()
+                self._stop_if_sessions_ended()
+                if self.stopping:
+                    return
                 signal.signal(signal.SIGTERM, self._signal)
                 signal.signal(signal.SIGINT, self._signal)
                 self.gui.start()
@@ -319,6 +336,9 @@ class Daemon:
                         self._serve_one(listener)
                     if self.signal_read in readable:
                         self.signal_read.recv(4096)
+                    # Reply to any accepted request and finish durable replay
+                    # before deciding whether the final session has ended.
+                    self._stop_if_sessions_ended()
             finally:
                 self.stopping = True
                 self.gui.stop()

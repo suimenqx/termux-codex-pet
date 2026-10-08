@@ -99,6 +99,21 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
         path = self.root / 'renderer.jsonl'
         return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
 
+    def wait_for_stop(self):
+        # File/lock checks cannot wake the daemon or supply the missing exit
+        # event. Verify both owned sockets and the daemon process are gone.
+        runtime = self.home / '.cache/codex-pet'
+        def stopped():
+            if (runtime / 'pet.sock').exists() or (runtime / 'events.sock').exists():
+                return False
+            with (runtime / 'daemon.lock').open('a+b') as lock:
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    return False
+            return True
+        self.wait_for(stopped)
+
     def tearDown(self):
         try:
             if self.cli.is_file() and 'CODEX_PET_MANAGED' in self.cli.read_text():
@@ -165,12 +180,12 @@ for line in sys.stdin:
                                     'turn_id': 'late', **identity.fields(shared=True)})
             server.kill()
             server.wait(timeout=3)
-            self.wait_for(lambda: self.request({'action': 'status'})['entry_count'] == 0)
+            self.wait_for_stop()
             saved = json.loads((self.home / '.cache/codex-pet/state.json').read_text())
             self.assertIn(identity.fields(shared=True)['instance_id'], saved['state']['closed_instances'])
             self.run_command([self.cli, 'restart'])
             self.assertFalse(self.request({'action': 'event', 'event': late})['applied'])
-            self.assertEqual(self.request({'action': 'status'})['entry_count'], 0)
+            self.wait_for_stop()
         finally:
             if server.poll() is None:
                 server.kill()
@@ -238,6 +253,9 @@ for line in sys.stdin:
             self.assertFalse(self.request({'action': 'event', 'event': replay})['applied'])
             emit(owners[1], 'PostToolUse', 'turn-1')
             self.assertEqual(self.request({'action': 'status'})['state'], 'running')
+            owners[1].kill()
+            owners[1].wait(timeout=3)
+            self.wait_for_stop()
         finally:
             for owner in owners:
                 if owner.poll() is None:
@@ -401,8 +419,31 @@ for line in sys.stdin:
             self.assertEqual(self.request({'action': 'status'})[
                              'state'], 'running')
         hook('SessionEnd', 't2')
-        self.assertEqual(self.request({'action': 'status'})[
-                         'session_count'], 0)
+        self.wait_for_stop()
+        checkpoint = json.loads((self.home / '.cache/codex-pet/state.json').read_text())
+        self.assertEqual(checkpoint['state']['sessions'], {})
+        hook('SessionStart', '')
+        self.assertEqual(self.request({'action': 'status'})['session_count'], 1)
+        hook('SessionEnd', '')
+        self.wait_for_stop()
+
+    def test_retained_final_session_end_exits_on_startup_without_a_gui(self):
+        self.run_command(['bash', self.source / 'install.sh'])
+        self.run_command([self.event], input=json.dumps({
+            'hook_event_name': 'SessionStart', 'session_id': 'last'}))
+        self.run_command([self.cli, 'stop'])
+        runtime = self.home / '.cache/codex-pet'
+        with (runtime / 'start.lock').open('a+b') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            self.run_command([self.event], input=json.dumps({
+                'hook_event_name': 'SessionEnd', 'session_id': 'last'}))
+            self.assertEqual(len(list((runtime / 'events').glob('*.json'))), 1)
+        offset = len(self.frames())
+        self.run_command([sys.executable, self.app / 'current/bin/codex-pet', 'daemon'])
+        self.wait_for_stop()
+        self.assertEqual(list((runtime / 'events').glob('*.json')), [])
+        self.assertEqual(len(self.frames()), offset)
+        self.assertEqual(json.loads((runtime / 'state.json').read_text())['state']['sessions'], {})
 
     def test_retained_stop_replays_without_a_second_hook_and_retry_is_idempotent(self):
         self.run_command(['bash', self.source / 'install.sh'])

@@ -64,8 +64,20 @@ def send_event(event: dict[str, Any], quick: bool = False) -> bool:
         return False
     # Publication precedes the wake/request. A timed-out caller never owns the
     # only copy, and both attempts retain exactly the same identity and time.
-    EventJournal(RUNTIME).publish(normalized)
+    journal = EventJournal(RUNTIME)
+    journal.publish(normalized)
     event = normalized
+
+    def committed() -> bool:
+        # The final SessionEnd can be committed through the datagram wake and
+        # close IPC before its sender gets a reply. Its durable receipt is also
+        # an acknowledgment; do not resurrect the daemon just to retry it.
+        try:
+            _, receipts = journal.load()
+            return event['event_id'] in receipts
+        except (OSError, ValueError, TypeError):
+            return False
+
     with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as wake:
         wake.setblocking(False)
         try:
@@ -80,12 +92,16 @@ def send_event(event: dict[str, Any], quick: bool = False) -> bool:
     except (OSError, ValueError, ConnectionError):
         pass
 
+    if committed():
+        return True
     start_daemon(0.65 if quick else 1.2)
+    if committed():
+        return True
     try:
         reply = request({"action": "event", "event": event}, timeout)
         return bool(reply.get("ok"))
     except (OSError, ValueError, ConnectionError):
-        return False
+        return committed()
 
 
 def _daemon_lock_held() -> bool:
@@ -117,8 +133,10 @@ def start_daemon(wait: float = 0.8) -> dict[str, Any] | None:
             spawned = False
             while time.monotonic() < deadline:
                 try:
-                    return request({"action": "status"},
-                                   min(0.15, deadline - time.monotonic()))
+                    result = request({"action": "status"},
+                                     min(0.15, deadline - time.monotonic()))
+                    if not result.get('stopping'):
+                        return result
                 except (OSError, ValueError, ConnectionError):
                     pass
                 if time.monotonic() >= deadline:

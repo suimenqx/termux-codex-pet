@@ -40,6 +40,14 @@ codex-pet pet use robot
 codex-pet pet use pixel_dog
 ```
 
+When the last observed Codex session ends, Pet automatically closes its overlay
+and exits the daemon. This also works when a tracked CLI or shared server is
+killed without a final hook. Other sessions keep Pet running, and the next Codex
+hook starts it again. In shared mode, closing a TUI alone does not end the
+background session; Pet follows SessionEnd or the shared server's exit. An
+explicit `codex-pet start` with no sessions stays idle for standalone previews
+and `codex-pet test`.
+
 The Pet is a single, roughly 64 dp floating icon. The Akita uses high-resolution, transparent 256 × 256 PNG frames in a cheerful style: a large round cream face, bright orange-red crown with a pale blaze, small upright ears, and an open smile above a compact body. A plain blue collar stays consistent across all states and stopping transitions; expressions and actions convey status. Idle breathes, blinks, and slowly sways its tail through a wider arc; Running now uses twenty source frames over an 834 ms loop from the [Grok v2 running revision](docs/artwork/akita/2026-10-grok-v2/brief.md), with a natural blink retained in frames 15–16. The loop uses the source video's 42/41 ms exposures; it is a visual frame delivery, not a claim of biomechanically certified gait. Needs input gives a gentle paw wave. When Running finishes, Ready first settles and turns toward you over 360 ms, then crouches for one relaxed happy hop. From other states it starts with the crouch, then loops slow breathing, a slow face-only blink, and a gentle tail sway. Blocked plays a short thoughtful head tilt and rests on its final pose. A steady animation clock keeps frame timing consistent while touch events are handled. Hook events that leave the displayed frame unchanged do not resend its PNG. The original robot remains selectable and animated. `codex-pet pet list` shows the catalog and current choice; `codex-pet pet use <id>` switches to any listed appearance. The choice is saved alongside the overlay position in `~/.config/codex-pet/config.json` and changes the live overlay when the daemon is running. Tapping has no action. To move the Pet, drag from anywhere on the icon; it follows your finger after about 6 dp of movement. Releasing saves the position; cancellation or screen-off restores the last saved position. Extra fingers do not start a second drag.
 
 **Pixel Dog** is an additional grey pixel-art dog, imported from [rmazanek's CC0 Dog sprite sheet](https://opengameart.org/content/dog-3). It stands and wags its tail while idle, runs through five original poses at 130 ms each, barks for Needs input, sits down once then wags for Ready, and sits still for Blocked. Its 64×64 transparent frames use the same 64 dp overlay and controls. Select it with `codex-pet pet use pixel_dog`; adding it does not change Akita, Robot or the saved appearance. Source, license, original timing references and reproducible export are recorded in the [import brief](docs/artwork/pixel_dog/2026-10-import/brief.md).
@@ -95,7 +103,7 @@ The [pet image and animation standards](docs/animation-assets.md) cover characte
 
 | State | What you see | When it changes |
 | --- | --- | --- |
-| Idle | Slow breath, occasional blink, and a gentle tail sway | Session starts, ends, or its turn is interrupted |
+| Idle | Slow breath, occasional blink, and a gentle tail sway | Session starts or its turn is interrupted; the final session ending closes Pet |
 | Running | Compact gallop with staggered forepaw and hind-paw motion; a count badge appears with multiple active sessions | You submit a prompt or Codex resumes after a tool call |
 | Needs input | Gentle raised-paw wave | Codex requests tool permission |
 | Ready | A slight crouch and one relaxed hop on entry, then slow breathing, a slow face-only blink, and a gentle tail sway | The turn stops; remains until a later event changes its state or the session ends |

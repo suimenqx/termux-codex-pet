@@ -308,7 +308,9 @@ class ProcessOwnershipTests(unittest.TestCase):
                 with patch.object(daemon.journal, 'commit', side_effect=OSError('full disk')):
                     self.assertEqual(daemon.process({'action': 'status'})['state'], 'unknown')
                     self.assertEqual(len(daemon.journal.pending()), 1)
+                    self.assertFalse(daemon._should_stop_automatically())
                 self.assertEqual(daemon.process({'action': 'status'})['state'], 'idle')
+                self.assertTrue(daemon._should_stop_automatically())
                 saved, _ = daemon.journal.load()
                 self.assertFalse(SessionStore.restore(saved).apply(raw))
                 self.assertEqual(daemon.journal.pending(), [])
