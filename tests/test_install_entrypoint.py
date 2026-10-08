@@ -141,6 +141,11 @@ for line in sys.stdin:
                                    '--managed-daemon', str(self.event)], cwd=self.root, env=self.env,
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                   text=True)
+        # Shared execution remains visible while a native CLI client is alive.
+        # Keep the fixture independent of any Codex client running on the host.
+        client = subprocess.Popen([str(executable), '-c', 'import time; time.sleep(300)'],
+                                  cwd=self.root, env=self.env, stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         def emit(session, name):
             raw = {'hook_event_name': name, 'session_id': session, 'turn_id': 'turn',
@@ -187,6 +192,8 @@ for line in sys.stdin:
             self.assertFalse(self.request({'action': 'event', 'event': late})['applied'])
             self.wait_for_stop()
         finally:
+            client.kill()
+            client.wait(timeout=3)
             if server.poll() is None:
                 server.kill()
             server.wait(timeout=3)

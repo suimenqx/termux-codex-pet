@@ -1,4 +1,4 @@
-"""Codex producer identity and exit descriptors, independent of images and native UI."""
+"""Codex producer/client identities and exit descriptors, independent of native UI."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -67,6 +67,48 @@ def discover_owner() -> dict[str, Any]:
     # An orphaned app-server must not become a fresh CLI instance after its
     # client died. Explicit/manual senders without Codex ancestry stay legacy.
     return {'instance_tracking': 'orphan'} if saw_server else {}
+
+
+def discover_clients() -> tuple[dict[str, ProcessIdentity], str]:
+    """Find this user's native CLI clients; shared servers are not clients.
+
+    Discovery runs on lifecycle/IPC wakes, never on a polling timer. Once
+    discovered, clients use the same verified kernel exit descriptors as
+    producers. Arguments are inspected transiently and never persisted.
+    """
+    clients: dict[str, ProcessIdentity] = {}
+    error = ''
+    if not BOOT_ID:
+        return clients, 'Codex client boot identity cannot be verified'
+    try:
+        for proc in Path('/proc').iterdir():
+            if not proc.name.isdecimal():
+                continue
+            own_process = False
+            try:
+                if proc.stat().st_uid != os.getuid():
+                    continue
+                own_process = True
+                pid = int(proc.name)
+                _, ticks, state = process_stat(pid)
+                if state in ('Z', 'X'):
+                    continue
+                executable = Path(os.readlink(proc / 'exe')).name.removesuffix(' (deleted)')
+                if executable not in ('codex', 'codex.bin'):
+                    continue
+                args = (proc / 'cmdline').read_bytes().split(b'\0')
+                if len(args) > 1 and args[1] in (b'app-server', b'mcp-server'):
+                    continue
+                identity = ProcessIdentity(pid, ticks, BOOT_ID)
+                clients[identity.instance_id] = identity
+            except (FileNotFoundError, ProcessLookupError):
+                pass
+            except (OSError, ValueError, IndexError):
+                if own_process:
+                    error = 'Codex client identity cannot be verified'
+    except OSError:
+        error = 'Codex client discovery unavailable'
+    return clients, error
 
 
 def process_alive(identity: ProcessIdentity) -> bool | None:

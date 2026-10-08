@@ -30,6 +30,7 @@ def isolated_daemon():
         finally:
             instance.notifications.stop()
             instance.processes.close()
+            instance.clients.close()
             instance.signal_read.close()
             instance.signal_write.close()
 

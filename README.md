@@ -43,8 +43,11 @@ codex-pet pet use pixel_dog
 When the last observed Codex session ends, Pet automatically closes its overlay
 and exits the daemon. This also works when a tracked CLI or shared server is
 killed without a final hook. Other sessions keep Pet running, and the next Codex
-hook starts it again. In shared mode, closing a TUI alone does not end the
-background session; Pet follows SessionEnd or the shared server's exit. An
+hook starts it again. In shared mode, Pet also watches native Codex CLI clients:
+closing the last client closes Pet immediately, even while the shared server
+and its sessions remain alive. Another CLI client keeps Pet visible. Background
+hooks without a client are retained without opening an overlay; the next client
+hook starts Pet again with the saved session evidence. An
 explicit `codex-pet start` with no sessions stays idle for standalone previews
 and `codex-pet test`.
 
@@ -111,7 +114,7 @@ The [pet image and animation standards](docs/animation-assets.md) cover characte
 
 With multiple Codex sessions, this integration selects Needs input, Blocked, Unknown, Running, Ready, then Idle. Active work takes precedence over another session's stopped turn, so Ready never implies that other sessions have finished. The mascot shows a count when two or more confirmed sessions are running. `status` reports running and ready counts separately.
 
-Hooks identify their owning Codex process by device boot, PID and process start time. State and approvals are isolated by both session and process: two independent CLI processes can resume the same thread without their turns, tool results or SessionEnd events overwriting one another. A local app-server child is associated with its CLI client; an orphaned local server cannot introduce a new client instance. Codex's shared `app-server --managed-daemon` owns its own hooks and is shown as `tracking=shared`. Its different sessions keep separate turns and approvals; multiple clients attached to the same shared thread observe one execution. Shared mode needs no `--no-daemon` workaround. A terminal disconnect does not prove that a shared session ended: its state follows newer hooks, SessionEnd or the shared server's verified exit. The daemon watches one kernel exit descriptor per producer process, so a killed standalone CLI or shared server is removed without needing a final hook or another session's update. Exit evidence is retained before cleanup and survives daemon restart; a late hook cannot reopen that exited process. Long-running tasks are never expired by time.
+Hooks identify their owning Codex process by device boot, PID and process start time. State and approvals are isolated by both session and process: two independent CLI processes can resume the same thread without their turns, tool results or SessionEnd events overwriting one another. A local app-server child is associated with its CLI client; an orphaned local server cannot introduce a new client instance. Codex's shared `app-server --managed-daemon` owns its own hooks and is shown as `tracking=shared`. Its different sessions keep separate turns and approvals; multiple clients attached to the same shared thread observe one execution. Shared mode needs no `--no-daemon` workaround. The last native CLI client exiting closes Pet without declaring the shared sessions ended: their state still follows newer hooks, SessionEnd or the shared server's verified exit. The daemon watches kernel exit descriptors for producer processes and shared-mode CLI clients, so client closure and a killed standalone CLI or shared server need no final hook or another session's update. Producer exit evidence is retained before cleanup and survives daemon restart; a late hook cannot reopen that exited process. Long-running tasks are never expired by time.
 
 `codex-pet status` distinguishes unique sessions, process instances and running session instances. It reports **pending approvals total** across all entries, **selected** approvals for the displayed entry, and rows with process PID, session ID, project, state, confidence and approval count. Detailed rows are bounded to keep IPC replies within their byte budget; a truncation notice is explicit and totals still include every entry. Manual/legacy events without process identity stay supported and are labelled `tracking=legacy`; they cannot delete a process-qualified entry. If the kernel exit monitor or process identity cannot be verified, that entry becomes Unknown with the reason in `status`.
 

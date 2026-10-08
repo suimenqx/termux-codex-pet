@@ -21,9 +21,9 @@ from .preferences import save_appearance, selected_appearance
 from .runtime import CONFIG, DAEMON_LOCK, LOG, SOCKET, RUNTIME, EVENT_WAKE, directories, notification
 from .delivery import EventJournal
 from .notifications import NotificationDispatcher
-from .processes import ProcessIdentity, ProcessWatcher
+from .processes import ProcessIdentity, ProcessWatcher, discover_clients
 from .state import SessionStore
-from .adapters.codex import BOOT_ID, direct_event
+from .adapters.codex import BOOT_ID, SHARED_INSTANCE_PREFIX, direct_event
 from .renderer.policy import RendererPolicy
 
 LOGGING = logging.getLogger(__name__)
@@ -51,6 +51,8 @@ class Daemon:
         self.delivery_error = ''
         self.delivery_pending = False
         self.processes = ProcessWatcher()
+        self.clients = ProcessWatcher()
+        self.shared_clients_gone = False
         self.signal_read, self.signal_write = socket.socketpair()
         self.signal_write.setblocking(False)
         self.gui = GuiWorker(CONFIG, self.snapshot, self.gui_status, policy=renderer_policy)
@@ -95,13 +97,17 @@ class Daemon:
 
     def _should_stop_automatically(self) -> bool:
         with self.lock:
-            return (self.observed_lifecycle and not self.sessions.sessions
-                    and not self.delivery_pending and not self.delivery_error)
+            sessions = self.sessions.sessions.values()
+            ended = self.observed_lifecycle and not self.sessions.sessions
+            clients_ended = self.shared_clients_gone and all(
+                value.instance_id.startswith(SHARED_INSTANCE_PREFIX) for value in sessions)
+            return (ended or clients_ended) and not self.delivery_pending and not self.delivery_error
 
     def _stop_if_sessions_ended(self) -> None:
         if self._should_stop_automatically():
-            LOGGING.info('All observed Codex sessions ended; stopping daemon')
+            LOGGING.info('Codex sessions ended or last shared CLI client exited; stopping daemon')
             self.stopping = True
+            self._clear_fallback()
 
     def _reconcile_processes(self) -> None:
         with self.lock:
@@ -110,10 +116,19 @@ class Daemon:
                       for value in self.sessions.sessions.values()
                       if value.instance_id and value.producer_pid and value.producer_start_ticks and value.producer_boot_id}
         closed, errors = self.processes.sync(owners)
+        shared = {owner for owner in owners if owner.startswith(SHARED_INSTANCE_PREFIX)}
+        clients, client_error = discover_clients() if shared else ({}, '')
+        if shared:
+            # A transient discovery omission must not discard a verified exit
+            # watch for a still-live client. Only its pidfd can retire it.
+            clients = {**{owner: identity for owner, (identity, _) in self.clients.watches.items()}, **clients}
+        closed_clients, client_errors = self.clients.sync(clients)
+        client_error = client_error or next(iter(client_errors.values()), '').replace('producer', 'client')
         changed = False
         with self.lock:
+            self.shared_clients_gone = bool(shared) and not (clients.keys() - closed_clients.keys()) and not client_error
             for value in self.sessions.sessions.values():
-                error = errors.get(value.instance_id, '')
+                error = errors.get(value.instance_id, '') or (client_error if value.instance_id in shared else '')
                 changed = changed or value.monitor_error != error
                 value.monitor_error = error
         for owner, identity in closed.items():
@@ -184,7 +199,7 @@ class Daemon:
 
     def _fallback(self) -> None:
         with self.lock:
-            if self.gui_ready or self.gui_error == "starting":
+            if self.gui_ready or self.gui_error == "starting" or self._should_stop_automatically():
                 self._clear_fallback()
                 return
             snapshot = self.snapshot()
@@ -323,7 +338,8 @@ class Daemon:
                 self.gui.start()
                 LOGGING.info("Daemon started pid=%s", os.getpid())
                 while not self.stopping:
-                    readable, _, _ = select.select([listener, self.signal_read, event_wake, *self.processes.descriptors], [], [],
+                    readable, _, _ = select.select([listener, self.signal_read, event_wake,
+                                                    *self.processes.descriptors, *self.clients.descriptors], [], [],
                                                     (1.0 if self.delivery_error else 0.0) if self.delivery_pending else None)
                     if event_wake in readable:
                         try:
@@ -342,8 +358,11 @@ class Daemon:
             finally:
                 self.stopping = True
                 self.gui.stop()
+                self._clear_fallback()
+                self.notifications.flush()
                 self.notifications.stop()
                 self.processes.close()
+                self.clients.close()
                 listener.close()
                 event_wake.close()
                 EVENT_WAKE.unlink(missing_ok=True)
