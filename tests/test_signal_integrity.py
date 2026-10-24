@@ -142,6 +142,28 @@ class SignalIntegrityTests(unittest.TestCase):
         self.assertFalse(restored.apply(start))
         self.assertEqual(restored.snapshot()['state'], 'unknown')
 
+    def test_recovered_process_monitor_error_still_takes_priority_over_running(self):
+        store = SessionStore()
+        store.apply(hook('Stop', session='old'))
+        restored = SessionStore.restore(store.checkpoint())
+        restored.sessions['old'].monitor_error = 'Codex producer exit monitoring unavailable'
+        restored.apply(hook('UserPromptSubmit', session='active'))
+        snapshot = restored.snapshot()
+        self.assertEqual(snapshot['state'], 'unknown')
+        self.assertEqual(snapshot['confidence'], 'uncertain')
+        self.assertEqual(snapshot['session_id'], 'old')
+        self.assertIn('exit monitoring unavailable', snapshot['state_reason'])
+
+    def test_ambiguous_fresh_event_still_takes_priority_over_another_running_session(self):
+        store = SessionStore()
+        store.apply(hook('UserPromptSubmit', session='ambiguous'))
+        store.apply(hook('Stop', turn='', session='ambiguous'))
+        store.apply(hook('UserPromptSubmit', session='active'))
+        snapshot = store.snapshot()
+        self.assertEqual(snapshot['state'], 'unknown')
+        self.assertEqual(snapshot['confidence'], 'uncertain')
+        self.assertEqual(snapshot['session_id'], 'ambiguous')
+
 
 class DeliveryIntegrityTests(unittest.TestCase):
     def test_status_reads_one_immutable_submission_during_connection_teardown(self):

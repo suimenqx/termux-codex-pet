@@ -129,6 +129,77 @@ class SharedClientLifecycleTests(unittest.TestCase):
             self.start_session(resumed, server)
             self.assertEqual(resumed.status()['state'], 'running')
 
+    def test_new_thread_controls_overlay_after_other_threads_are_restored(self):
+        from codex_pet.pet_runtime import PetRuntime, PetVisual
+
+        server, client = self.child(), self.child()
+        _, ticks, _ = process_stat(server.pid)
+        owner = ProcessIdentity(server.pid, ticks, BOOT_ID)
+
+        def send(daemon, name, session):
+            event = event_from_hook({
+                'hook_event_name': name, 'session_id': session,
+                'turn_id': 'turn-' + session, 'tool_name': 'Bash',
+                'tool_input': {'command': 'fixture'}, **owner.fields(shared=True)})
+            result = daemon.process({'action': 'event', 'event': event})
+            self.assertTrue(result['ok'])
+            self.assertTrue(result['applied'])
+
+        with tempfile.TemporaryDirectory() as directory, codex_clients(client):
+            journal = EventJournal(Path(directory))
+            with isolated_daemon() as original:
+                original.journal = journal
+                original.gui_ready = True
+                send(original, 'UserPromptSubmit', 'old-ready')
+                send(original, 'Stop', 'old-ready')
+                send(original, 'UserPromptSubmit', 'old-approval')
+                send(original, 'PermissionRequest', 'old-approval')
+
+            with isolated_daemon() as resumed:
+                resumed.journal = journal
+                resumed.gui_ready = True
+                resumed.restore_events()
+                initial = resumed.status()
+                self.assertEqual(initial['state'], 'unknown')
+                self.assertEqual(initial['unknown_count'], 2)
+                self.assertEqual(initial['pending_approvals'], 1)
+                runtime = PetRuntime(PetVisual.from_snapshot(initial), now=1)
+                self.assertEqual(runtime.current().marker, '?')
+
+                for now, (name, expected) in enumerate((
+                        ('SessionStart', 'idle'),
+                        ('UserPromptSubmit', 'running'),
+                        ('PermissionRequest', 'needs_input'),
+                        ('PostToolUse', 'running'),
+                        ('Stop', 'ready'),
+                        ('Interrupt', 'idle')), start=2):
+                    with self.subTest(hook=name):
+                        send(resumed, name, 'current')
+                        status = resumed.status()
+                        self.assertEqual(status['state'], expected)
+                        self.assertEqual(status['session_id'], 'current')
+                        self.assertEqual(status['unknown_count'], 2)
+                        selected_pending = int(expected == 'needs_input')
+                        self.assertEqual(status['pending_approvals'], 1 + selected_pending)
+                        self.assertEqual(status['selected_pending_approvals'], selected_pending)
+                        self.assertEqual(status['entry_count'], 3)
+                        runtime.sync(PetVisual.from_snapshot(status), now=now)
+                        self.assertEqual(runtime.current().marker, '?' if selected_pending else '')
+                        if expected == 'running':
+                            self.assertEqual(runtime.timeline.clip_id, runtime.pack.entry('running'))
+                            first_frame = runtime.current().reference
+                            self.assertIsNotNone(runtime.deadline)
+                            runtime.tick(runtime.deadline)
+                            self.assertNotEqual(runtime.current().reference, first_frame)
+                        old_rows = [row for row in status['instances'] if row['session_id'] != 'current']
+                        self.assertEqual({row['confidence'] for row in old_rows}, {'recovered'})
+
+                send(resumed, 'SessionEnd', 'current')
+                fallback = resumed.status()
+                self.assertEqual(fallback['state'], 'unknown')
+                self.assertEqual(fallback['entry_count'], 2)
+                self.assertEqual(fallback['pending_approvals'], 1)
+
     def test_background_hook_without_clients_is_committed_before_stop(self):
         server = self.child()
         with tempfile.TemporaryDirectory() as directory, codex_clients(), isolated_daemon() as daemon:

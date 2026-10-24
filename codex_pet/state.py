@@ -41,6 +41,14 @@ class Session:
     def visible_state(self) -> str:
         return self.state if not self.monitor_error and self.confidence in ('observed', 'requested') else 'unknown'
 
+    @property
+    def display_priority(self) -> int:
+        # Recovered evidence remains unknown, but only controls the overlay
+        # until a session supplies fresh evidence. Monitor failures still win.
+        if self.confidence == 'recovered' and not self.monitor_error:
+            return 0
+        return PRIORITY[self.visible_state]
+
 
 class SessionStore:
     def __init__(self) -> None:
@@ -237,7 +245,7 @@ class SessionStore:
         counts = {name + '_count': sum(value.visible_state == name for value in self.sessions.values())
                   for name in ('running', 'ready', 'needs_input', 'unknown')}
         rows = sorted(self.sessions.items(), key=lambda item: (
-            PRIORITY[item[1].visible_state], item[1].changed_at), reverse=True)
+            item[1].display_priority, item[1].changed_at), reverse=True)
         details: list[dict[str, Any]] = []
         budget = 0
         for _, value in rows:
