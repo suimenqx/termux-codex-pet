@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 from typing import Iterator
 from uuid import uuid4
@@ -62,12 +63,14 @@ def _copy_entrypoint_backup(source: Path, backup: Path) -> None:
         shutil.copy2(source, backup)
 
 
-def _is_managed_entrypoint(path: Path, name: str, source: Path) -> bool:
+def _is_managed_entrypoint(path: Path, name: str, source: Path, home: Path) -> bool:
     if path.is_symlink():
         raw_target = Path(os.readlink(path))
         if not raw_target.is_absolute():
             raw_target = path.parent / raw_target
-        return raw_target.resolve(strict=False) == (source / "bin" / name).resolve(strict=False)
+        roots = (source, home / "codex-pet", home / "termux-codex-pet")
+        return any(raw_target.resolve(strict=False) == (root / "bin" / name).resolve(strict=False)
+                   for root in roots)
     if not path.is_file():
         return False
     try:
@@ -102,7 +105,7 @@ def _install_entrypoints(source: Path, home: Path) -> None:
     for name in ENTRYPOINTS:
         target = local_bin / name
         backup = backups / name
-        if (target.exists() or target.is_symlink()) and not _is_managed_entrypoint(target, name, source):
+        if (target.exists() or target.is_symlink()) and not _is_managed_entrypoint(target, name, source, home):
             if not backup.exists() and not backup.is_symlink():
                 _copy_entrypoint_backup(target, backup)
 
@@ -205,12 +208,15 @@ def _remove_entrypoints(source: Path, home: Path) -> None:
     backups = home / ".config" / "codex-pet" / "cli-backups"
     for name in ENTRYPOINTS:
         target = local_bin / name
-        if not _is_managed_entrypoint(target, name, source):
+        if not _is_managed_entrypoint(target, name, source, home):
             continue
         target.unlink(missing_ok=True)
         backup = backups / name
         if backup.exists() or backup.is_symlink():
-            os.replace(backup, target)
+            if _is_managed_entrypoint(backup, name, source, home):
+                backup.unlink()
+            else:
+                os.replace(backup, target)
     try:
         backups.rmdir()
     except OSError:
@@ -315,7 +321,7 @@ def _installation_lock(home: Path) -> Iterator[None]:
             fcntl.flock(lock, fcntl.LOCK_UN)
 
 
-def _install_prefix_entrypoints(home: Path, prefix: Path) -> None:
+def _install_prefix_entrypoints(source: Path, home: Path, prefix: Path) -> None:
     local_bin = home / ".local" / "bin"
     prefix_bin = prefix / "bin"
     backups = home / ".config" / "codex-pet" / "cli-backups"
@@ -329,7 +335,8 @@ def _install_prefix_entrypoints(home: Path, prefix: Path) -> None:
         stable = local_bin / name
         backup = backups / f"prefix-{name}"
         if (target.exists() or target.is_symlink()) and not (
-                target.is_symlink() and os.readlink(target) == str(stable)):
+                (target.is_symlink() and os.readlink(target) == str(stable))
+                or _is_managed_entrypoint(target, name, source, home)):
             if not backup.exists() and not backup.is_symlink():
                 _copy_entrypoint_backup(target, backup)
         temporary = prefix_bin / f".{name}.{uuid4().hex}.tmp"
@@ -340,23 +347,29 @@ def _install_prefix_entrypoints(home: Path, prefix: Path) -> None:
             temporary.unlink(missing_ok=True)
 
 
-def _remove_prefix_entrypoints(home: Path, prefix: Path) -> None:
+def _remove_prefix_entrypoints(source: Path, home: Path, prefix: Path) -> None:
     local_bin = home / ".local" / "bin"
     prefix_bin = prefix / "bin"
     backups = home / ".config" / "codex-pet" / "cli-backups"
     for name in ENTRYPOINTS:
         target = prefix_bin / name
-        if not target.is_symlink() or os.readlink(target) != str(local_bin / name):
+        if not ((target.is_symlink() and os.readlink(target) == str(local_bin / name))
+                or _is_managed_entrypoint(target, name, source, home)):
             continue
         target.unlink()
         backup = backups / f"prefix-{name}"
         if backup.exists() or backup.is_symlink():
-            os.replace(backup, target)
+            if ((backup.is_symlink() and os.readlink(backup) == str(local_bin / name))
+                    or _is_managed_entrypoint(backup, name, source, home)):
+                backup.unlink()
+            else:
+                os.replace(backup, target)
 
 
 def _run(command: list[str], *, input_text: str | None = None,
-         quiet: bool = False) -> int:
+         quiet: bool = False, home: Path | None = None) -> int:
     result = subprocess.run(command, input=input_text, text=True, check=False,
+                            env={**os.environ, "HOME": str(home)} if home is not None else None,
                             stdout=subprocess.DEVNULL if quiet else None,
                             stderr=subprocess.DEVNULL if quiet else None)
     return result.returncode
@@ -403,7 +416,7 @@ def install_application(source: Path, home: Path, prefix: Path) -> Path:
                 config.write_text('{"position":{"x":700,"y":420}}\n', encoding="utf-8")
                 config.chmod(0o600)
             release = deploy(source, home)
-            _install_prefix_entrypoints(home, prefix)
+            _install_prefix_entrypoints(source, home, prefix)
             hooks_config.install(home)
             restart_attempted = True
             _require([local_cli, "restart"])
@@ -456,12 +469,11 @@ def uninstall_application(source: Path, home: Path, prefix: Path) -> None:
     """Remove only Pet-owned commands, hooks, runtime releases, and cache files."""
     home, prefix = home.resolve(), prefix.resolve()
     with _installation_lock(home):
-        local_cli = home / ".local" / "bin" / "codex-pet"
-        if _is_managed_entrypoint(local_cli, "codex-pet", source.resolve()):
-            if _run([str(local_cli), "stop"]) != 0:
-                raise RuntimeError("Codex Pet did not stop")
+        # Stop through this checkout even when installed wrappers or runtime links are broken.
         hooks_config.uninstall(home)
-        _remove_prefix_entrypoints(home, prefix)
+        if _run([sys.executable, str(source.resolve() / "bin" / "codex-pet"), "stop"], home=home) != 0:
+            raise RuntimeError("Codex Pet did not stop")
+        _remove_prefix_entrypoints(source.resolve(), home, prefix)
         remove_installation(source, home)
         cache = home / ".cache" / "codex-pet"
         for name in ("pet.sock", "pet.log", "pet.log.1", "pet.log.2",
@@ -471,7 +483,9 @@ def uninstall_application(source: Path, home: Path, prefix: Path) -> None:
             cache.rmdir()
         except OSError:
             pass
-    print("Codex Pet uninstalled. Python dependencies and saved position were kept.")
+    print("Codex Pet uninstalled. Dependencies, saved preferences, local pets, configuration backups "
+          "and remaining cache files were kept.")
+    print("Restart existing Codex sessions to discard any hooks already loaded in memory.")
 
 
 def main() -> None:

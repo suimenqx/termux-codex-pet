@@ -24,6 +24,8 @@ Codex Pet 是一个悬浮在 Android 应用上方的小伙伴形象，默认是�
 
 **让真实 Codex 会话驱动 Pet：**安装后重启 Codex。在新会话中打开 `/hooks` 检查 Pet 命令；若 Codex 提示信任，请先查看再决定。若现有 `~/.codex/config.toml` 已使用内联 hooks，安装器会继续写入该文件；否则使用 `~/.codex/hooks.json`。安装输出会说明采用的方式，也可以查看 `~/.config/codex-pet/install.json` 中的 `hooks_mode`。这些 hooks 只观察事件，不会替你批准或拒绝 Codex 操作。
 
+安装器会识别指向当前仓库、`~/codex-pet` 或 `~/termux-codex-pet` 的旧命令链接，直接迁移为固定入口，不再把旧 Pet 链接误当成用户命令备份。切换到内联 hooks 时，会移除 JSON 文件里的旧 Pet hooks，避免重复执行。
+
 提交 prompt 后显示 **Running**；Codex 请求工具权限时显示 **Needs input**；工具执行并返回后恢复 **Running**；当前回合停止后显示 **Ready**，直到后续事件改变该会话状态或会话结束。
 
 ## 日常操作
@@ -38,6 +40,8 @@ codex-pet pet list    # 查看支持的形象和当前选择
 codex-pet pet use akita
 codex-pet pet use robot
 ```
+
+`stop` 只停止当前 daemon，下一条 Codex hook 仍可重新拉起它。如需继续使用 Codex，同时长期关闭 Pet 省电，请使用文末的卸载命令。
 
 最后一个已观察到的 Codex 会话结束后，Pet 会自动关闭悬浮窗并退出 daemon。
 已跟踪的 CLI 或共享后台被强杀、没有发出最终 hook 时也会自动退出；还有其他
@@ -133,7 +137,9 @@ cd ~/codex-pet
 bash ./uninstall.sh
 ```
 
-卸载脚本会停止 daemon、移除 Pet 命令入口和运行时文件，并且只移除它自己添加的 hooks。Python 依赖、Codex 配置备份以及保存的位置和形象选择会保留，方便以后重新安装。
+卸载脚本会先移除 Pet hooks，再停止 daemon、移除托管命令和运行版本。即使安装清单缺失，也会同时检查两种 hooks 文件；删除可确认归属的 Pet 信任记录，且不会再从命令备份中恢复已识别的旧 Pet 链接。其他 hooks、信任记录及用户命令会保留，修改配置前会备份。可重复卸载；已经运行的 Codex 会话可能缓存旧 hooks，需重新启动会话才能丢弃内存中的配置。
+
+Python 依赖、保存的位置和形象、已导入的本地宠物、配置备份及剩余素材／诊断缓存会保留。这些文件不会在后台运行；以后执行 `bash ./install.sh` 即可重新安装。
 
 ## 许可证
 

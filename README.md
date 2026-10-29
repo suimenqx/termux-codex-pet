@@ -20,7 +20,7 @@ A small mascot that floats over Android apps and shows what Codex CLI is doing. 
    codex-pet test
    ```
 
-The installer installs Python, Pillow (`python-pillow`), and the `termuxgui` Python binding if missing. It copies the app into a versioned runtime under `~/.local/share/codex-pet/`, installs stable command wrappers, merges the Pet hooks into the existing Codex configuration, restarts the daemon, and runs an IPC smoke check. If a checked installation step fails, it restores the prior runtime links, commands, and hook configuration; it restarts the prior daemon when one was running. The editable checkout can then move without changing the installed runtime. It backs up any Codex configuration file it changes. It does not install the Termux:GUI Android app or grant overlay permission. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends. See the [detailed installation and dependency guide](docs/installation.md) for preflight checks, manual recovery commands, expected output, and cases that require the user to act on Android.
+The installer installs Python, Pillow (`python-pillow`), and the `termuxgui` Python binding if missing. It copies the app into a versioned runtime under `~/.local/share/codex-pet/`, installs stable command wrappers, merges the Pet hooks into the existing Codex configuration, restarts the daemon, and runs an IPC smoke check. Legacy command links from this checkout, `~/codex-pet`, or `~/termux-codex-pet` are migrated without treating them as user-command backups. If a checked installation step fails, it restores the prior runtime links, commands, and hook configuration; it restarts the prior daemon when one was running. The editable checkout can then move without changing the installed runtime. It backs up any Codex configuration file it changes. It does not install the Termux:GUI Android app or grant overlay permission. `codex-pet test` demonstrates Idle and the four official activity states; Ready remains visible as an icon until a later event changes it or the session ends. See the [detailed installation and dependency guide](docs/installation.md) for preflight checks, manual recovery commands, expected output, and cases that require the user to act on Android.
 
 **For live Codex events:** restart Codex after installation. In a new session, open `/hooks` to review the Pet commands and trust them if Codex prompts. The installer uses inline hooks in `~/.codex/config.toml` when that config has inline event groups; otherwise it uses `~/.codex/hooks.json`. The install output reports which mode was used. You can inspect `~/.config/codex-pet/install.json` later. Pet hooks only observe events; they never approve or deny Codex actions.
 
@@ -39,6 +39,9 @@ codex-pet pet use akita
 codex-pet pet use robot
 codex-pet pet use pixel_dog
 ```
+
+`stop` ends the current daemon; a later Codex hook can start it again. To keep
+Pet off while continuing to use Codex, use the uninstall command below.
 
 When the last observed Codex session ends, Pet automatically closes its overlay
 and exits the daemon. This also works when a tracked CLI or shared server is
@@ -165,7 +168,17 @@ cd ~/codex-pet
 bash ./uninstall.sh
 ```
 
-This stops the daemon, removes its command wrappers, installed runtime releases, and Pet hook commands. It preserves Python dependencies, Codex configuration backups, and the saved position and appearance for a later reinstall.
+This removes Pet hooks before stopping the daemon, then removes managed commands
+and runtime releases. It checks both hook files even if installation metadata is
+missing, removes identifiable Pet trust records, and never restores recognized
+legacy Pet links from command backups. Other hooks, trust records and user-owned
+commands are preserved; changed configuration files are backed up. Repeating
+uninstall is safe. Restart existing Codex sessions to discard any hooks already
+loaded in memory.
+
+Python dependencies, saved position and appearance, imported local pets,
+configuration backups, and remaining artwork/diagnostic caches are retained.
+These files do not run in the background. Run `bash ./install.sh` to reinstall.
 
 ## License
 

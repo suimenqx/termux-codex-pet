@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import shutil
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -37,6 +38,93 @@ class InstallLifecycleTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+    def test_install_and_uninstall_do_not_restore_legacy_links_from_other_checkouts(self) -> None:
+        local_bin = self.home / ".local/bin"
+        local_bin.mkdir(parents=True)
+        backups = self.home / ".config/codex-pet/cli-backups"
+        backups.mkdir(parents=True)
+        for name in deployment.ENTRYPOINTS:
+            legacy = self.home / "codex-pet/bin" / name
+            (local_bin / name).symlink_to(legacy)
+            (backups / name).symlink_to(legacy)
+            (self.prefix / "bin" / name).symlink_to(self.home / "termux-codex-pet/bin" / name)
+            (backups / f"prefix-{name}").symlink_to(local_bin / name)
+        with patch.object(deployment, "_run", return_value=0):
+            deployment.install_application(self.source, self.home, self.prefix)
+            deployment.uninstall_application(self.source, self.home, self.prefix)
+            deployment.uninstall_application(self.source, self.home, self.prefix)
+        for name in deployment.ENTRYPOINTS:
+            self.assertFalse((local_bin / name).is_symlink())
+            self.assertFalse((self.prefix / "bin" / name).is_symlink())
+            self.assertFalse((backups / name).is_symlink())
+            self.assertFalse((backups / f"prefix-{name}").is_symlink())
+
+    def test_uninstall_broken_legacy_link_stops_through_checkout_in_target_home(self) -> None:
+        local_bin = self.home / ".local/bin"
+        local_bin.mkdir(parents=True)
+        for name in deployment.ENTRYPOINTS:
+            (local_bin / name).symlink_to(self.home / "codex-pet/bin" / name)
+        with patch.object(deployment, "_run", return_value=0) as run:
+            deployment.uninstall_application(self.source, self.home, self.prefix)
+        run.assert_called_once_with([sys.executable, str(self.source / "bin/codex-pet"), "stop"],
+                                    home=self.home)
+        for name in deployment.ENTRYPOINTS:
+            self.assertFalse((local_bin / name).is_symlink())
+
+    def test_foreign_broken_symlink_is_backed_up_and_restored_verbatim(self) -> None:
+        local_bin = self.home / ".local/bin"
+        local_bin.mkdir(parents=True)
+        target = self.root / "user-command/bin/codex-pet"
+        foreign = local_bin / "codex-pet"
+        foreign.symlink_to(target)
+        with patch.object(deployment, "_run", return_value=0):
+            deployment.install_application(self.source, self.home, self.prefix)
+            deployment.uninstall_application(self.source, self.home, self.prefix)
+        self.assertTrue(foreign.is_symlink())
+        self.assertEqual(foreign.readlink(), target)
+
+    def test_uninstall_disables_hooks_before_stopping_daemon(self) -> None:
+        with patch.object(deployment, "_run", return_value=0):
+            deployment.install_application(self.source, self.home, self.prefix)
+
+        def stop(command: list[str], **_kwargs: object) -> int:
+            self.assertEqual(command[-1], "stop")
+            self.assertEqual(json.loads(self.hooks.read_text()), self.user_hooks)
+            return 0
+
+        with patch.object(deployment, "_run", side_effect=stop) as run:
+            deployment.uninstall_application(self.source, self.home, self.prefix)
+        run.assert_called_once()
+
+    def test_failed_stop_keeps_installed_commands_and_runtime_for_recovery(self) -> None:
+        with patch.object(deployment, "_run", return_value=0):
+            release = deployment.install_application(self.source, self.home, self.prefix)
+        with patch.object(deployment, "_run", return_value=1):
+            with self.assertRaisesRegex(RuntimeError, "did not stop"):
+                deployment.uninstall_application(self.source, self.home, self.prefix)
+        self.assertTrue(release.is_dir())
+        self.assertTrue((self.home / ".local/bin/codex-pet").is_file())
+        self.assertTrue((self.prefix / "bin/codex-pet").is_symlink())
+        self.assertEqual(json.loads(self.hooks.read_text()), self.user_hooks)
+
+    def test_failed_legacy_migration_restores_symlinks_and_trust_metadata(self) -> None:
+        local_bin = self.home / ".local/bin"
+        local_bin.mkdir(parents=True)
+        legacy = self.home / "codex-pet/bin/codex-pet"
+        (local_bin / "codex-pet").symlink_to(legacy)
+        toml = self.codex / "config.toml"
+        original = '[hooks.state]\n"user-trust" = { trusted_hash = "keep" }\n'
+        toml.write_text(original)
+
+        def run(command: list[str], **_kwargs: object) -> int:
+            return int(len(command) > 1 and command[1] == "restart")
+
+        with patch.object(deployment, "_run", side_effect=run):
+            with self.assertRaisesRegex(RuntimeError, "restart"):
+                deployment.install_application(self.source, self.home, self.prefix)
+        self.assertEqual((local_bin / "codex-pet").readlink(), legacy)
+        self.assertEqual(toml.read_text(), original)
+
     def test_repeated_install_and_uninstall_preserve_foreign_commands_and_hooks(self) -> None:
         local_bin = self.home / ".local" / "bin"
         local_bin.mkdir(parents=True)
@@ -68,7 +156,7 @@ class InstallLifecycleTests(unittest.TestCase):
         self.assertFalse((self.home / ".config/codex-pet/install.json").exists())
         self.assertTrue((self.home / ".config/codex-pet/config.json").exists())
         self.assertTrue(any(len(command) > 1 and command[1] == "restart" for command in calls))
-        self.assertTrue(any(len(command) > 1 and command[1] == "stop" for command in calls))
+        self.assertTrue(any(command[-1] == "stop" for command in calls))
 
     def test_failed_first_install_restores_hooks_commands_and_release(self) -> None:
         foreign_prefix = self.prefix / "bin" / "codex-pet"

@@ -48,6 +48,8 @@ git -C ~/codex-pet pull --ff-only origin main
 
 如果 `~/.codex/config.toml` 已有内联 hook 事件组，安装器会更新该文件；否则会把 Pet 命令合并到 `~/.codex/hooks.json`。只有 `hooks.state` 元数据并不会触发 inline 模式。已有用户 hooks 会保留，修改过的配置会备份，使用的模式会记录在 `~/.config/codex-pet/install.json`。`import termuxgui` 只验证 Python binding；还需通过 `codex-pet status` 确认设备侧 Android 应用和权限正常，即显示 `GUI=ready`。
 
+安装器会识别指向当前仓库、`~/codex-pet` 和 `~/termux-codex-pet` 的旧命令链接，包括目标已经不存在的链接；迁移时不会把它们备份为用户命令。已有备份中可识别的旧 Pet 命令会在卸载时丢弃，避免重新恢复失效链接。真正的用户命令和无关的失效链接仍会备份并恢复。从 JSON 切换到内联 hooks 时，会移除旧 JSON Pet 命令及其可识别的信任记录，同时保留文件里的其他 hooks。
+
 预期结果：
 
 - `codex-pet status` 显示 `GUI=ready` 和 `pet=akita`。没有活动 Codex 会话时，`state=idle` 是正常结果。
@@ -86,6 +88,16 @@ python -c 'import termuxgui; print(termuxgui.__file__)'
 
 没有 Codex CLI 也能安装 Pet 并演示各状态。要让真实会话驱动状态，请安装并启动 Codex；安装 hooks 后重启 Codex。在新会话中运行 `/hooks` 查看已注册命令。如 Codex 提示信任 hook，应把提示交给用户查看和决定。安装器会把 hook 模式（写入 `~/.codex/config.toml` 的 inline hooks 或 `~/.codex/hooks.json`）记录在 `~/.config/codex-pet/install.json`。
 
-如需卸载，从任一源码仓库运行 `bash ./uninstall.sh`。脚本会停止 daemon，移除 Pet 命令入口、Pet 自己添加的 hooks 和带有标记的运行版本，同时保留 Python 依赖、Codex 配置备份及保存的位置和形象选择。
+## 停止、卸载与重新安装
+
+`codex-pet stop` 会关闭当前 daemon 和悬浮窗，后续 Codex 事件仍可重新拉起它。如需继续使用 Codex，同时长期关闭 Pet 省电，请从源码仓库运行 `bash ./uninstall.sh`。
+
+卸载先移除 `~/.codex/hooks.json` 中的 Pet 命令和 `~/.codex/config.toml` 中带标记的内联 Pet 区块，再停止 daemon、移除托管命令和带标记的运行版本。即使 `install.json` 缺失，只要命令或标记仍可识别，也能清理。对应的 `hooks.state` 信任记录会删除，其他记录和配置会保留。新安装还会在清单中保存 hook ID，以便 hooks 源文件被提前删除后继续清理信任记录。若源文件与清单都已删除，无法可靠确认历史信任记录的归属，会保留这些记录；信任记录本身不会执行命令。JSON／TOML 格式异常或 Pet 标记不完整时，会在删除命令入口前中止清理。可重复卸载。
+
+卸载后需重新启动已有 Codex 会话，因为它们可能保留修改前加载的 hooks。重新加载后的配置不含 Pet hooks；卸载器不会替你重启或终止 Codex。
+
+停止 daemon 时使用当前源码仓库里的 Python CLI，因此固定命令入口或运行版本链接损坏时也能发送停止请求。如果 daemon 无法停止，卸载会报错并保留命令及运行版本，方便修复；此前移除的 hooks 不会重新启用。
+
+保存的位置和形象、本地宠物、Python 依赖、配置备份以及剩余素材／诊断缓存会保留，不会因此运行后台进程。以后运行 `bash ./install.sh` 即可恢复集成，并继续使用保存的偏好与本地宠物库。
 
 图片契约是 sRGB、紧密排列的 straight RGBA8。无颜色标签的 PNG 按素材包声明的 sRGB 解释；ICC、HDR 和不兼容 gamma／色度会被拒绝，不进行隐式颜色转换。运行时不安装 NumPy。本机实测 Python 3.14.6、Pillow 12.3.0、binding 0.1.6、Termux:GUI version 7；其他设备仍需检查本机权限和 GUI。

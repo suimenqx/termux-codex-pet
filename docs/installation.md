@@ -48,6 +48,14 @@ The installer copies the runtime files into a versioned release under `~/.local/
 
 The installer updates `~/.codex/config.toml` when it contains inline hook event groups; otherwise it merges Pet commands into `~/.codex/hooks.json`. A `hooks.state` metadata block alone does not select inline mode. Existing user hooks are preserved, modified files are backed up, and the selected mode is recorded in `~/.config/codex-pet/install.json`. The Python `import termuxgui` check verifies only the binding; `GUI=ready` from `codex-pet status` is the device-side check for the Android app and its permission.
 
+Installation recognizes legacy command symlinks to this checkout, `~/codex-pet`,
+and `~/termux-codex-pet`, including broken links. It replaces those links without
+backing them up as foreign commands. Existing backups of recognized Pet commands
+are discarded during uninstall rather than restored. Genuine user commands,
+including unrelated broken symlinks, are backed up and restored. Switching from
+JSON to inline hooks removes the old JSON Pet commands and their identifiable
+trust records, preserving other hooks in that file.
+
 Expected checks:
 
 - `codex-pet status` reports `GUI=ready` and `pet=akita`. `state=idle` with no active Codex sessions is normal.
@@ -86,6 +94,36 @@ When a command fails, stop at the first failure, capture the exact command and f
 
 The Pet can be installed and its states demoed without Codex CLI. For live states, install and start Codex, then restart it after installing the hooks. In a new Codex session, use `/hooks` to inspect the registered commands. If Codex asks to trust them, show that prompt to the user and let them decide. The installer records whether it used inline hooks in `~/.codex/config.toml` or `~/.codex/hooks.json` in `~/.config/codex-pet/install.json`.
 
-To remove the integration, run `bash ./uninstall.sh` from a checkout. It stops the daemon, removes managed command wrappers, Pet-owned hooks, and marked runtime releases, while preserving Python packages, Codex backups, and saved appearance/position.
+## Stop, uninstall and reinstall
+
+`codex-pet stop` closes the current daemon and overlay. Later Codex events can
+restart it. To keep Pet off for battery savings while using Codex, run
+`bash ./uninstall.sh` from a checkout.
+
+Uninstall first removes Pet hooks from both `~/.codex/hooks.json` and the marked
+inline block in `~/.codex/config.toml`, then stops the daemon and removes managed
+commands and marked runtime releases. It works without `install.json` when the
+Pet command or inline markers remain identifiable. It removes the associated
+`hooks.state` trust entries, preserving other trust entries and configuration.
+New installations also record hook IDs in the manifest so trust can be cleaned
+if the hook source is later deleted. If both source and manifest were deleted,
+historical trust metadata cannot reliably be attributed to Pet and is retained;
+trust metadata alone does not execute commands. Malformed JSON/TOML or incomplete
+Pet markers abort cleanup before deleting command entrypoints. Repeated
+uninstall is safe.
+
+Stopping uses the current checkout's Python CLI, even if the installed commands
+or runtime links are broken. If the daemon cannot be stopped, uninstall reports
+failure and retains commands/releases for recovery; hook declarations already
+removed remain disabled.
+
+Restart already-running Codex sessions after uninstall because they may retain
+hooks loaded before the files changed. Freshly loaded configuration contains no
+Pet hooks. Uninstall does not restart or terminate Codex for you.
+
+Saved preferences, imported local pets, Python packages, configuration backups,
+and remaining artwork/diagnostic caches are retained and do not run background
+processes. Reinstall with `bash ./install.sh`; it restores the integration and
+uses your saved preferences and local pet library.
 
 The image contract is packed straight RGBA8 in sRGB. Untagged PNGs use the pack’s declared sRGB space. ICC, HDR and incompatible gamma/chromaticity are rejected instead of implicitly converted. No NumPy runtime dependency is installed. Measured here: Python 3.14.6, Pillow 12.3.0, binding 0.1.6 and Termux:GUI version 7; other devices still require their own permission and GUI checks.

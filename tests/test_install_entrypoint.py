@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -121,6 +122,43 @@ os.execv(sys.executable, [sys.executable, *sys.argv[1:]])
                                env=self.env, capture_output=True, timeout=20)
         finally:
             self.temp.cleanup()
+
+    def test_legacy_link_and_trust_cleanup_survives_missing_manifest_and_repeated_uninstall(self):
+        self.cli.parent.mkdir(parents=True)
+        backups = self.home / '.config/codex-pet/cli-backups'
+        backups.mkdir()
+        for name in ('codex-pet', 'codex-pet-event'):
+            legacy = self.home / 'codex-pet/bin' / name
+            (self.cli.parent / name).symlink_to(legacy)
+            (backups / name).symlink_to(legacy)
+            (self.prefix / 'bin' / name).symlink_to(self.home / 'termux-codex-pet/bin' / name)
+        self.run_command(['bash', self.source / 'install.sh'])
+        manifest = self.home / '.config/codex-pet/install.json'
+        ids = json.loads(manifest.read_text())['hook_state_ids']
+        user_id = f'{self.hooks}:stop:0:0'
+        config = self.home / '.codex/config.toml'
+        config.write_text('# user settings\n[features]\nhooks = true\n[hooks.state]\n' +
+                          ''.join(f'[hooks.state.{json.dumps(key)}]\ntrusted_hash = "pet"\n'
+                                  for key in ids) +
+                          f'[hooks.state.{json.dumps(user_id)}]\ntrusted_hash = "user"\n')
+        manifest.unlink()
+        # The daemon is still running, but both installed wrappers have been lost.
+        for name in ('codex-pet', 'codex-pet-event'):
+            path = self.cli.parent / name
+            path.unlink()
+            path.symlink_to(self.home / 'codex-pet/bin' / name)
+        self.run_command(['bash', self.source / 'uninstall.sh'])
+        self.run_command(['bash', self.source / 'uninstall.sh'])
+        self.assertEqual(json.loads(self.hooks.read_text()), self.user_hooks)
+        self.assertEqual(tomllib.loads(config.read_text())['hooks']['state'],
+                         {user_id: {'trusted_hash': 'user'}})
+        self.assertFalse(self.cli.is_symlink())
+        self.assertFalse(self.event.is_symlink())
+        for name in ('codex-pet', 'codex-pet-event'):
+            self.assertFalse((self.prefix / 'bin' / name).is_symlink())
+        self.assertFalse((self.home / '.cache/codex-pet/pet.sock').exists())
+        self.assertFalse((self.home / '.cache/codex-pet/events.sock').exists())
+        self.assertFalse(self.app.exists())
 
     def test_managed_server_hooks_update_independent_threads_and_track_server_exit(self):
         from codex_pet.adapters.codex import BOOT_ID, event_from_hook
@@ -414,7 +452,7 @@ for line in sys.stdin:
                              'action': action, 'x': x, 'y': y}}) + '\n')
         self.wait_for(lambda: json.loads(self.config.read_text())
                       ['position'] == {'x': 180, 'y': 300})
-        self.assertTrue(any(row.get('x') == 180 and row.get(
+        self.wait_for(lambda: any(row.get('x') == 180 and row.get(
             'y') == 300 for row in self.frames()))
         status = self.request({'action': 'status'})
         # Start is idempotent at the real lock/process boundary.

@@ -35,6 +35,26 @@ The two `bin` scripts add their containing runtime release to `sys.path`. `insta
 
 Install and uninstall serialize through `~/.config/codex-pet/install.lock`. Installation records the prior managed paths before changing them; a failed checked step restores those paths, removes the new release after the new daemon stops, and restarts the prior daemon if it had been running. Codex configuration backups remain available for inspection.
 
+Entrypoint ownership includes marked wrappers and legacy symlinks to the active
+checkout, `~/codex-pet`, and `~/termux-codex-pet`, even when their target is gone.
+Uninstall never restores those Pet-owned paths from command backups; foreign
+commands and symlinks retain their backup/restore behavior. Hooks are removed
+before daemon stop and command removal. Both hook representations are inspected
+independently of manifest mode; JSON command identity and inline block markers
+establish ownership when the manifest is absent. Exact source/event/group/hook
+IDs identify removable trust metadata. New manifests retain those IDs for a
+missing hook source; IDs now occupied by surviving user hooks are preserved.
+TOML trust edits preserve unrelated text and are checked against the expected
+parsed configuration before writing. Malformed files or marker pairs fail
+before command deletion. Existing Codex sessions must reload their own in-memory
+hooks; uninstall never kills Codex. Local pets, preferences, backups, dependencies
+and remaining artwork/diagnostic caches are retained explicitly.
+
+Daemon stop uses the checkout's Python CLI with the target HOME, so missing or
+broken installed wrappers cannot leave a live daemon behind. A failed stop
+preserves installed commands and releases for recovery; already removed hook
+declarations stay disabled.
+
 `pets.py` owns the supported appearance catalog and default selection. Each validated `pet.json` owns canvas/display dimensions, frame identities and playback. There are no per-appearance art/animation profiles or duplicated geometry in the catalog.
 
 `appearance_catalog()` merges shipped IDs with lightweight local metadata in
@@ -189,6 +209,21 @@ checkout, invalid pack/activation target, failed restart after stopping the old
 daemon, current/previous restoration, explicit rollback and uninstall are
 checked with actual processes/files. The native peer is not an Android rendering
 or resource-leak certificate.
+
+On 2026-10-29, the real Android binding/plugin (0.1.6/7, PNG) also passed
+`bash ./install.sh`, `codex-pet status`, the isolated five-state `codex-pet test`,
+and two successive uninstalls using a temporary HOME and PREFIX. Seeded legacy
+links and Pet trust records were removed; an unrelated hook and trust record
+survived. The final run also deleted the manifest and broke both installed
+wrappers while the daemon was live; uninstall still stopped it through the
+checkout CLI and left no smoke daemon or socket. Recent daemon logs showed all
+five states submitted with no GUI errors. Real-user configuration/command
+snapshots were unchanged and the real installation stayed uninstalled.
+All 296 tests passed (199.662 s). The suite used command-scoped
+`LD_LIBRARY_PATH="$PREFIX/lib"` to avoid Codex's inherited libc++ shadowing
+Termux's NumPy dependency; no global environment was changed. Physical touch
+and Android resource cleanup
+were not rechecked for this installer-only change.
 
 Shared rollout still requires production human checks and independent Android
 window/buffer cleanup observations. Stable local FD/map counts alone are
